@@ -108,5 +108,4 @@ npm-debug.log
 /logs/
 /persistent
 /venv*
-
-
+*-debug.js

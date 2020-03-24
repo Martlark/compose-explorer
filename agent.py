@@ -33,4 +33,4 @@ def route_volume(param):
 
 if __name__ == '__main__':
     print('agent starting')
-    app.run(port=5550)
+    app.run(host='0.0.0.0', port=5550)

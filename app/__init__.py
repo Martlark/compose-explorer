@@ -53,8 +53,10 @@ def create_app():
     ip_ban.load_nuisances()
 
     from app.auth import bp as bp_auth
+    from app.proxy import bp as bp_proxy
 
     app.register_blueprint(bp_auth, url_prefix='/auth')
+    app.register_blueprint(bp_proxy, url_prefix='/proxy')
     app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
 

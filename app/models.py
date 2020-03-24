@@ -62,7 +62,8 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         return found is None
 
     def get(self, d_type, verb):
-        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/d_type/{verb}', auth=('explorer', self.credentials))
+        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
+                         auth=('explorer', self.credentials))
         return r.json()
 
 

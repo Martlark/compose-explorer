@@ -2,10 +2,55 @@
 {% block body %}
     <!-- One -->
     <div class="wrapper">
-        {{ server.id }}
-        {{ server.name }}
-        {{ server.credentials }}
+
+        <div class="inner flex flex-2">
+            <div class="flex-item">
+
+                <h2>{{ server.name }}</h2>
+                <h3 data-bind="text: message"></h3>
+            </div>
+        </div>
     </div>
+    <!-- One -->
+    <div class="wrapper">
+        <div class="inner flex flex-2">
+            <div class="flex-item">
+                <h4>Containers</h4>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: containers">
+                    <tr>
+                        <td data-bind="text:name"></td>
+                        <td data-bind="text:status"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex-item">
+                <h4>Volumes</h4>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: volumes">
+                    <tr>
+                        <td data-bind="text:name"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <input name="server-id" type="hidden" value="{{ server.id }}">
+    <input name="server-name" type="hidden" value="{{ server.name }}">
+    <input name="server-credentials" type="hidden" value="{{ server.credentials }}">
     {% import_js 'pageServer.js' %}
 
 {% endblock %}

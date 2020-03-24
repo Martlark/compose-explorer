@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-bp = Blueprint('auth', __name__)
+bp = Blueprint('proxy', __name__)
 
-from app.auth import routes
+from app.proxy import routes
