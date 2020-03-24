@@ -3,29 +3,25 @@
     <!-- One -->
     <div class="container">
         <h2>{{ server.name }}</h2>
-        <h3>Logs for {{ container_name }}</h3>
+        <h3>{{ container_name }}</h3>
         <h3 data-bind="text: message"></h3>
-        <p data-bind="text: container.status"></p>
+        <p data-bind="text: status"></p>
     </div>
     <!-- One -->
-    <div class="wrapper">
-        <div class="inner flex flex-2">
-            <div class="flex-item">
-                <h3>Log</h3>
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Entries</th>
-                    </tr>
-                    </thead>
-                    <tbody data-bind="foreach: logs">
-                    <tr>
-                        <td data-bind="text:text"></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="container">
+        <h3>Log</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Entries</th>
+            </tr>
+            </thead>
+            <tbody data-bind="foreach: logs">
+            <tr>
+                <td data-bind="text:text"></td>
+            </tr>
+            </tbody>
+        </table>
     </div>
     <input name="server-id" type="hidden" value="{{ server.id }}">
     <input name="container-name" type="hidden" value="{{ container_name }}">

@@ -24,8 +24,7 @@ def route_container(param):
     if param == 'logs':
         container = dc.containers.get(request.args.get('name'))
         params = dict(request.args)
-        del params['name']
-        logs = container.logs(**params).decode()
+        logs = container.logs(tail=int(request.args.get('tail', '100'))).decode()
         logs = [l.strip() for l in logs.split('\n') if l.strip()]
         return jsonify(logs)
     return 'not supported', 400
