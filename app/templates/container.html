@@ -1,34 +1,26 @@
 {% extends "base.html" %}
 {% block body %}
     <!-- One -->
-    <div class="wrapper">
-
-        <div class="inner flex flex-2">
-            <div class="flex-item">
-
-                <h2>{{ server.name }}</h2>
-                <h3 data-bind="text: message"></h3>
-            </div>
-        </div>
+    <div class="container">
+        <h2>{{ server.name }}</h2>
+        <h3>Logs for {{ container_name }}</h3>
+        <h3 data-bind="text: message"></h3>
+        <p data-bind="text: container.status"></p>
     </div>
     <!-- One -->
     <div class="wrapper">
         <div class="inner flex flex-2">
             <div class="flex-item">
-                <h4>Containers</h4>
+                <h3>Log</h3>
                 <table>
                     <thead>
                     <tr>
-                        <th>Project</th>
-                        <th>Name</th>
-                        <th>Status</th>
+                        <th>Entries</th>
                     </tr>
                     </thead>
-                    <tbody data-bind="foreach: containers">
+                    <tbody data-bind="foreach: logs">
                     <tr>
-                        <td data-bind="text:project"></td>
-                        <td><a data-bind="text:name, attr:{href: href}"></a></td>
-                        <td data-bind="text:status"></td>
+                        <td data-bind="text:text"></td>
                     </tr>
                     </tbody>
                 </table>
@@ -36,8 +28,9 @@
         </div>
     </div>
     <input name="server-id" type="hidden" value="{{ server.id }}">
+    <input name="container-name" type="hidden" value="{{ container_name }}">
     <input name="server-name" type="hidden" value="{{ server.name }}">
     <input name="server-credentials" type="hidden" value="{{ server.credentials }}">
-    {% import_js 'pageServer.js' %}
+    {% import_js 'pageContainer.js' %}
 
 {% endblock %}

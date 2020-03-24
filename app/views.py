@@ -2,7 +2,6 @@
 import os
 
 from flask import render_template, request, current_app, Blueprint, send_from_directory
-from flask_login import login_required
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
 from app.models import User, Setting, DockerServer
@@ -34,6 +33,12 @@ def page_index():
 def page_server(item_id):
     server = DockerServer.query.get_or_404(item_id)
     return render_template('server.html', title=server.name, server=server)
+
+
+@bp.route('/container/<int:item_id>/<container_name>')
+def page_container(item_id, container_name):
+    server = DockerServer.query.get_or_404(item_id)
+    return render_template('container.html', title=server.name, server=server, container_name=container_name)
 
 
 @bp.route('/page/<page>')

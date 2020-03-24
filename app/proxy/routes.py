@@ -13,7 +13,7 @@ def route_container(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
     if request.method == 'GET':
         try:
-            result = server.get('container', verb)
+            result = server.get('container', verb, params=request.args)
             return jsonify(result)
         except Exception as e:
             return str(e), 400

@@ -1,16 +1,12 @@
 import docker
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 dc = docker.from_env()
 
 
-def d_serialize(item, attributes=None):
+def d_serialize(item, attributes):
     d = {}
-    if attributes:
-        attributes.extend(['id', 'name'])
-    else:
-        attributes = ['id', 'name']
     attributes.sort()
     for a in attributes:
         d[a] = getattr(item, a, '')
@@ -19,8 +15,19 @@ def d_serialize(item, attributes=None):
 
 @app.route('/container/<param>')
 def route_container(param):
+    attrs = ['id', 'labels', 'name', 'short_id', 'status']
     if param == 'list':
-        return jsonify([d_serialize(d, ['status', 'labels']) for d in dc.containers.list()])
+        return jsonify([d_serialize(d, attrs) for d in dc.containers.list()])
+    if param == 'get':
+        container = dc.containers.get(request.args.get('name'))
+        return d_serialize(container, attrs)
+    if param == 'logs':
+        container = dc.containers.get(request.args.get('name'))
+        params = dict(request.args)
+        del params['name']
+        logs = container.logs(**params).decode()
+        logs = [l.strip() for l in logs.split('\n') if l.strip()]
+        return jsonify(logs)
     return 'not supported', 400
 
 

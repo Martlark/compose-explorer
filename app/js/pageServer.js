@@ -6,8 +6,12 @@ import {ViewBase} from "./views";
 class ContainerModel extends ModelBase {
     constructor(data) {
         super(data);
+        this.server_id = ko.observable(data.server_id);
         this.name = ko.observable(data.name);
         this.status = ko.observable(data.status);
+        this.project = ko.observable(data.labels["com.docker.compose.project"]);
+        this.service = ko.observable(data.labels["com.docker.compose.service"]);
+        this.href = ko.observable(`/container/${this.server_id()}/${this.name()}`);
         this.data = data;
     }
 }
@@ -33,10 +37,13 @@ class ServerViewModel extends ViewBase {
     init() {
         ko.applyBindings(this);
         $.getJSON(`/proxy/container/${this.id()}/list`
-        ).then(result =>
-            result.forEach(data => {
-                this.containers.push(new ContainerModel(data))
-            })
+        ).then(result => {
+                result.forEach(data => {
+                    data.server_id = this.id();
+                    this.containers.push(new ContainerModel(data))
+                });
+                this.containers.sort((l, r) => l.project().localeCompare(r.project()));
+            }
         ).fail((xhr, textStatus, errorThrown) =>
             this.message(`Error getting containers: ${textStatus} - ${errorThrown}`)
         );
@@ -48,7 +55,6 @@ class ServerViewModel extends ViewBase {
         ).fail((xhr, textStatus, errorThrown) =>
             this.message(`Error getting volumes: ${textStatus} - ${errorThrown}`)
         );
-        this.updating = ko.observable(false);
         return this;
     }
 }
