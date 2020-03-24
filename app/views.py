@@ -1,12 +1,11 @@
 # views.py
-import datetime
 import os
 
 from flask import render_template, request, current_app, Blueprint, send_from_directory
 from flask_login import login_required
 
-from app.admin_views import UserAdmin, SettingAdmin
-from app.models import User, Setting
+from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
+from app.models import User, Setting, DockerServer
 from config import STATIC_DIR
 
 bp = Blueprint('main', __name__)
@@ -16,6 +15,7 @@ def admin_views(admin, db):
     # Add Flask-Admin views for Users and Roles
     admin.add_view(UserAdmin(User, db.session, endpoint='user'))
     admin.add_view(SettingAdmin(Setting, db.session, endpoint='setting'))
+    admin.add_view(DockerServerAdmin(DockerServer, db.session, endpoint='docker_server'))
 
 
 @bp.errorhandler(Exception)
@@ -26,7 +26,14 @@ def exception_handler(error):
 
 @bp.route('/')
 def page_index():
-    return page_page(page='index.html', title='EU Passport via Portugal')
+    servers = DockerServer.query.filter_by(active=True).all()
+    return render_template('index.html', title='Docker Explorer', servers=servers)
+
+
+@bp.route('/server/<int:item_id>')
+def page_server(item_id):
+    server = DockerServer.query.get_or_404(item_id)
+    return render_template('server.html', title=server.name, server=server)
 
 
 @bp.route('/page/<page>')

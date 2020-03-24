@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block body %}
+    <!-- One -->
+    <div class="wrapper">
+        {{ server.id }}
+        {{ server.name }}
+        {{ server.credentials }}
+    </div>
+    {% import_js 'pageServer.js' %}
+
+{% endblock %}

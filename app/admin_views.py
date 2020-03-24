@@ -14,6 +14,13 @@ class SettingAdmin(sqla.ModelView):
         return is_current_admin()
 
 
+class DockerServerAdmin(sqla.ModelView):
+
+    # Prevent administration of Users unless the currently logged-in user has the "admin" role
+    def is_accessible(self):
+        return is_current_admin()
+
+
 # Customized User model for SQL-Admin
 class UserAdmin(sqla.ModelView):
     # Don't display the password on the list of Users

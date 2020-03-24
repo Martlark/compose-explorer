@@ -22,21 +22,12 @@ SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT',
                                         'c|3KmqR8~sSjKT/gumounevwoijfds3ri-03490vjndp+,6pc,+/w')
 
-TITLE = "EU Passport via Portugal"
+TITLE = "Docker Explorer"
 
 # email server
-MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.live.com')
-MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
-MAIL_USE_TLS = True
-MAIL_USE_SSL = False
-# docker-compose injected values
-MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'pnchavez@hotmail.com')
-MAIL_RECIPIENT = os.environ.get('MAIL_RECIPIENTS', 'info@eupassportviaportugal.com')
-MAIL_CONTACT = os.environ.get('MAIL_CONTACT', 'info@eupassportviaportugal.com')
-HOST_URL = os.environ.get('HOST_URL', 'https://www.eupassportviaportugal.com')
-MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', '2018Mexico!')
+HOST_URL = os.environ.get('HOST_URL', 'https://www.tba.com')
 GTAG = os.environ.get('GTAG', 'UA-157072071-1')
 
 # administrator list
 # https://admin.google.com/AdminHome?fral=1&pli=1
-ADMINS = ['pnchavez@hotmail.com', 'rowe.andrew.d@gmail.com']
+ADMINS = ['rowe.andrew.d@gmail.com']

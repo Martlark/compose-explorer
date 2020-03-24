@@ -1,6 +1,8 @@
-import string
 import os
 import random
+import string
+
+import requests
 from dateutil import tz
 from flask_login import UserMixin
 from flask_serialize import FlaskSerializeMixin
@@ -17,6 +19,7 @@ FlaskSerializeMixin.db = db
 
 # User class
 class User(db.Model, UserMixin, FlaskSerializeMixin):
+    __tablename__ = 'app_user'
     # Our User has six fields: ID, email, password, active, confirmed_at and roles. The roles field represents a
     # many-to-many relationship using the roles_users table. Each user may have no role, one role, or multiple roles.
     id = db.Column(db.Integer, primary_key=True)
@@ -26,8 +29,8 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     active = db.Column(db.Boolean(), default=True)
 
     @classmethod
-    def name_is_unused(name):
-        user = User.query.filter_by(name=name.lower()).first()
+    def name_is_unused(cls, name):
+        user = cls.query.filter_by(name=name.lower()).first()
         return user is None
 
     def set_password(self, password):
@@ -41,6 +44,26 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         """
 
         return self.password and check_password_hash(self.password, password)
+
+
+# DockerServer class
+class DockerServer(db.Model, FlaskSerializeMixin):
+    __tablename__ = 'docker_server'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    credentials = db.Column(db.String(255))
+    port = db.Column(db.String(255), default=5550)
+    active = db.Column(db.Boolean(), default=True)
+    protocol = 'http'
+
+    @classmethod
+    def name_is_unused(cls, name):
+        found = cls.query.filter_by(name=name.lower()).first()
+        return found is None
+
+    def get(self, d_type, verb):
+        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/d_type/{verb}', auth=('explorer', self.credentials))
+        return r.json()
 
 
 class Setting(db.Model, FlaskSerializeMixin):

@@ -9,9 +9,34 @@
     <meta name="google-site-verification" content="tx_0KNQFBUNxYXk6kQVJHifnQE8whe9yxA-cXCdKIjI"/>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+
     <link rel="stylesheet" href="/static/css/main.css"/>
     <link rel="stylesheet" href="/static/css/base.css"/>
     <link rel="shortcut icon" href="/static/favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/@tko/build.reference@4.0.0-alpha8/dist/build.reference.min.js"></script>
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
+            integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+    <script
+            src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -40,7 +65,6 @@
 <nav id="menu">
     <ul class="links hamburger_menu">
         <li><a href="/">Home</a></li>
-        <li><a href="#footer">Contact Us</a></li>
         {% if current_user.is_anonymous %}
             <li><a href="{{ url_for('auth.login') }}">Login</a></li>
         {% else %}
@@ -59,7 +83,7 @@
         <div class="inner">
         </div>
         <div class="copyright">
-            &copy; eupassportviaportugal.com. Design <a href="https://templated.co">TEMPLATED</a>, <a
+            &copy; Andrew Rowe. Design <a href="https://templated.co">TEMPLATED</a>, <a
                 href="http://fountofcreativity.com">Fount of Creativity</a> and <a href="{{ config.HOST_URL }}">Andrew
             Rowe</a>. Images <a href="https://unsplash.com">Unsplash</a>, <a
                 href="{{ config.HOST_URL }}">{{ config.TITLE }}</a>.
@@ -67,7 +91,6 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/jquery.scrolly.min.js"></script>
     <script src="/static/js/skel.min.js"></script>
     <script src="/static/js/util.js"></script>
@@ -92,6 +115,7 @@
 
 {% endblock %}
 </div>
+{% import_js 'base.js' %}
 </body>
 
 </html>

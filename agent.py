@@ -32,4 +32,5 @@ def route_volume(param):
 
 
 if __name__ == '__main__':
-    app.run()
+    print('agent starting')
+    app.run(port=5550)

@@ -1,18 +1,15 @@
 from flask import Flask, request, render_template
 from flask_admin import Admin
 import os
-import logging
 from flask_ipban import IpBan
 from flask_sqlalchemy import SQLAlchemy
-from logging.handlers import RotatingFileHandler
-from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+from app.custom_tags import ImportJs
 
 db = SQLAlchemy()
-admin = Admin(name='eupassportviaportugal', template_mode='bootstrap3')
-mail = Mail()
+admin = Admin(name='docker-explorer', template_mode='bootstrap3')
 migrate = Migrate()
 login_manager = LoginManager()
 csrf = CSRFProtect()
@@ -39,7 +36,6 @@ def create_app():
     ensure_folder(os.path.join(app.config['BASEDIR'], 'db'))
     db.init_app(app)
     admin.init_app(app)
-    mail.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -60,6 +56,7 @@ def create_app():
 
     app.register_blueprint(bp_auth, url_prefix='/auth')
     app.register_blueprint(bp_main)
+    app.jinja_env.add_extension(ImportJs)
 
     @app.errorhandler(404)
     def page_not_found_404(e):
