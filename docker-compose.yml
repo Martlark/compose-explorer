@@ -1,0 +1,28 @@
+know:
+        build: .
+        ports:
+                - 8083:80
+        environment:
+                - IP_HEADER=X_TRUE_IP
+                - ADMIN_USER=info@eupassportviaportugal.com
+                - ADMIN_PASSWORD=jfduy4hnb5
+                - ABUSE_IPDB_KEY=c18b20b24d8ce9e43e98198f088610b77ea8b0a88f624ec6db3e3ba3ef87fde40ef4dbb7785476e7
+                - DEPLOYMENT=Prod
+                - DATABASE_URI=sqlite:////app/db/app.db?check_same_thread=False
+                - SECRET_KEY=0948jfsdhhreoiucmhrgcwe32b32
+                - TZ=Australia/ACT
+                - GOOGLE_SITE_VERIFICATION=tx_0KNQFBUNxYXk6kQVJHifnQE8whe9yxA-cXCdKIjI
+                - MAIL_CONTACT=info@eupassportviaportugal.com
+                - HOST_URL=https://www.eupassportviaportugal.com
+                - SECURITY_PASSWORD_SALT=c|3KmqR8~sSjKT/gumounevwoijfds3ri-03490vjndp+,6pc,+/w
+                - GTAG=UA-157072071-1
+                # for sending email
+                - MAIL_SERVER=smtp.live.com
+                - MAIL_PORT=587
+                - MAIL_USERNAME=pnchavez@hotmail.com
+                - MAIL_PASSWORD=2019Hamilton!
+                - MAIL_RECIPIENT=info@eupassportviaportugal.com
+        volumes:
+                - ./persistent/db:/app/db
+        restart: unless-stopped
+

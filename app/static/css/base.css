@@ -1,0 +1,276 @@
+/* Banner */
+
+#banner {
+    padding: 14em 0 12em 0;
+    background-image: url(/static/images/banner.jpg);
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    text-align: center;
+}
+
+#banner .content {
+    -moz-transition: opacity 1s ease-in-out, -moz-transform 0.75s ease-in-out;
+    -webkit-transition: opacity 1s ease-in-out, -webkit-transform 0.75s ease-in-out;
+    -ms-transition: opacity 1s ease-in-out, -ms-transform 0.75s ease-in-out;
+    transition: opacity 1s ease-in-out, transform 0.75s ease-in-out;
+    opacity: 1;
+}
+
+#banner h1 {
+    font-size: 3em;
+    color: #25a2c3;
+    line-height: 1em;
+    margin: 0 0 0.5em 0;
+    padding: 0;
+}
+
+#banner p {
+    font-size: 1.25em;
+    margin-bottom: 1.75em;
+}
+
+@media screen and (max-width: 1280px) {
+
+    #banner {
+        background-image: url(/static/images/banner-mobile.jpg);
+        padding: 12em 0 10em 0;
+    }
+
+}
+
+@media screen and (max-width: 980px) {
+
+    #banner {
+        padding: 8em 6em 6em 6em;
+    }
+
+    #banner br {
+        display: none;
+    }
+
+    #banner h1 {
+        font-size: 2.25em;
+    }
+
+}
+
+@media screen and (max-width: 736px) {
+
+    #banner {
+        padding: 6em 4em 4em 4em;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+
+    #banner {
+        padding: 4em 2em 2em 2em;
+    }
+
+    #banner h1 {
+        font-size: 2em;
+    }
+
+    #banner p {
+        font-size: 1em;
+    }
+
+    #banner .button {
+        font-size: .9em;
+    }
+
+}
+
+body.is-loading #banner .content {
+    opacity: 0;
+    -moz-transform: translateY(1em);
+    -webkit-transform: translateY(1em);
+    -ms-transform: translateY(1em);
+    transform: translateY(1em);
+}
+
+#banner .content {
+    padding: 13em;
+}
+
+/* responsive styles */
+
+@media screen and (max-width: 1280px) {
+
+    #one .flex-item.left div:first-child, #one .flex-item.right div:first-child {
+        padding-top: 0;
+    }
+
+    #one .flex-item.left div p, #one .flex-item.right div p {
+        margin-bottom: 0;
+    }
+
+}
+
+@media screen and (max-width: 980px) {
+
+    #one .inner {
+        margin-bottom: 0;
+    }
+
+    #one .flex-item {
+        -moz-flex-direction: column;
+        -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    #one .flex-item.left br, #one .flex-item.right br {
+        display: none;
+    }
+
+    #one .flex-item.left div:first-child, #one .flex-item.right div:first-child {
+        padding-top: 0;
+    }
+
+    #one .flex-item.left div:last-child, #one .flex-item.right div:last-child {
+        -moz-align-self: center;
+        -webkit-align-self: center;
+        -ms-align-self: center;
+        align-self: center;
+    }
+
+    #one .flex-item.left div p, #one .flex-item.right div p {
+        margin-bottom: 2em;
+    }
+
+}
+
+#one .image.fit {
+    margin: 0;
+}
+
+@media screen and (max-width: 980px) {
+
+    #one .image.fit {
+        margin: 0 auto 2em auto;
+        max-width: 60%;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+
+    #one .image.fit {
+        margin: 0 auto 2em auto;
+        max-width: 90%;
+    }
+
+}
+
+@media screen and (max-width: 980px) {
+
+    #two blockquote br {
+        display: none;
+    }
+
+}
+
+@media screen and (max-width: 980px) {
+
+    #three {
+        text-align: center;
+    }
+
+}
+
+/* Footer */
+
+#footer {
+    padding: 6em 0 4em 0;
+    background: teal;
+    text-align: center;
+    color: #c8e7f0;
+}
+
+#footer h2 {
+    color: #fff;
+}
+
+#footer .icon {
+    color: #f6755e;
+}
+
+#footer a {
+    color: #c8e7f0;
+    text-decoration: none;
+}
+
+#footer ul li {
+    padding: 0 2em;
+}
+
+#footer .copyright {
+    display: inline-block;
+    color: #a7d9e7;
+    font-size: 0.75em;
+    margin: 0 0 2em 0;
+    padding: 0;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 2em 10em;
+}
+
+#enquiry-form input, textarea {
+    background-color: white;
+    color: black;
+}
+
+#enquiry-form label {
+    color: white;
+}
+
+#message {
+    background: #ceff3a;
+    padding: 1em;
+    border: solid black 2px;
+}
+
+@media screen and (max-width: 980px) {
+
+    #footer {
+        padding: 3em 0 1em 0;
+    }
+
+    #footer ul li {
+        display: block;
+        padding: .25em 0;
+    }
+
+}
+
+@media screen and (max-width: 736px) {
+
+    #footer .copyright {
+        padding: 2em 5em;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+
+    #footer {
+        padding: 2em 0 0.1em 0;
+    }
+
+    #footer ul li {
+        font-size: .9em;
+    }
+
+    #footer ul li .icon:before {
+        margin-left: -1em;
+    }
+
+    #footer .copyright {
+        padding: 2em 0;
+    }
+
+}

@@ -1,0 +1,13 @@
+Flask>=1.1.1
+Flask-Admin>=1.5.5
+Flask-Login==0.5.0
+Flask-Mail==0.9.1
+Flask-SQLAlchemy>=2.4.1
+Flask-WhooshAlchemy==0.56
+Flask-WTF>=0.14.3
+Flask-Serialize
+python-dateutil>=2.8.1
+flask_migrate>=2.5.3
+WTForms>=2.2.1
+Flask-IpBan>=1.0.13
+docker>=4.2.0

@@ -1,0 +1,11 @@
+/persistent
+/venv*
+/images
+/tmp
+app.db
+Dockerfile
+/logs
+docker-compose.yml
+/__pychache__
+*.pyc
+
