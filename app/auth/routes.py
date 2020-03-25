@@ -29,6 +29,7 @@ def login():
                 return redirect(url_for('auth.login'))
 
         login_user(user, remember=True)
+        flash('Welcome!')
         next_page = url_for('main.page_index')
         return redirect(next_page)
 

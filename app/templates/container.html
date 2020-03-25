@@ -2,19 +2,16 @@
 {% block body %}
     <!-- One -->
     <div class="container">
-        <h2>{{ server.name }}</h2>
-        <h3>{{ container_name }}</h3>
+        <h2>{{ server.name }}: {{ container_name }}</h2>
         <h3 data-bind="text: message"></h3>
         <p data-bind="text: status"></p>
     </div>
     <!-- One -->
     <div class="container">
         <h3>Log</h3>
+
         <table>
             <thead>
-            <tr>
-                <th>Entries</th>
-            </tr>
             </thead>
             <tbody data-bind="foreach: logs">
             <tr>
@@ -22,6 +19,9 @@
             </tr>
             </tbody>
         </table>
+        <hr>
+        <label for="autoRefresh">Auto Refresh</label><input id="autoRefresh" type="checkbox"
+                                                            data-bind="checked: refreshLogs">
     </div>
     <input name="server-id" type="hidden" value="{{ server.id }}">
     <input name="container-name" type="hidden" value="{{ container_name }}">

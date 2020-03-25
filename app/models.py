@@ -66,6 +66,14 @@ class DockerServer(db.Model, FlaskSerializeMixin):
                          auth=('explorer', self.credentials), params=params)
         return r.json()
 
+    def get_summary(self):
+        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
+                         auth=('explorer', self.credentials))
+        summary = dict(containers=0, volumes=0)
+        for c in r.json():
+            summary['containers']+=1
+        return summary
+
 
 class Setting(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)

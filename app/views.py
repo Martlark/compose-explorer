@@ -1,7 +1,8 @@
 # views.py
 import os
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory
+from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
+from flask_login import logout_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
 from app.models import User, Setting, DockerServer
@@ -26,7 +27,10 @@ def exception_handler(error):
 @bp.route('/')
 def page_index():
     servers = DockerServer.query.filter_by(active=True).all()
-    return render_template('index.html', title='Docker Explorer', servers=servers)
+    listing = []
+    for server in servers:
+        listing.append(dict(summary = server.get_summary(), server=server))
+    return render_template('index.html', title='Docker Explorer', servers=listing)
 
 
 @bp.route('/server/<int:item_id>')
@@ -49,6 +53,13 @@ def page_page(page, title=''):
 @bp.route('/login')
 def public_page_login():
     return render_template("auth/login.html")
+
+
+@bp.route('/logout')
+def public_page_logout():
+    logout_user()
+    flash('You have been logged out')
+    return render_template("auth/logout.html")
 
 
 @bp.route('/favicon.ico')

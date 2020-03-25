@@ -1,12 +1,22 @@
 {% extends "base.html" %}
 {% block body %}
     <!-- One -->
-    <div class="wrapper">
-        <ul>
-            {% for server in servers %}
-                <li><a href="{{ url_for('main.page_server', item_id=server.id )}}">{{ server.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Containers</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for server in servers %}
+            <tr>
+                <td><a href="{{ url_for('main.page_server', item_id=server.server.id ) }}">{{ server.server.name }}</a>
+                </td>
+                <td>{{ server.summary.containers }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
 {% endblock %}
