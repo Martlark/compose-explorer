@@ -1,121 +1,87 @@
-<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#">
-    <meta property="og:title" content="{{ config.TITLE }}"/>
-    <meta property="og:description"
-          content="{{ config.TITLE }}"/>
-    <meta property="og:url" content="http://www.eupassportviaportugal.com"/>
-    <meta property="og:image" content="{{ config.HOST_URL }}/images/portugal-passport.jpg"/>
-
-    <title>{{ config.TITLE }} {{ title }}</title>
-    <meta name="google-site-verification" content="tx_0KNQFBUNxYXk6kQVJHifnQE8whe9yxA-cXCdKIjI"/>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
+<!doctype html>
+<html lang="en">
+<head>
+    <title>{{ page_title }}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-          rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/css/main.css"/>
-    <link rel="stylesheet" href="/static/css/base.css"/>
-    <link rel="shortcut icon" href="/static/favicon.ico">
-    <script src="https://cdn.jsdelivr.net/npm/@tko/build.reference@4.0.0-alpha8/dist/build.reference.min.js"></script>
-    <script
-            src="https://code.jquery.com/jquery-3.3.1.min.js"
-            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-            crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-            crossorigin="anonymous"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
-            integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
-    <script
-            src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-            crossorigin="anonymous"></script>
-
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/static/css/main.css" rel="stylesheet">
 </head>
 <body>
-<div class="container" id="wrap">
+
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark mb-4">
+    <a class="navbar-brand" href="/">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+            {% if current_user.is_anonymous %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.public_page_login') }}">Login</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('main.public_page_logout') }}">Logout</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a id="dropdown1" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+                       aria-expanded="false" href="#">Admin</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown1">
+                        {% if current_user.user_type == "admin" %}
+                            <a class="dropdown-item" href="/admin">Flask Admin</a>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+<input type="hidden" value="{{ csrf_token() }}" name="csrf_token">
+
+<script src="https://cdn.jsdelivr.net/npm/@tko/build.reference@4.0.0-alpha8/dist/build.reference.min.js"></script>
+<script
+        src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
+        integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+<script
+        src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
+{% import_js 'base.js' %}"
+<section id="page_top" class="container">
     {% with messages = get_flashed_messages(with_categories=True) %}
         {% if messages %}
             {% for category, message in messages %}
                 <div class="flashed-message alert alert-{{ category if category not in ['temporary', 'message'] else 'info' }} flashed-message-{{ category }}"
                      role="alert">
+                    <a href="#" title="close" class="close"
+                       aria-label="Close"
+                       aria-hidden="true">&times;</a>
                     <span id="flash-message">{{ message }}</span>
                 </div>
             {% endfor %}
         {% endif %}
     {% endwith %}
-</div>
-
-<!-- Header -->
-<header id="header">
-    <nav class="left hamburger_menu">
-        <a href="#menu"><span>Menu</span></a>
-    </nav>
-    <a href="/" class="logo">{{ config.TITLE }}</a>
-</header>
-
-<!-- Menu -->
-<nav id="menu">
-    <ul class="links hamburger_menu">
-        <li><a href="/">Home</a></li>
-        {% if current_user.is_anonymous %}
-            <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-        {% else %}
-            <li><a href="/admin">Admin</a></li>
-            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-        {% endif %}
-    </ul>
-</nav>
-<div id="block_body">
-    {% block body %}
-    {% endblock %}
-</div>
-{% block footer %}
-    <!-- Footer -->
-    <footer id="footer">
-        <div class="inner">
-        </div>
-        <div class="copyright">
-            &copy; Andrew Rowe. Design <a href="https://templated.co">TEMPLATED</a>, <a
-                href="http://fountofcreativity.com">Fount of Creativity</a> and <a href="{{ config.HOST_URL }}">Andrew
-            Rowe</a>. Images <a href="https://unsplash.com">Unsplash</a>, <a
-                href="{{ config.HOST_URL }}">{{ config.TITLE }}</a>.
-        </div>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="/static/js/jquery.scrolly.min.js"></script>
-    <script src="/static/js/skel.min.js"></script>
-    <script src="/static/js/util.js"></script>
-    <script src="/static/js/main.js"></script>
-    <script>
-        (function (i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function () {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', '{{config.GTAG}}', 'auto');
-        ga('send', 'pageview');
-
-    </script>
-
-{% endblock %}
-</div>
-{% import_js 'base.js' %}
+</section>
+<section role="main" id='content' class="container">
+    {% block body %}{% endblock %}
+</section>
+<script src="/static/js/jquery.scrolly.min.js"></script>
+<script src="/static/js/skel.min.js"></script>
+<script src="/static/js/util.js"></script>
+<script src="/static/js/auto_reload.js"></script>
 </body>
-
 </html>

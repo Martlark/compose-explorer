@@ -20,6 +20,27 @@ class ContainerViewModel extends ViewBase {
         this.project = ko.observable();
         this.service = ko.observable();
         this.logs = ko.observableArray([]);
+        this.refreshLogs = ko.observable(true);
+        this.previousLogHash = '';
+    }
+
+    getLogs() {
+        $.getJSON(`/proxy/container/${this.id()}/logs`, {name: this.name()}
+        ).then(result => {
+                if (this.previousLogHash !== result.hash) {
+                    this.logs([]);
+                    result.logs.forEach(data => {
+                        this.logs.push(new LogEntryModel(data))
+                    });
+                    this.previousLogHash = result.hash;
+                    if (this.refreshLogs()) {
+                        baseView.scrollToBottom();
+                    }
+                }
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.message(`Error getting log: ${textStatus} - ${errorThrown}`)
+        );
     }
 
     init() {
@@ -34,15 +55,20 @@ class ContainerViewModel extends ViewBase {
         ).fail((xhr, textStatus, errorThrown) =>
             this.message(`Error getting container: ${textStatus} - ${errorThrown}`)
         );
+        this.getLogs();
+        this.refreshLogsInteval = setInterval(() => {
+            this.getLogs();
+        }, 10000);
+        this.refreshLogs.subscribe(newValue => {
+            if (newValue) {
+                this.refreshLogsInteval = setInterval(() => {
+                    this.getLogs();
+                }, 10000);
 
-        $.getJSON(`/proxy/container/${this.id()}/logs`, {name: this.name()}
-        ).then(result =>
-            result.forEach(data => {
-                this.logs.push(new LogEntryModel(data))
-            })
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.message(`Error getting log: ${textStatus} - ${errorThrown}`)
-        );
+            } else {
+                clearInterval(this.refreshLogsInteval);
+            }
+        });
         return this;
     }
 }
