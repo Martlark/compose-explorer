@@ -35,7 +35,7 @@ class Content extends Component {
             id: $("input[name=server-id]").val(),
             name: $("input[name=container-name]").val()
         };
-        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
+        $.getJSON(`/proxy/projects/${this.state.id}`, {name: this.state.name}
         ).then(result => {
                 this.state.status = result.status;
                 this.state.project = result.labels["com.docker.compose.project"];

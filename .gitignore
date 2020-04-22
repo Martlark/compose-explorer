@@ -109,3 +109,4 @@ npm-debug.log
 /persistent
 /venv*
 *-debug.js
+/static/src

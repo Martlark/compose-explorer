@@ -2,25 +2,59 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 
-class Server extends Component {
+class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {...props, dirty: false, result: {}, deleteConfirm: false, deleted: false};
-        this.value = React.createRef(props.item.value);
-        this.state.href = `/container/${this.state.item.server_id}/${this.state.item.name}`;
+        this.state.href = `/container/${this.state.details.server_id}/${this.state.name}`;
     }
 
     static propTypes = {
-        item: PropTypes.object.isRequired
+        details: PropTypes.object.isRequired
     };
 
     render() {
         return (
             <tr>
-                <td>{this.state.item.labels["com.docker.compose.project"]}</td>
-                <td><a href={this.state.href}>{this.state.item.name}</a></td>
-                <td>{this.state.item.status}</td>
+                <td>{this.state.details.labels["com.docker.compose.project"]} -</td>
+                <td><a href={this.state.href}>{this.state.name}</a></td>
+                <td>{this.state.details.status}</td>
             </tr>)
+    }
+}
+
+class Project extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {...props, dirty: false, services: props.services, name: props.details.name};
+    }
+
+    static propTypes = {
+        name: PropTypes.object.isRequired,
+        details: PropTypes.object.isRequired
+    };
+
+    render() {
+        return (
+            <div>
+                <h2>{this.state.name}</h2>
+                <table className={"table"}>
+                    <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    {this.state.services.map(service => <Service key={service.id}
+                                                                 updateState={this.updateState}
+                                                                 name={service.name}
+                                                                 details={service}/>)}
+                    </tbody>
+                </table>
+            </div>)
     }
 }
 
@@ -35,17 +69,14 @@ class Content extends Component {
     };
 
     getItems() {
-        return $.getJSON(`/proxy/container/${this.state.id}/list`
+        return $.getJSON(`/proxy/projects/${this.state.id}`
         ).then(result => {
                 const items = [];
                 result.forEach(data => {
                     data.server_id = this.state.id;
                     items.push(data)
                 });
-                items.sort((l, r) => l.labels["com.docker.compose.project"].localeCompare(r.labels["com.docker.compose.project"]));
-
                 this.setState({items});
-
             }
         ).fail((xhr, textStatus, errorThrown) =>
             this.setState({message: `Error getting containers: ${textStatus} - ${errorThrown}`})
@@ -68,21 +99,11 @@ class Content extends Component {
         return (<div>
                 <div className={"columns-1-2-4"}>
                 </div>
-                <table className={"table"}>
-                    <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Service</th>
-                        <th>Status</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.items.map((item) => <Server key={item.id}
-                                                            updateState={this.updateState}
-                                                            item={item}/>)
+                    {this.state.items.map(item => <Project key={item.name}
+                                                           updateState={this.updateState}
+                                                           details={item}
+                                                           services={item.services}/>)
                     }
-                    </tbody>
-                </table>
             </div>
         )
     }

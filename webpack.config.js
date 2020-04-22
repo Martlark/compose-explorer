@@ -7,7 +7,7 @@ module.exports = (env) => {
     return {
         mode: (env && env.development) || 'production',
         devtool:
-            'source-map',
+            'eval-source-map',
         entry:
             entry(entry.basePath('./app/jsx'), './app/jsx/**/*.jsx'),
         output:
@@ -15,6 +15,7 @@ module.exports = (env) => {
                 path: path.resolve('./app/static/src/jsx/'),
                 filename:
                     './[name].js',
+                sourceMapFilename: "[name].js.map",
             }
         ,
         resolve: {
