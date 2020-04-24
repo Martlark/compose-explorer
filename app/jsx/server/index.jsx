@@ -6,11 +6,13 @@ class Service extends Component {
     constructor(props) {
         super(props);
         this.state = {...props, dirty: false, result: {}, deleteConfirm: false, deleted: false};
-        this.state.href = `/container/${this.state.details.server_id}/${this.state.name}`;
+        this.state.href = `/container/${props.server_id}/${this.state.name}`;
     }
 
     static propTypes = {
-        details: PropTypes.object.isRequired
+        name: PropTypes.object.isRequired,
+        details: PropTypes.object.isRequired,
+        server_id: PropTypes.object.isRequired
     };
 
     render() {
@@ -26,7 +28,7 @@ class Service extends Component {
 class Project extends Component {
     constructor(props) {
         super(props);
-        this.state = {...props, dirty: false, services: props.services, name: props.details.name};
+        this.state = {...props, dirty: false, server_id:props.details.server_id, services: props.services, name: props.details.name};
     }
 
     static propTypes = {
@@ -49,6 +51,7 @@ class Project extends Component {
                     <tbody>
 
                     {this.state.services.map(service => <Service key={service.id}
+                                                                 server_id={this.state.server_id}
                                                                  updateState={this.updateState}
                                                                  name={service.name}
                                                                  details={service}/>)}
