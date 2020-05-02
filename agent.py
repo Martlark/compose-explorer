@@ -1,34 +1,124 @@
 import docker
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, current_app
 
 app = Flask(__name__)
+# https://docker-py.readthedocs.io/en/stable/
 dc = docker.from_env()
 
 
 def d_serialize(item, attributes):
+    """
+    convert the given attributes for the item into a dict
+    so they can be serialized back to the caller
+
+    :param item: an object
+    :param attributes: list of attributes
+    :return:
+    """
     d = {}
     attributes.sort()
     for a in attributes:
-        d[a] = getattr(item, a, '')
+        value = getattr(item, a, '')
+        if type(value) not in [list, dict, int, float, str]:
+            value = str(value)
+        d[a] = value
     return d
 
 
-@app.route('/container/<param>')
+def get_directory(container, request):
+    pwd = request.args.get('pwd', '.')
+    cmd = f'ls -la1Q {pwd}'
+    exit_code, output = container.exec_run(cmd, stream=True)
+    result = b''
+    for z in output:
+        result += z
+    listing = result.decode('utf-8')
+    entries = []
+    total = ''
+    for i, l in enumerate(listing.split('\n')):
+        print(i, l)
+        if i == 0:
+            total = l
+            continue
+        elif i == 1:
+            continue
+
+        # lrwxrwxrwx   1 root root    33 Apr 30 06:37 "initrd. img.old" -> "boot/initrd.img-4.15.0-96- generic"
+        parts = l.split(None)
+        if len(parts) > 5:
+            entry = dict(dir_type=parts[0][0], modes=parts[0][1:], owner=parts[2], group=parts[3],
+                         size=parts[4], modified=' '.join(parts[5:8]))
+            file_name_pos = l.find('"') + 1
+            end_file_name_pos = l.find('"', file_name_pos + 1)
+            file_name = l[file_name_pos:end_file_name_pos]
+            file_name_pos = l.find('"', end_file_name_pos + 2)
+            entry['file_name'] = file_name
+            if file_name_pos > end_file_name_pos:
+                end_file_name_pos = l.find('"', file_name_pos + 2)
+                linked_file_name = l[file_name_pos + 2:end_file_name_pos]
+                entry['linked_file_name'] = linked_file_name
+            entries.append(entry)
+    return {'pwd': pwd, 'total': total, 'entries': entries}
+
+
+@app.route('/container/<param>', methods=['GET', 'POST'])
 def route_container(param):
-    attrs = ['id', 'labels', 'name', 'short_id', 'status']
-    if param == 'list':
-        return jsonify([d_serialize(d, attrs) for d in dc.containers.list()])
-    if param == 'get':
-        container = dc.containers.get(request.args.get('name'))
-        return d_serialize(container, attrs)
-    if param == 'logs':
-        container = dc.containers.get(request.args.get('name'))
-        params = dict(request.args)
-        logs = container.logs(tail=int(request.args.get('tail', '100')))
-        log_hash = logs.__hash__()
-        logs = [l.strip() for l in logs.decode().split('\n') if l.strip()]
-        return dict(hash=log_hash,logs=logs)
-    return 'not supported', 400
+    # current_app.logger.debug(f'route_container {request.method} {param}')
+    try:
+        container = None
+        attrs = ['id', 'labels', 'name', 'short_id', 'status']
+        current_app.logger.info(str(request.args))
+        current_app.logger.info(str(request.form))
+        name = request.args.get('name') or request.form.get('name')
+        if name:
+            container = dc.containers.get(name)
+
+            if not container:
+                raise Exception(f'container {name} not found')
+
+        if request.method == 'GET':
+            if param == 'list':
+                # get all containers
+                return jsonify([d_serialize(d, attrs) for d in dc.containers.list(all=True)])
+            elif param == 'get':
+                # get specified container
+                return d_serialize(container, attrs)
+            elif param == 'logs':
+                params = dict(request.args)
+                logs = container.logs(tail=int(request.args.get('tail', '100')), timestamps=True)
+                log_hash = logs.__hash__()
+                logs = [l.strip() for l in logs.decode().split('\n') if l.strip()]
+                return dict(hash=log_hash, logs=logs)
+            elif param == 'ls':
+                return get_directory(container, request)
+
+        if request.method == 'POST':
+            if param not in ['restart', 'stop', 'start']:
+                raise Exception('action not supported')
+
+            if param == 'restart':
+                container.restart()
+            elif param == 'stop':
+                container.stop()
+            elif param == 'start':
+                container.start()
+            elif param == 'exec_run':
+                cmd = request.form.get('cmd')
+                exit_code, output = container.exec_run(cmd, stream=True)
+                result = ''
+                for z in output:
+                    result += z
+                return result
+            else:
+                raise Exception('unknown action')
+            container = dc.containers.get(name)
+            return d_serialize(container, attrs)
+
+        raise Exception('Method and action not supported')
+
+    except Exception as e:
+        current_app.logger.exception(e)
+        return f'{e}', 400
 
 
 @app.route('/volume/<param>')

@@ -23,6 +23,12 @@
                     <a class="nav-link" href="{{ url_for('main.public_page_login') }}">Login</a>
                 </li>
             {% else %}
+                {% if server and container_name %}
+                    <li class="nav-item">
+                        <a class="navbar-brand"
+                           href="{{ url_for('main.page_container', item_id=server.id, container_name=container_name) }}">{{ page_title }}</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('main.public_page_logout') }}">Logout</a>
                 </li>
@@ -41,7 +47,6 @@
 </nav>
 <input type="hidden" value="{{ csrf_token() }}" name="csrf_token">
 
-<script src="https://cdn.jsdelivr.net/npm/@tko/build.reference@4.0.0-alpha8/dist/build.reference.min.js"></script>
 <script
         src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
@@ -81,7 +86,7 @@
 </section>
 <script src="/static/js/jquery.scrolly.min.js"></script>
 <script src="/static/js/skel.min.js"></script>
-<script src="/static/js/util.js"></script>
-<script src="/static/js/main.js"></script>
+<script src="/static/js/auto_reload.js"></script>
+<input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
 </body>
 </html>

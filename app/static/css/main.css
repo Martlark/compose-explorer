@@ -16,3 +16,9 @@
 #current_user_menu {
     color: blue;
 }
+
+.table-bordered td {
+    border: none !important;
+    border-right: solid 1px #ccc !important;
+    padding: 0.1em;
+}
