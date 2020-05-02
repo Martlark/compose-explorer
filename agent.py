@@ -25,14 +25,20 @@ def d_serialize(item, attributes):
     return d
 
 
-def get_directory(container, request):
-    pwd = request.args.get('pwd', '.')
-    cmd = f'ls -la1Q {pwd}'
+def exec_run(container, cmd):
     exit_code, output = container.exec_run(cmd, stream=True)
     result = b''
     for z in output:
         result += z
-    listing = result.decode('utf-8')
+    return result.decode('utf-8')
+
+
+def get_directory(container, args):
+    pwd = args.get('pwd', '.')
+    parent = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''').split('\n')[0]
+    path = exec_run(container, f'''bash -c "(cd '{pwd}' && pwd)"''').split('\n')[0]
+    cmd = f'ls -la1Q "{pwd}"'
+    listing = exec_run(container, cmd)
     entries = []
     total = ''
     for i, l in enumerate(listing.split('\n')):
@@ -58,7 +64,7 @@ def get_directory(container, request):
                 linked_file_name = l[file_name_pos + 2:end_file_name_pos]
                 entry['linked_file_name'] = linked_file_name
             entries.append(entry)
-    return {'pwd': pwd, 'total': total, 'entries': entries}
+    return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
 
 
 @app.route('/container/<param>', methods=['GET', 'POST'])
@@ -67,8 +73,6 @@ def route_container(param):
     try:
         container = None
         attrs = ['id', 'labels', 'name', 'short_id', 'status']
-        current_app.logger.info(str(request.args))
-        current_app.logger.info(str(request.form))
         name = request.args.get('name') or request.form.get('name')
         if name:
             container = dc.containers.get(name)
@@ -90,7 +94,7 @@ def route_container(param):
                 logs = [l.strip() for l in logs.decode().split('\n') if l.strip()]
                 return dict(hash=log_hash, logs=logs)
             elif param == 'ls':
-                return get_directory(container, request)
+                return get_directory(container, request.args)
 
         if request.method == 'POST':
             if param not in ['restart', 'stop', 'start']:
