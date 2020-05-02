@@ -59,39 +59,7 @@
                 resetForms: true,
                 side: 'right'
             });
-        // Enquire
-        $('#enquire').click(event => {
-            $('#enquiry-form').fadeIn('slow');
-            $('#enquiry-list').fadeOut('slow');
-            $('#block_body').slideUp('slow');
-            $('[name=enquiry-name]').focus();
-        });
-        // Enquire cancel
-        $('#enquiry-cancel').click(event => {
-                $('#enquiry-form').fadeOut();
-                $('#enquiry-list').fadeIn();
-                $('#block_body').slideDown('slow');
-            }
-        );
-        // Enquire submit
-        $('#enquiry-submit').click(event => {
-            $('#enquiry-form').fadeOut('slow');
-            $('#enquiry-list').fadeIn('slow');
-            $('#block_body').slideDown('slow');
-            $('#message').fadeIn('slow');
 
-            $.ajax({
-                    url: '/enquiry/submit',
-                    type: 'POST',
-                    dataType: 'json',
-                    data: $('form#enquiry-form').serialize(),
-                }
-            ).then(setTimeout(_ => $('#message').fadeOut('slow'), 5000)
-            ).fail((xhr, textStatus, errorThrown) =>
-                this.message(`${xhr.responseText}`)
-            );
-            event.preventDefault();
-        });
     });
 
 })(jQuery);

@@ -1,0 +1,56 @@
+{
+  "name": "docker-explorer",
+  "version": "1.0.0",
+  "description": "Babel==2.6.0\r click==6.7\r easydict==1.7\r Flask==1.0.2\r Flask-Babel2==0.1\r itsdangerous==0.24\r Jinja2==2.10\r MarkupSafe==1.0\r pytz==2018.5\r speaklater==1.3\r Werkzeug==0.14.1",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.6.2",
+    "babel-preset-react-app": "^3.1.2",
+    "classnames": "^2.2.6",
+    "informed": "^2.11.9",
+    "lodash": "^4.17.15",
+    "material-table": "^1.51.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "serialize-javascript": "^3.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-transform-modules-commonjs": "^7.6.0",
+    "@babel/preset-env": "^7.8.4",
+    "@babel/preset-react": "^7.8.3",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.5.2",
+    "jquery": "^3.5.0",
+    "json-form-data": "^1.5.0",
+    "prop-types": "^15.7.2",
+    "react-select": "^3.0.8",
+    "react-table": "^6.10.3",
+    "style-loader": "^1.0.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.9",
+    "webpack-glob-entry": "^2.1.1"
+  },
+  "scripts": {
+    "babel": "npx babel app/jsx --out-dir app/static/src/jsx",
+    "babel-watch": "webpack -p --watch --progress  --env=development --config webpack.config.js",
+    "build": "webpack -p --progress --config webpack.config.js",
+    "dev-build": "webpack --progress -d --config webpack.config.js",
+    "watch": "webpack --progress -d --config webpack.config.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Martlark/plates.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Martlark/plates/issues"
+  },
+  "homepage": "https://github.com/Martlark/plates#readme"
+}

@@ -1,7 +1,7 @@
-import os
-import random
 import string
 
+import os
+import random
 import requests
 from dateutil import tz
 from flask_login import UserMixin
@@ -62,17 +62,41 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         return found is None
 
     def get(self, d_type, verb, params=None):
+        """
+        return some information from the proxy
+
+        :param d_type: container, volume
+        :param verb: log, list, get, etc
+        :param params: specific parameter for the verb
+        :return:
+        """
         r = requests.get(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
                          auth=('explorer', self.credentials), params=params)
         return r.json()
 
+    def post(self, d_type, verb, params=None):
+        """
+        cause some action on the proxy
+
+        :param d_type: container
+        :param verb: start, stop restart etc.
+        :param params: specific parameter for the verb
+        :return:
+        """
+        r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
+                          auth=('explorer', self.credentials), data=params)
+        return r.json()
+
     def get_summary(self):
-        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
-                         auth=('explorer', self.credentials))
-        summary = dict(containers=0, volumes=0)
-        for c in r.json():
-            summary['containers']+=1
-        return summary
+        try:
+            r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
+                             auth=('explorer', self.credentials))
+            summary = dict(containers=0, volumes=0, error='')
+            for c in r.json():
+                summary['containers'] += 1
+            return summary
+        except Exception as e:
+            return dict(error=f'{e}')
 
 
 class Setting(db.Model, FlaskSerializeMixin):
