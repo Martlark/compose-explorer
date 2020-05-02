@@ -31,27 +31,34 @@ def page_index():
     servers = DockerServer.query.filter_by(active=True).all()
     listing = []
     for server in servers:
-        listing.append(dict(summary = server.get_summary(), server=server))
-    return render_template('index.html', title='Docker Explorer', servers=listing)
+        listing.append(dict(summary=server.get_summary(), server=server))
+    return render_template('index.html', page_title='Docker Explorer', listing=listing)
 
 
 @bp.route('/server/<int:item_id>')
 @login_required
 def page_server(item_id):
     server = DockerServer.query.get_or_404(item_id)
-    return render_template('server.html', title=server.name, server=server)
+    return render_template('server.html', page_title=server.name, server=server)
 
 
 @bp.route('/container/<int:item_id>/<container_name>')
 @login_required
 def page_container(item_id, container_name):
     server = DockerServer.query.get_or_404(item_id)
-    return render_template('container.html', title=server.name, server=server, container_name=container_name)
+    return render_template('container.html', page_title=server.name, server=server, container_name=container_name)
+
+
+@bp.route('/container_log/<int:item_id>/<container_name>')
+@login_required
+def page_container_log(item_id, container_name):
+    server = DockerServer.query.get_or_404(item_id)
+    return render_template('container_log.html', page_title=container_name, server=server, container_name=container_name)
 
 
 @bp.route('/page/<page>')
 def page_page(page, title=''):
-    return render_template(page, title=title)
+    return render_template(page, page_title=title)
 
 
 @bp.route('/login')

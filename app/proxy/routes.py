@@ -11,12 +11,18 @@ from app.proxy import bp
 @login_required
 def route_container(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
-    if request.method == 'GET':
-        try:
+    try:
+
+        if request.method == 'GET':
             result = server.get('container', verb, params=request.args)
             return jsonify(result)
-        except Exception as e:
-            return str(e), 400
+
+        if request.method == 'POST':
+            result = server.post('container', verb, params=request.form)
+            return result
+
+    except Exception as e:
+        return str(e), 400
 
 
 @bp.route('/projects/<int:server_id>', methods=['GET'])
@@ -33,7 +39,7 @@ def route_projects(server_id):
             for c in result:
                 if c["labels"]["com.docker.compose.project"] != prev_project:
                     if len(prev_project) > 0:
-                        projects.append(dict(name=prev_project,services=services))
+                        projects.append(dict(name=prev_project, services=services))
                     services = []
                     prev_project = c["labels"]["com.docker.compose.project"]
                 services.append(c)

@@ -9,14 +9,20 @@
         </tr>
         </thead>
         <tbody>
-        {% for server in servers %}
+        {% for item in listing %}
             <tr>
-                <td><a href="{{ url_for('main.page_server', item_id=server.server.id ) }}">{{ server.server.name }}</a>
+                <td>
+                    <a href="{{ url_for('main.page_server', item_id=item.server.id ) }}">{{ item.server.name }}</a>
                 </td>
-                <td>{{ server.summary.containers }}</td>
+                <td>
+                    {% if item.summary.error %}
+                        <div class="error">{{ item.summary.error }}</div>
+                    {% else %}
+                        {{ item.summary.containers }}
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
-
 {% endblock %}

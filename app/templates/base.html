@@ -23,6 +23,12 @@
                     <a class="nav-link" href="{{ url_for('main.public_page_login') }}">Login</a>
                 </li>
             {% else %}
+                {% if server and container_name %}
+                    <li class="nav-item">
+                        <a class="navbar-brand"
+                           href="{{ url_for('main.page_container', item_id=server.id, container_name=container_name) }}">{{ page_title }}</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('main.public_page_logout') }}">Logout</a>
                 </li>
@@ -81,5 +87,6 @@
 <script src="/static/js/jquery.scrolly.min.js"></script>
 <script src="/static/js/skel.min.js"></script>
 <script src="/static/js/auto_reload.js"></script>
+<input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
 </body>
 </html>
