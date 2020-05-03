@@ -72,7 +72,7 @@ def route_container(param):
     # current_app.logger.debug(f'route_container {request.method} {param}')
     try:
         container = None
-        attrs = ['id', 'labels', 'name', 'short_id', 'status']
+        attrs = ['id', 'labels', 'name', 'short_id', 'status', 'image']
         name = request.args.get('name') or request.form.get('name')
         if name:
             container = dc.containers.get(name)
@@ -94,7 +94,9 @@ def route_container(param):
                 logs = [l.strip() for l in logs.decode().split('\n') if l.strip()]
                 return dict(hash=log_hash, logs=logs)
             elif param == 'ls':
-                return get_directory(container, request.args)
+                if container.status == 'running':
+                    return get_directory(container, request.args)
+                return {'entries': []}
 
         if request.method == 'POST':
             if param not in ['restart', 'stop', 'start']:
@@ -107,12 +109,15 @@ def route_container(param):
             elif param == 'start':
                 container.start()
             elif param == 'exec_run':
-                cmd = request.form.get('cmd')
-                exit_code, output = container.exec_run(cmd, stream=True)
-                result = ''
-                for z in output:
-                    result += z
-                return result
+                if container.status == 'running':
+                    cmd = request.form.get('cmd')
+                    exit_code, output = container.exec_run(cmd, stream=True)
+                    result = ''
+                    for z in output:
+                        result += z
+                    return result
+                else:
+                    return ''
             else:
                 raise Exception('unknown action')
             container = dc.containers.get(name)

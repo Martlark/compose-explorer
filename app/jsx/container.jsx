@@ -39,14 +39,17 @@ class DirectoryEntry extends Component {
 class Content extends Component {
     constructor(props) {
         super(props);
+        this.server_id = $("input[name=server-id]").val();
+        this.name = $("input[name=container-name]").val();
         this.state = {
             message: '',
-            id: $("input[name=server-id]").val(),
-            name: $("input[name=container-name]").val(),
+            id: this.server_id,
+            name: this.name,
             pwd: '.',
             directoryPath: '',
             directoryParent: '..',
-            directoryEntries: []
+            directoryEntries: [],
+            hrefLog: `/container_log/${this.server_id}/${this.name}`
         };
         this.actions = ['stop', 'start', 'restart'];
     }
@@ -109,9 +112,11 @@ class Content extends Component {
     clickAction = (evt, action) => {
         evt.preventDefault();
         this.setState({actioning: action.action});
-        return $.post(`/proxy/container/${this.state.server_id}/${action.action}`, {
-                name: this.state.name,
-                csrf_token: $("input[name=base-csrf_token]").val()
+        $.ajax({
+                type: 'POST', url: `/proxy/container/${this.server_id}/${action.action}`, data: {
+                    name: this.name,
+                    csrf_token: $("input[name=base-csrf_token]").val(),
+                }
             }
         ).then(result =>
             this.setState({message: `container: ${result.status}`, status: result.status})
@@ -126,20 +131,27 @@ class Content extends Component {
         if (this.state.actioning) {
             return <p>Action under way</p>
         }
-        return <ul className="list-inline">{this.actions.map(action => this.renderActionListItem(action))}</ul>
+
+        return (
+            <ul className="list-inline">
+                <li className={"list-inline-item"}><a href={this.state.hrefLog} title={"Logs"}><span
+                    className="material-icons">assignment</span></a></li>
+                {this.actions.map(action => this.renderActionListItem(action))}
+            </ul>
+        )
     }
 
     renderActionListItem(action) {
         const style = {textTransform: "capitalize"};
 
         return <li key={action} className={"list-inline-item"}>
-            <a style={style} href="#"
-               onClick={evt => this.clickAction(evt, {action})}>{action}</a>
+            <button style={style} className={"btn btn-sm"}
+                    onClick={evt => this.clickAction(evt, {action})}>{action}</button>
         </li>
     }
 
     renderCurrentPath() {
-        const upButton = this.state.directoryPath !== '/' ?
+        const upButton = (this.state.directoryPath !== '/' && this.state.status === 'running') ?
             <button className={"btn"} onClick={evt => this.clickUpDirectory(evt)}>Up</button> : null;
         const getting = this.state.directoryGetting ? <div className="spinner-border text-success" role="status">
             <span className="sr-only">Loading...</span>
@@ -181,12 +193,26 @@ class Content extends Component {
     render() {
         return (
             <div>
-                <h3>{this.state.status}</h3>
+                {this.renderStatus()}
                 {this.renderMessage()}
                 {this.renderActions()}
                 {this.renderDirectory()}
             </div>
         )
+    }
+
+    renderStatus() {
+        let textClass = 'text-warning';
+        switch (this.state) {
+            case 'running':
+                textClass = 'text-success';
+                break
+            case 'exited':
+            case 'stopped':
+                textClass = 'text-danger';
+                break
+        }
+        return <h3 className={textClass} title={"status"}>{this.state.status}</h3>;
     }
 }
 

@@ -1,7 +1,6 @@
 # views.py
 import os
 import random
-
 from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
 from flask_login import logout_user, login_required
 
@@ -53,7 +52,8 @@ def page_container(item_id, container_name):
 @login_required
 def page_container_log(item_id, container_name):
     server = DockerServer.query.get_or_404(item_id)
-    return render_template('container_log.html', page_title=container_name, server=server, container_name=container_name)
+    return render_template('container_log.html', page_title=container_name, server=server,
+                           container_name=container_name)
 
 
 @bp.route('/page/<page>')
@@ -92,7 +92,7 @@ rand_check_number = random.randint(0, 9999999999)
 
 @bp.route('/last_static_update')
 def last_static_update():
-    include_dirs = ['./app/static', './app/templates']
+    include_dirs = ['./app/js', './app/jsx', './app/templates']
     exclude_dir = ['node_modules', 'venv', 'tmp']
     notice_exts = ['js', 'html', 'css', 'jsx']
     initial_max_age = max_age = float(request.args.get('max_age', -1))

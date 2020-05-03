@@ -160,7 +160,7 @@ $("form").submit(() => {
 
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {
-        if (!/^(GET|HEAD|OPTIONS|TRACE|POST)$/i.test(settings.type) && !this.crossDomain) {
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", $("input[name=base-csrf_token]").val());
         }
     }
