@@ -43,6 +43,7 @@ class Content extends Component {
         this.name = $("input[name=container-name]").val();
         this.state = {
             message: '',
+            exploring: false,
             id: this.server_id,
             name: this.name,
             pwd: '.',
@@ -56,7 +57,6 @@ class Content extends Component {
 
     componentDidMount() {
         this.getContainerProps();
-        this.getDirectory(this.state.pwd);
     }
 
     getContainerProps() {
@@ -106,7 +106,11 @@ class Content extends Component {
     }
 
     clickUpDirectory = (evt) => {
-        this.getDirectory('..');
+        this.getDirectory(join(this.state.pwd, '..'));
+    }
+
+    clickDirectory = (evt, dir = '/') => {
+        this.getDirectory(dir);
     }
 
     clickAction = (evt, action) => {
@@ -127,6 +131,11 @@ class Content extends Component {
         });
     }
 
+    clickExplore = (evt) => {
+        this.setState({exploring: true});
+        this.getDirectory(this.state.pwd);
+    }
+
     renderActions() {
         if (this.state.actioning) {
             return <p>Action under way</p>
@@ -136,6 +145,12 @@ class Content extends Component {
             <ul className="list-inline">
                 <li className={"list-inline-item"}><a href={this.state.hrefLog} title={"Logs"}><span
                     className="material-icons">assignment</span></a></li>
+                <li className={"list-inline-item"}>
+                    <a href="#" onClick={evt => this.clickExplore()} title={"Explore directory"}><span
+                        className="material-icons">
+explore
+</span></a>
+                </li>
                 {this.actions.map(action => this.renderActionListItem(action))}
             </ul>
         )
@@ -152,20 +167,41 @@ class Content extends Component {
 
     renderCurrentPath() {
         const upButton = (this.state.directoryPath !== '/' && this.state.status === 'running') ?
-            <button className={"btn"} onClick={evt => this.clickUpDirectory(evt)}>Up</button> : null;
+            <a href={"#"} className={"btn"} onClick={evt => this.clickUpDirectory(evt)}
+               title={"Up one level of directory"}><span
+                className="material-icons">reply</span></a> : null;
+        const refreshButton = (this.state.status === 'running') ?
+            <a href={"#"} className={"btn"} onClick={evt => this.clickUpDirectory(evt)} title={"Refresh"}><span
+                className="material-icons">cached</span></a> : null;
         const getting = this.state.directoryGetting ? <div className="spinner-border text-success" role="status">
             <span className="sr-only">Loading...</span>
         </div> : null;
+        let cwd = '/';
+        const directoryLinks = [];
+        this.state.directoryPath.split('/').forEach((dir, index) => {
+            if (index === 0 || dir.length) {
+                cwd = join(cwd, dir);
+                let thisCwd = cwd.toString();
+                directoryLinks.push({cwd: cwd, dir: dir});
+            }
+        });
 
         return (
             <div>
+                {refreshButton}
                 {upButton}
-                <span> {this.state.directoryPath}</span>
+                {directoryLinks.map(d => {
+                    return <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
+                              title={d.cwd}>{d.dir}/&nbsp;</a>
+                })}
                 {getting}
             </div>);
     }
 
     renderDirectory() {
+        if (!this.state.exploring) {
+            return null;
+        }
         return (
             <div>
                 {this.renderCurrentPath()}

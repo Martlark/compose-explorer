@@ -18,7 +18,7 @@ function autoReloadOnServerChange() {
                 console.log(`${xhr.responseText || textStatus}`)
             );
 
-        }, 5000);
+        }, 15000);
     });
 }
 
