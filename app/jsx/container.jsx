@@ -43,13 +43,14 @@ class Content extends Component {
         this.name = $("input[name=container-name]").val();
         this.state = {
             message: '',
-            exploring: false,
+            mode: '',
             id: this.server_id,
             name: this.name,
             pwd: '.',
             directoryPath: '',
             directoryParent: '..',
             directoryEntries: [],
+            command: '',
             hrefLog: `/container_log/${this.server_id}/${this.name}`
         };
         this.actions = ['stop', 'start', 'restart'];
@@ -94,6 +95,23 @@ class Content extends Component {
         )
     }
 
+    exec_run(cmd) {
+        this.setState({executing: true});
+        return $.post(`/proxy/container/${this.state.id}/exec_run`, {
+                name: this.state.name,
+                csrf_token: $("input[name=base-csrf_token]").val(),
+                cmd: cmd,
+            }
+        ).then(result =>
+            this.setState({
+                result: result
+            })
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
+        ).always(() => this.setState({executing: false})
+        )
+    }
+
     updateState = (data) => {
         this.setState(data)
     };
@@ -132,8 +150,12 @@ class Content extends Component {
     }
 
     clickExplore = (evt) => {
-        this.setState({exploring: true});
+        this.setState({mode: 'explore'});
         this.getDirectory(this.state.pwd);
+    }
+
+    clickExecute = (evt) => {
+        this.setState({mode: 'execute'});
     }
 
     renderActions() {
@@ -143,13 +165,20 @@ class Content extends Component {
 
         return (
             <ul className="list-inline">
-                <li className={"list-inline-item"}><a href={this.state.hrefLog} title={"Logs"}><span
-                    className="material-icons">assignment</span></a></li>
                 <li className={"list-inline-item"}>
-                    <a href="#" onClick={evt => this.clickExplore()} title={"Explore directory"}><span
-                        className="material-icons">
-explore
-</span></a>
+                    <a href={this.state.hrefLog} title={"Logs"}>
+                        <span className="material-icons">assignment</span>
+                    </a>
+                </li>
+                <li className={"list-inline-item"}>
+                    <a href="#" onClick={evt => this.clickExplore()} title={"Explore directory"}>
+                        <span className="material-icons">explore</span>
+                    </a>
+                </li>
+                <li className={"list-inline-item"}>
+                    <a href="#" onClick={evt => this.clickExecute()} title={"Run application"}>
+                        <span className="material-icons">directions_run</span>
+                    </a>
                 </li>
                 {this.actions.map(action => this.renderActionListItem(action))}
             </ul>
@@ -198,8 +227,8 @@ explore
             </div>);
     }
 
-    renderDirectory() {
-        if (!this.state.exploring) {
+    renderExplore() {
+        if (this.state.mode !== 'explore') {
             return null;
         }
         return (
@@ -226,13 +255,25 @@ explore
         )
     }
 
-    render() {
+    onChange = (evt, stateProp) => {
+        this.setState({[stateProp]: evt.target.value})
+    }
+
+    clickExec = (evt) => {
+        this.exec_run(this.state.command);
+    }
+
+    renderExecute() {
+        if (this.state.mode !== 'execute') {
+            return null;
+        }
         return (
             <div>
-                {this.renderStatus()}
-                {this.renderMessage()}
-                {this.renderActions()}
-                {this.renderDirectory()}
+                <label>Command: <input name={"command"}
+                                       onChange={evt => this.onChange(evt, 'command')}
+                                       value={this.state.command}/></label>
+                <button onClick={(evt) => this.clickExec(evt)}>exec</button>
+                <textarea value={this.state.result} onChange={evt => this.onChange(evt, 'result')}/>
             </div>
         )
     }
@@ -249,6 +290,18 @@ explore
                 break
         }
         return <h3 className={textClass} title={"status"}>{this.state.status}</h3>;
+    }
+
+    render() {
+        return (
+            <div>
+                {this.renderStatus()}
+                {this.renderMessage()}
+                {this.renderActions()}
+                {this.renderExplore()}
+                {this.renderExecute()}
+            </div>
+        )
     }
 }
 

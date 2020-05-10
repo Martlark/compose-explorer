@@ -85,7 +85,10 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         """
         r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
                           auth=('explorer', self.credentials), data=params)
-        return r.json()
+        try:
+            return r.json()
+        except:
+            return r.text
 
     def get_summary(self):
         try:

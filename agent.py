@@ -26,6 +26,13 @@ def d_serialize(item, attributes):
 
 
 def exec_run(container, cmd):
+    """
+    run the command on the given container.
+
+    :param container: container object
+    :param cmd: command to run
+    :return: text result string
+    """
     exit_code, output = container.exec_run(cmd, stream=True)
     result = b''
     for z in output:
@@ -99,7 +106,7 @@ def route_container(param):
                 return {'entries': []}
 
         if request.method == 'POST':
-            if param not in ['restart', 'stop', 'start']:
+            if param not in ['restart', 'stop', 'start', 'exec_run']:
                 raise Exception('action not supported')
 
             if param == 'restart':
@@ -111,13 +118,9 @@ def route_container(param):
             elif param == 'exec_run':
                 if container.status == 'running':
                     cmd = request.form.get('cmd')
-                    exit_code, output = container.exec_run(cmd, stream=True)
-                    result = ''
-                    for z in output:
-                        result += z
-                    return result
+                    return exec_run(container, cmd)
                 else:
-                    return ''
+                    return 'not running'
             else:
                 raise Exception('unknown action')
             container = dc.containers.get(name)
