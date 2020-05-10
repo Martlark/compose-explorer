@@ -154,7 +154,7 @@ export default class Directory extends Component {
                 {upButton}
                 {directoryLinks.map(d => {
                     return <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
-                              title={d.cwd}>{d.dir}/&nbsp;</a>
+                              title={d.cwd}>{d.dir}&nbsp;/&nbsp;</a>
                 })}
                 {getting}
             </div>
