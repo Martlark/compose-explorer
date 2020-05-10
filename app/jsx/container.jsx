@@ -3,6 +3,32 @@ import ReactDOM from 'react-dom'
 import join from 'join-path'
 import $ from "jquery"
 
+
+
+class ExecEntry extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            key: Math.random()
+        };
+    }
+
+    clickExec = (evt, fileName) => {
+        evt.preventDefault();
+        this.props.clickExec(this.state.cmd);
+    }
+
+    render() {
+        return (
+            <tr key={this.state.key}>
+                <td>{this.props.cmd}</td>
+                <td><pre>{this.props.result}</pre></td>
+            </tr>)
+    }
+}
+
+
+
 class DirectoryEntry extends Component {
     constructor(props) {
         super(props);
@@ -51,6 +77,7 @@ class Content extends Component {
             directoryParent: '..',
             directoryEntries: [],
             command: '',
+            commandEntries: [],
             hrefLog: `/container_log/${this.server_id}/${this.name}`
         };
         this.actions = ['stop', 'start', 'restart'];
@@ -102,10 +129,7 @@ class Content extends Component {
                 csrf_token: $("input[name=base-csrf_token]").val(),
                 cmd: cmd,
             }
-        ).then(result =>
-            this.setState({
-                result: result
-            })
+        ).then(result => result
         ).fail((xhr, textStatus, errorThrown) =>
             this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
         ).always(() => this.setState({executing: false})
@@ -260,7 +284,10 @@ class Content extends Component {
     }
 
     clickExec = (evt) => {
-        this.exec_run(this.state.command);
+        this.exec_run(this.state.command).then(result=>{
+            this.state.commandEntries.unshift(<ExecEntry cmd={this.state.command} result={result}/>);
+            this.setState({commandEntries: this.state.commandEntries})
+        })
     }
 
     renderExecute() {
@@ -273,7 +300,11 @@ class Content extends Component {
                                        onChange={evt => this.onChange(evt, 'command')}
                                        value={this.state.command}/></label>
                 <button onClick={(evt) => this.clickExec(evt)}>exec</button>
-                <textarea value={this.state.result} onChange={evt => this.onChange(evt, 'result')}/>
+                <table className={"table"}>
+                    <tbody>
+                        {this.state.commandEntries}
+                    </tbody>
+                </table>
             </div>
         )
     }

@@ -25,7 +25,7 @@ def d_serialize(item, attributes):
     return d
 
 
-def exec_run(container, cmd):
+def exec_run(container, cmd, shell=False):
     """
     run the command on the given container.
 
@@ -33,6 +33,8 @@ def exec_run(container, cmd):
     :param cmd: command to run
     :return: text result string
     """
+    if shell:
+        cmd = f'/bin/bash -c "{cmd}"'
     exit_code, output = container.exec_run(cmd, stream=True)
     result = b''
     for z in output:
@@ -118,7 +120,7 @@ def route_container(param):
             elif param == 'exec_run':
                 if container.status == 'running':
                     cmd = request.form.get('cmd')
-                    return exec_run(container, cmd)
+                    return exec_run(container, cmd, shell=True)
                 else:
                     return 'not running'
             else:
