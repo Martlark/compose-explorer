@@ -1,9 +1,7 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import join from 'join-path'
 import $ from "jquery"
-
-
+import Directory from './directory'
 
 class ExecEntry extends Component {
     constructor(props) {
@@ -22,42 +20,9 @@ class ExecEntry extends Component {
         return (
             <tr key={this.state.key}>
                 <td>{this.props.cmd}</td>
-                <td><pre>{this.props.result}</pre></td>
-            </tr>)
-    }
-}
-
-
-
-class DirectoryEntry extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            ...props.entry,
-            message: '',
-        };
-    }
-
-    clickDirectory = (evt, fileName) => {
-        evt.preventDefault();
-        this.props.parentChangeDirectory(fileName);
-    }
-
-    renderFilename() {
-        if (this.state.dir_type === 'd') {
-            return (<a href={"#"}
-                       onClick={evt => this.clickDirectory(evt, this.state.file_name)}>{this.state.file_name}</a>)
-        }
-        return this.state.file_name;
-    }
-
-    render() {
-        return (
-            <tr>
-                <td>{this.state.modes}</td>
-                <td>{this.state.size}</td>
-                <td>{this.renderFilename()}</td>
-                <td>{this.state.linked_file_name}</td>
+                <td>
+                    <pre>{this.props.result}</pre>
+                </td>
             </tr>)
     }
 }
@@ -73,9 +38,6 @@ class Content extends Component {
             id: this.server_id,
             name: this.name,
             pwd: '.',
-            directoryPath: '',
-            directoryParent: '..',
-            directoryEntries: [],
             command: '',
             commandEntries: [],
             hrefLog: `/container_log/${this.server_id}/${this.name}`
@@ -97,28 +59,6 @@ class Content extends Component {
             })
         ).fail((xhr, textStatus, errorThrown) =>
             this.setState({message: `Error getting container: ${textStatus} - ${errorThrown}`})
-        )
-    }
-
-    changeDirectory = (directoryName) => {
-        const pwd = join(this.state.directoryPath, directoryName);
-        this.getDirectory(pwd);
-    }
-
-    getDirectory(pwd) {
-        this.setState({directoryGetting: true})
-        $.getJSON(`/proxy/container/${this.state.id}/ls`, {name: this.state.name, pwd: pwd}
-        ).then(result =>
-            this.setState({
-                pwd: result.pwd,
-                directoryPath: result.path,
-                directoryParent: result.parent,
-                directoryTotal: result.total,
-                directoryEntries: result.entries,
-            })
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting container: ${textStatus} - ${errorThrown}`})
-        ).always(() => this.setState({directoryGetting: false})
         )
     }
 
@@ -147,14 +87,6 @@ class Content extends Component {
         return null;
     }
 
-    clickUpDirectory = (evt) => {
-        this.getDirectory(join(this.state.pwd, '..'));
-    }
-
-    clickDirectory = (evt, dir = '/') => {
-        this.getDirectory(dir);
-    }
-
     clickAction = (evt, action) => {
         evt.preventDefault();
         this.setState({actioning: action.action});
@@ -175,7 +107,6 @@ class Content extends Component {
 
     clickExplore = (evt) => {
         this.setState({mode: 'explore'});
-        this.getDirectory(this.state.pwd);
     }
 
     clickExecute = (evt) => {
@@ -218,73 +149,12 @@ class Content extends Component {
         </li>
     }
 
-    renderCurrentPath() {
-        const upButton = (this.state.directoryPath !== '/' && this.state.status === 'running') ?
-            <a href={"#"} className={"btn"} onClick={evt => this.clickUpDirectory(evt)}
-               title={"Up one level of directory"}><span
-                className="material-icons">reply</span></a> : null;
-        const refreshButton = (this.state.status === 'running') ?
-            <a href={"#"} className={"btn"} onClick={evt => this.clickUpDirectory(evt)} title={"Refresh"}><span
-                className="material-icons">cached</span></a> : null;
-        const getting = this.state.directoryGetting ? <div className="spinner-border text-success" role="status">
-            <span className="sr-only">Loading...</span>
-        </div> : null;
-        let cwd = '/';
-        const directoryLinks = [];
-        this.state.directoryPath.split('/').forEach((dir, index) => {
-            if (index === 0 || dir.length) {
-                cwd = join(cwd, dir);
-                let thisCwd = cwd.toString();
-                directoryLinks.push({cwd: cwd, dir: dir});
-            }
-        });
-
-        return (
-            <div>
-                {refreshButton}
-                {upButton}
-                {directoryLinks.map(d => {
-                    return <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
-                              title={d.cwd}>{d.dir}/&nbsp;</a>
-                })}
-                {getting}
-            </div>);
-    }
-
-    renderExplore() {
-        if (this.state.mode !== 'explore') {
-            return null;
-        }
-        return (
-            <div>
-                {this.renderCurrentPath()}
-
-                <table className={"table"}>
-                    <thead>
-                    <tr>
-                        <th>Modes</th>
-                        <th>Size</th>
-                        <th>Name</th>
-                        <th>link</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.directoryEntries.map(entry => <DirectoryEntry entry={entry}
-                                                                              key={entry.file_name}
-                                                                              parentChangeDirectory={this.changeDirectory}
-                                                                              updateState={this.updateState}/>)}
-                    </tbody>
-                </table>
-            </div>
-        )
-    }
-
     onChange = (evt, stateProp) => {
         this.setState({[stateProp]: evt.target.value})
     }
 
     clickExec = (evt) => {
-        this.exec_run(this.state.command).then(result=>{
+        this.exec_run(this.state.command).then(result => {
             this.state.commandEntries.unshift(<ExecEntry cmd={this.state.command} result={result}/>);
             this.setState({commandEntries: this.state.commandEntries})
         })
@@ -302,7 +172,7 @@ class Content extends Component {
                 <button onClick={(evt) => this.clickExec(evt)}>exec</button>
                 <table className={"table"}>
                     <tbody>
-                        {this.state.commandEntries}
+                    {this.state.commandEntries}
                     </tbody>
                 </table>
             </div>
@@ -323,17 +193,32 @@ class Content extends Component {
         return <h3 className={textClass} title={"status"}>{this.state.status}</h3>;
     }
 
+    renderDirectory() {
+        if (this.state.mode === 'explore') {
+            return <Directory
+                id={this.state.id}
+                pwd={'.'}
+                name={this.state.name}
+                status={this.state.status}
+                updateState={this.updateState()}
+            />
+        }
+        return null
+    }
+
     render() {
         return (
             <div>
                 {this.renderStatus()}
                 {this.renderMessage()}
                 {this.renderActions()}
-                {this.renderExplore()}
                 {this.renderExecute()}
+                {this.renderDirectory()}
             </div>
         )
     }
 }
 
-ReactDOM.render(<Content/>, document.getElementById('jsx_content'));
+ReactDOM.render(
+    <Content/>
+    , document.getElementById('jsx_content'));

@@ -35,12 +35,14 @@ def exec_run(container, cmd, shell=False):
     """
     if shell:
         cmd = f'/bin/bash -c "{cmd}"'
+    current_app.logger.info(cmd)
     exit_code, output = container.exec_run(cmd, stream=True)
-    result = b''
+    result = ''
     for z in output:
-        result += z
-    return result.decode('utf-8')
+        result += z.decode('utf-8')
 
+    current_app.logger.info(result)
+    return result
 
 def get_directory(container, args):
     pwd = args.get('pwd', '.')
