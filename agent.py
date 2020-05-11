@@ -44,6 +44,7 @@ def exec_run(container, cmd, shell=False):
     current_app.logger.info(result)
     return result
 
+
 def get_directory(container, args):
     pwd = args.get('pwd', '.')
     parent = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''').split('\n')[0]

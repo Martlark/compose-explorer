@@ -13,9 +13,9 @@ bp = Blueprint('main', __name__)
 
 def admin_views(admin, db):
     # Add Flask-Admin views for Users and Roles
-    admin.add_view(UserAdmin(User, db.session, endpoint='user'))
-    admin.add_view(SettingAdmin(Setting, db.session, endpoint='setting'))
-    admin.add_view(DockerServerAdmin(DockerServer, db.session, endpoint='docker_server'))
+    admin.add_view(UserAdmin(User, db.session))
+    admin.add_view(SettingAdmin(Setting, db.session))
+    admin.add_view(DockerServerAdmin(DockerServer, db.session))
 
 
 @bp.errorhandler(Exception)
