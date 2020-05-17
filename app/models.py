@@ -72,7 +72,9 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         """
         r = requests.get(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
                          auth=('explorer', self.credentials), params=params)
-        return r.json()
+        if r.ok:
+            return r.json()
+        raise Exception(r.text)
 
     def post(self, d_type, verb, params=None):
         """
@@ -85,10 +87,13 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         """
         r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
                           auth=('explorer', self.credentials), data=params)
-        try:
-            return r.json()
-        except:
-            return r.text
+        if r.ok:
+            try:
+                return r.json()
+            except:
+                return r.text
+
+        raise Exception(r.text)
 
     def get_summary(self):
         try:

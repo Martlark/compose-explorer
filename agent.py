@@ -1,10 +1,15 @@
+import os
+import shutil
+import subprocess
+import tempfile
+
 import docker
-from flask import Flask, jsonify, request, current_app
+from flask import Flask, jsonify, request, current_app, send_file, make_response
 
 app = Flask(__name__)
 # https://docker-py.readthedocs.io/en/stable/
 dc = docker.from_env()
-
+cleanup = {}
 
 def d_serialize(item, attributes):
     """
@@ -49,7 +54,7 @@ def get_directory(container, args):
     pwd = args.get('pwd', '.')
     parent = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''').split('\n')[0]
     path = exec_run(container, f'''bash -c "(cd '{pwd}' && pwd)"''').split('\n')[0]
-    cmd = f'ls -la1Q "{pwd}"'
+    cmd = f'ls -la1Qt "{pwd}"'
     listing = exec_run(container, cmd)
     entries = []
     total = ''
@@ -57,8 +62,6 @@ def get_directory(container, args):
         print(i, l)
         if i == 0:
             total = l
-            continue
-        elif i == 1:
             continue
 
         # lrwxrwxrwx   1 root root    33 Apr 30 06:37 "initrd. img.old" -> "boot/initrd.img-4.15.0-96- generic"
@@ -73,7 +76,7 @@ def get_directory(container, args):
             entry['file_name'] = file_name
             if file_name_pos > end_file_name_pos:
                 end_file_name_pos = l.find('"', file_name_pos + 2)
-                linked_file_name = l[file_name_pos + 2:end_file_name_pos]
+                linked_file_name = l[file_name_pos+1:end_file_name_pos]
                 entry['linked_file_name'] = linked_file_name
             entries.append(entry)
     return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
@@ -111,9 +114,6 @@ def route_container(param):
                 return {'entries': []}
 
         if request.method == 'POST':
-            if param not in ['restart', 'stop', 'start', 'exec_run']:
-                raise Exception('action not supported')
-
             if param == 'restart':
                 container.restart()
             elif param == 'stop':
@@ -126,6 +126,8 @@ def route_container(param):
                     return exec_run(container, cmd, shell=True)
                 else:
                     return 'not running'
+            elif param == 'download':
+                return download_container_file(container)
             else:
                 raise Exception('unknown action')
             container = dc.containers.get(name)
@@ -136,6 +138,34 @@ def route_container(param):
     except Exception as e:
         current_app.logger.exception(e)
         return f'{e}', 400
+
+
+def download_container_file(container):
+    # download_container_file file
+    filename = request.form.get('filename')
+    if not filename:
+        raise Exception('no filename in form')
+    current_app.logger.info(f'download: {filename}')
+    for old_tmp_dir in cleanup.copy():
+        try:
+            if os.path.isdir(old_tmp_dir):
+                shutil.rmtree(old_tmp_dir)
+            del cleanup[old_tmp_dir]
+        except Exception as e:
+            current_app.logger.exception(e)
+    tmp_dir = tempfile.mkdtemp(suffix='.docker-explorer-agent')
+    fd, tmp_filename = tempfile.mkstemp(suffix='.tar', dir=tmp_dir)
+    bits, stat = container.get_archive(filename)
+    for chunk in bits:
+        os.write(fd, chunk)
+    os.close(fd)
+    result = subprocess.run(['tar', '-xf', tmp_filename, '-C', tmp_dir])
+    if result.returncode != 0:
+        current_app.logger.warning(result)
+    attachment_filename = os.path.basename(filename)
+    tmp_filename = os.path.join(tmp_dir, attachment_filename)
+    cleanup[tmp_dir] = tmp_filename
+    return send_file(tmp_filename, attachment_filename=attachment_filename, as_attachment=True)
 
 
 @app.route('/volume/<param>')

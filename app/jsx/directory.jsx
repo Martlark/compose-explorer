@@ -40,6 +40,7 @@ class DirectoryEntry extends Component {
                 <td><Checkbox checked={this.state.selected} onChange={evt => this.checkboxOnChange(evt)}/></td>
                 <td>{this.state.modes}</td>
                 <td>{this.state.size}</td>
+                <td>{this.state.modified}</td>
                 <td>{this.renderFilename()}</td>
                 <td>{this.state.linked_file_name}</td>
             </tr>
@@ -94,6 +95,30 @@ export default class Directory extends Component {
         )
     }
 
+    /***
+     * download_container_file any selected that are not directories.  they will download_container_file as tar
+     * @param evt
+     */
+    clickDownloadSelected = (evt) => {
+        const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
+        selected.forEach(dir => {
+            return $.post(`/proxy/container/${this.state.id}/download`, {
+                    name: this.state.name,
+                    filename: join(this.state.pwd, dir.linked_file_name || dir.file_name),
+                    csrf_token: $("input[name=base-csrf_token]").val(),
+                }
+            ).then((result, textStatus, request) => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([result]));
+                    a.download = dir.file_name;
+                    a.click();
+                }
+            ).fail((xhr, textStatus, errorThrown) =>
+                this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+            )
+        });
+    }
+
     changeDirectory = (directoryName) => {
         const pwd = join(this.state.directoryPath, directoryName);
         this.getDirectory(pwd);
@@ -131,6 +156,9 @@ export default class Directory extends Component {
         const deleteButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDeleteSelected(evt)}
                                 title={"Remove selected files"}><span
             className="material-icons">delete</span></a>;
+        const downloadButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDownloadSelected(evt)}
+                                  title={"Download selected files"}><span
+            className="material-icons">arrow_downward</span></a>;
         const refreshButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDirectory(evt, this.state.pwd)}
                                  title={"Refresh"}><span
             className="material-icons">cached</span></a>;
@@ -150,6 +178,7 @@ export default class Directory extends Component {
         return (
             <div>
                 {refreshButton}
+                {downloadButton}
                 {deleteButton}
                 {upButton}
                 {directoryLinks.map(d => {
@@ -163,9 +192,10 @@ export default class Directory extends Component {
 
     selectEntry = (fileName, state) => {
         let data = this.state.directoryEntries;
-        data.forEach(entry => {
+        data.some(entry => {
             if (entry.file_name === fileName) {
                 entry.selected = state;
+                return true;
             }
         })
         this.setState({directoryEntries: data})
@@ -182,6 +212,7 @@ export default class Directory extends Component {
                         <th>&nbsp;</th>
                         <th>Modes</th>
                         <th>Size</th>
+                        <th>Modified</th>
                         <th>Name</th>
                         <th>link</th>
                     </tr>

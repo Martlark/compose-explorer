@@ -200,7 +200,7 @@ class Content extends Component {
                 pwd={'.'}
                 name={this.state.name}
                 status={this.state.status}
-                updateState={this.updateState()}
+                updateState={this.updateState}
             />
         }
         return null
