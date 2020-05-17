@@ -128,6 +128,12 @@ def route_container(param):
                     return 'not running'
             elif param == 'download':
                 return download_container_file(container)
+            elif param == 'logs':
+                logs = container.logs(tail=int(request.form.get('tail', '1000')), timestamps=True)
+                fd, tmp_filename = tempfile.mkstemp()
+                os.write(fd, logs)
+                os.close(fd)
+                return send_file(tmp_filename)
             else:
                 raise Exception('unknown action')
             container = dc.containers.get(name)
@@ -155,10 +161,12 @@ def download_container_file(container):
             current_app.logger.exception(e)
     tmp_dir = tempfile.mkdtemp(suffix='.docker-explorer-agent')
     fd, tmp_filename = tempfile.mkstemp(suffix='.tar', dir=tmp_dir)
+    # extract from container is an archive
     bits, stat = container.get_archive(filename)
     for chunk in bits:
         os.write(fd, chunk)
     os.close(fd)
+    # extract from tar
     result = subprocess.run(['tar', '-xf', tmp_filename, '-C', tmp_dir])
     if result.returncode != 0:
         current_app.logger.warning(result)

@@ -8,9 +8,9 @@ Goals
 * Allow start, stop and restart of containers (done)
 * View logs (done)
 * Explore files on a container (done)
-* Download logs
-* Copy out of a container
-* Run commands on a container
+* Download logs (done)
+* Copy out of a container (done)
+* Run commands on a container (done)
 * Improve understanding of React JS
 
 

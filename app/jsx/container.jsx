@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import $ from "jquery"
 import Directory from './directory'
+import join from "join-path";
 
 class ExecEntry extends Component {
     constructor(props) {
@@ -105,6 +106,27 @@ class Content extends Component {
         });
     }
 
+
+    clickDownloadLogs = (evt) => {
+        const                     filename= 'logs.txt';
+
+            return $.post(`/proxy/container/${this.state.id}/logs`, {
+                    name: this.state.name,
+                    filename,
+                    csrf_token: $("input[name=base-csrf_token]").val(),
+                }
+            ).then((result, textStatus, request) => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([result]));
+                    a.download = filename;
+                    a.click();
+                }
+            ).fail((xhr, textStatus, errorThrown) =>
+                this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+            )
+    }
+
+
     clickExplore = (evt) => {
         this.setState({mode: 'explore'});
     }
@@ -128,6 +150,11 @@ class Content extends Component {
                 <li className={"list-inline-item"}>
                     <a href="#" onClick={evt => this.clickExplore()} title={"Explore directory"}>
                         <span className="material-icons">explore</span>
+                    </a>
+                </li>
+                <li className={"list-inline-item"}>
+                    <a href="#" onClick={evt => this.clickDownloadLogs()} title={"Download logs"}>
+                        <span className="material-icons">texture</span>
                     </a>
                 </li>
                 <li className={"list-inline-item"}>
