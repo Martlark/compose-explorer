@@ -2,13 +2,13 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import $ from "jquery"
 import Directory from './directory'
-import join from "join-path";
 
 class ExecEntry extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            key: Math.random()
+            key: props.id || Math.random(),
+            ...props
         };
     }
 
@@ -17,11 +17,20 @@ class ExecEntry extends Component {
         this.props.clickExec(this.state.cmd);
     }
 
+
+    onChange = (evt, stateProp) => {
+        this.setState({[stateProp]: evt.target.value})
+    }
+
     render() {
         return (
             <tr key={this.state.key}>
-                <td>{this.props.cmd}</td>
-                <td>
+                <td className={"w-25"}>
+                    <button onClick={evt => this.state.clickExec(evt, this.props.cmd)}>Run</button>
+                    <button onClick={evt => this.state.clickExecDelete(evt, this.props.id)}>Del</button>
+                </td>
+                <td className={"w-25"}>{this.props.cmd}</td>
+                <td className={"w-50"}>
                     <pre>{this.props.result}</pre>
                 </td>
             </tr>)
@@ -48,7 +57,22 @@ class Content extends Component {
 
     componentDidMount() {
         this.getContainerProps();
+        this.getCommandEntries();
     }
+
+    getCommandEntries() {
+        $.getJSON(`/command`
+        ).then(result =>
+            this.setState({
+                commandEntries: result.map(result => <ExecEntry cmd={result.cmd} clickExec={this.clickExec}
+                                                                clickExecDelete={this.clickExecDelete}
+                                                                result={result.result} id={result.id}/>)
+            })
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.setState({message: `Error getting commands: ${textStatus} - ${errorThrown}`})
+        )
+    }
+
 
     getContainerProps() {
         $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
@@ -63,14 +87,27 @@ class Content extends Component {
         )
     }
 
-    exec_run(cmd) {
-        this.setState({executing: true});
+    clickExec = (evt, command = null) => {
+        const cmd = command || this.state.command;
+        console.log(cmd);
+        this.setState({executing: true, command: cmd});
         return $.post(`/proxy/container/${this.state.id}/exec_run`, {
                 name: this.state.name,
                 csrf_token: $("input[name=base-csrf_token]").val(),
                 cmd: cmd,
             }
-        ).then(result => result
+        ).then(cmd_result => {
+                return $.post(`/command`, {
+                    csrf_token: $("input[name=base-csrf_token]").val(),
+                    result: cmd_result,
+                    cmd: cmd,
+                }).then(result => {
+                    this.state.commandEntries.unshift(<ExecEntry cmd={cmd} clickExec={this.clickExec}
+                                                                 clickExecDelete={this.clickExecDelete}
+                                                                 result={cmd_result} id={result.id}/>)
+                    this.setState({commandEntries: this.state.commandEntries});
+                })
+            }
         ).fail((xhr, textStatus, errorThrown) =>
             this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
         ).always(() => this.setState({executing: false})
@@ -108,22 +145,22 @@ class Content extends Component {
 
 
     clickDownloadLogs = (evt) => {
-        const                     filename= 'logs.txt';
+        const filename = 'logs.txt';
 
-            return $.post(`/proxy/container/${this.state.id}/logs`, {
-                    name: this.state.name,
-                    filename,
-                    csrf_token: $("input[name=base-csrf_token]").val(),
-                }
-            ).then((result, textStatus, request) => {
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(new Blob([result]));
-                    a.download = filename;
-                    a.click();
-                }
-            ).fail((xhr, textStatus, errorThrown) =>
-                this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
-            )
+        return $.post(`/proxy/container/${this.state.id}/logs`, {
+                name: this.state.name,
+                filename,
+                csrf_token: $("input[name=base-csrf_token]").val(),
+            }
+        ).then((result, textStatus, request) => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(new Blob([result]));
+                a.download = filename;
+                a.click();
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+        )
     }
 
 
@@ -180,11 +217,25 @@ class Content extends Component {
         this.setState({[stateProp]: evt.target.value})
     }
 
-    clickExec = (evt) => {
-        this.exec_run(this.state.command).then(result => {
-            this.state.commandEntries.unshift(<ExecEntry cmd={this.state.command} result={result}/>);
-            this.setState({commandEntries: this.state.commandEntries})
-        })
+    clickExecDelete = (evt, command_id) => {
+        this.setState({executing: true});
+        return $.ajax({
+                url: `/command/${command_id}`,
+                type: 'DELETE',
+                data: {csrf_token: $("input[name=base-csrf_token]").val()}
+            }
+        ).then(
+            result => {
+                const commandEntries = this.state.commandEntries.filter(entry =>
+                    entry.props.id !== command_id
+                );
+
+                this.setState({message: result.message, commandEntries})
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.setState({message: `Error exec delete: ${textStatus} - ${errorThrown}`})
+        ).always(() => this.setState({executing: false})
+        )
     }
 
     renderExecute() {

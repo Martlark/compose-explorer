@@ -2,10 +2,10 @@
 import os
 import random
 from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
-from flask_login import logout_user, login_required
+from flask_login import logout_user, login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
-from app.models import User, Setting, DockerServer
+from app.models import User, Setting, DockerServer, Command
 from config import STATIC_DIR
 
 bp = Blueprint('main', __name__)
@@ -113,3 +113,11 @@ def last_static_update():
             current_app.logger.debug(
                 'Refresh required because of:rand_check_number')
     return dict(max_age=max_age, rand_check_number=rand_check_number)
+
+
+
+@bp.route('/command/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
+@bp.route('/command', methods=['GET', 'POST'])
+@login_required
+def route_command(item_id=None):
+    return Command.get_delete_put_post(item_id, user=current_user)

@@ -2,9 +2,11 @@ import string
 
 import os
 import random
+from datetime import datetime
+
 import requests
 from dateutil import tz
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
 from flask_serialize import FlaskSerializeMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -27,6 +29,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     password = db.Column(db.String(255))
     user_type = db.Column(db.String(255), default='user')
     active = db.Column(db.Boolean(), default=True)
+    commands = db.relationship('Command', backref='user', lazy='dynamic', foreign_keys='Command.user_id')
 
     @classmethod
     def name_is_unused(cls, name):
@@ -45,6 +48,28 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
         return self.password and check_password_hash(self.password, password)
 
+    def add_command(self, cmd, result):
+        command = Command(cmd=cmd, result=result, user=self)
+        db.session.add(command)
+        db.session.commit()
+        return command
+
+
+class Command(db.Model, FlaskSerializeMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    cmd = db.Column(db.String(4000))
+    result = db.Column(db.String(4000))
+    created = db.Column(db.DateTime, default=datetime.utcnow)
+    updated = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('app_user.id'))
+
+    # fs fields
+
+    create_fields = ['cmd', 'result']
+
+    def verify(self, create=False):
+        if create:
+            self.user = current_user
 
 # DockerServer class
 class DockerServer(db.Model, FlaskSerializeMixin):
@@ -122,7 +147,7 @@ class Setting(db.Model, FlaskSerializeMixin):
     def __repr__(self):
         return '<Setting %r %r %r>' % (self.id, self.setting_type, self.value)
 
-    def verify(self):
+    def verify(self, create=False):
         if not self.key or len(self.key) < 1:
             raise Exception('Missing key')
 

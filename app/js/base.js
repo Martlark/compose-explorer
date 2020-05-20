@@ -128,7 +128,7 @@ jQuery.each(["put", "delete"], function (i, method) {
         }
         return jQuery.ajax({
             url: url,
-            type: method,
+            type: method.toUpperCase(),
             contentType: contentType,
             data: data,
             cache: false,
