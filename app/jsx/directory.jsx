@@ -55,7 +55,6 @@ export default class Directory extends Component {
             pwd: props.pwd,
             id: props.id,
             name: props.name,
-            status: props.status,
             updateState: props.updateState,
             directoryPath: '',
             directoryParent: '..',
@@ -142,9 +141,6 @@ export default class Directory extends Component {
     }
 
     renderActions() {
-        if (this.state.status !== 'running') {
-            return <h3>Container is not running</h3>
-        }
         if (!this.state.directoryPath) {
             return <h3>No directory found</h3>
         }
@@ -181,10 +177,10 @@ export default class Directory extends Component {
                 {downloadButton}
                 {deleteButton}
                 {upButton}
-                {directoryLinks.map(d => {
-                    return <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
+                {directoryLinks.map(d =>
+                    <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
                               title={d.cwd}>{d.dir}&nbsp;/&nbsp;</a>
-                })}
+                )}
                 {getting}
             </div>
         );

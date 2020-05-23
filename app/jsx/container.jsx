@@ -1,36 +1,31 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
+import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
+import {LogContent} from './container_log'
 
 class ExecEntry extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            key: props.id || Math.random(),
-            ...props
-        };
     }
 
-    clickExec = (evt, fileName) => {
+    clickCmd = (evt) => {
         evt.preventDefault();
-        this.props.clickExec(this.state.cmd);
-    }
-
-
-    onChange = (evt, stateProp) => {
-        this.setState({[stateProp]: evt.target.value})
+        this.props.updateState({command: this.props.cmd});
     }
 
     render() {
         return (
-            <tr key={this.state.key}>
+            <tr key={this.props.id}>
                 <td className={"w-25"}>
-                    <button onClick={evt => this.state.clickExec(evt, this.props.cmd)}>Run</button>
-                    <button onClick={evt => this.state.clickExecDelete(evt, this.props.id)}>Del</button>
+                    <a href={'javascript:'} title={'Re-run command'} onClick={evt => this.props.clickExec(evt, this.props.cmd)}><span
+                        className="material-icons">directions_run</span></a>
+                    <a href={'javascript:'} title={'delete from history'} onClick={evt => this.props.clickExecDelete(evt, this.props.id)}><span
+                        className="material-icons">delete_forever</span></a>
                 </td>
-                <td className={"w-25"}>{this.props.cmd}</td>
-                <td className={"w-50"}>
+                <td className={"w-25"}><a href={'javascript:'} title={'Edit command string'} onClick={evt => this.clickCmd(evt)}>{this.props.cmd}</a></td>
+                <td className={"w-50"} title={this.props.created}>
                     <pre>{this.props.result}</pre>
                 </td>
             </tr>)
@@ -52,7 +47,7 @@ class Content extends Component {
             commandEntries: [],
             hrefLog: `/container_log/${this.server_id}/${this.name}`
         };
-        this.actions = ['stop', 'start', 'restart'];
+        this.actions = [{cmd:'stop',icon: 'stop'}, {cmd:'start', icon:'play_arrow'}, {cmd:'restart', icon:'replay'}];
     }
 
     componentDidMount() {
@@ -66,6 +61,8 @@ class Content extends Component {
             this.setState({
                 commandEntries: result.map(result => <ExecEntry cmd={result.cmd} clickExec={this.clickExec}
                                                                 clickExecDelete={this.clickExecDelete}
+                                                                updateState={this.updateState}
+                                                                created={result.created}
                                                                 result={result.result} id={result.id}/>)
             })
         ).fail((xhr, textStatus, errorThrown) =>
@@ -88,30 +85,33 @@ class Content extends Component {
     }
 
     clickExec = (evt, command = null) => {
+        console.log(command);
         const cmd = command || this.state.command;
-        console.log(cmd);
-        this.setState({executing: true, command: cmd});
-        return $.post(`/proxy/container/${this.state.id}/exec_run`, {
-                name: this.state.name,
-                csrf_token: $("input[name=base-csrf_token]").val(),
-                cmd: cmd,
-            }
-        ).then(cmd_result => {
-                return $.post(`/command`, {
+        this.setState({executing: true, command: cmd}, () => {
+            return $.post(`/proxy/container/${this.state.id}/exec_run`, {
+                    name: this.state.name,
                     csrf_token: $("input[name=base-csrf_token]").val(),
-                    result: cmd_result,
                     cmd: cmd,
-                }).then(result => {
-                    this.state.commandEntries.unshift(<ExecEntry cmd={cmd} clickExec={this.clickExec}
-                                                                 clickExecDelete={this.clickExecDelete}
-                                                                 result={cmd_result} id={result.id}/>)
-                    this.setState({commandEntries: this.state.commandEntries});
-                })
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
-        ).always(() => this.setState({executing: false})
-        )
+                }
+            ).then(cmd_result => {
+                    return $.post(`/command`, {
+                        csrf_token: $("input[name=base-csrf_token]").val(),
+                        result: cmd_result,
+                        cmd: cmd,
+                    }).then(result => {
+                        this.state.commandEntries.unshift(<ExecEntry cmd={cmd} clickExec={this.clickExec}
+                                                                     clickExecDelete={this.clickExecDelete}
+                                                                     updateState={this.updateState}
+                                                                     created={result.created}
+                                                                     result={cmd_result} id={result.id}/>)
+                        this.setState({commandEntries: this.state.commandEntries});
+                    })
+                }
+            ).fail((xhr, textStatus, errorThrown) =>
+                this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
+            ).always(() => this.setState({executing: false})
+            )
+        })
     }
 
     updateState = (data) => {
@@ -163,13 +163,8 @@ class Content extends Component {
         )
     }
 
-
-    clickExplore = (evt) => {
-        this.setState({mode: 'explore'});
-    }
-
-    clickExecute = (evt) => {
-        this.setState({mode: 'execute'});
+    clickToggleVisible = (evt, item) => {
+        this.setState({[`visible-${item}`]: !this.state[`visible-${item}`]});
     }
 
     renderActions() {
@@ -180,24 +175,14 @@ class Content extends Component {
         return (
             <ul className="list-inline">
                 <li className={"list-inline-item"}>
-                    <a href={this.state.hrefLog} title={"Logs"}>
-                        <span className="material-icons">assignment</span>
-                    </a>
+                    <button className={'btn btn-sm'} onClick={evt=>window.open(this.state.hrefLog)} title={"Logs"}>
+                        Logs <span className="material-icons">assignment</span>
+                    </button>
                 </li>
                 <li className={"list-inline-item"}>
-                    <a href="#" onClick={evt => this.clickExplore()} title={"Explore directory"}>
-                        <span className="material-icons">explore</span>
-                    </a>
-                </li>
-                <li className={"list-inline-item"}>
-                    <a href="#" onClick={evt => this.clickDownloadLogs()} title={"Download logs"}>
-                        <span className="material-icons">texture</span>
-                    </a>
-                </li>
-                <li className={"list-inline-item"}>
-                    <a href="#" onClick={evt => this.clickExecute()} title={"Run application"}>
-                        <span className="material-icons">directions_run</span>
-                    </a>
+                    <button className={'btn btn-sm'} onClick={evt => this.clickDownloadLogs()} title={"Download logs"}>
+                        Download Logs <span className="material-icons">texture</span>
+                    </button>
                 </li>
                 {this.actions.map(action => this.renderActionListItem(action))}
             </ul>
@@ -207,9 +192,9 @@ class Content extends Component {
     renderActionListItem(action) {
         const style = {textTransform: "capitalize"};
 
-        return <li key={action} className={"list-inline-item"}>
+        return <li key={action.cmd} className={"list-inline-item"}>
             <button style={style} className={"btn btn-sm"}
-                    onClick={evt => this.clickAction(evt, {action})}>{action}</button>
+                    onClick={evt => this.clickAction(evt, action.cmd)}>{action.cmd}<span className="material-icons">{action.icon}</span></button>
         </li>
     }
 
@@ -239,22 +224,21 @@ class Content extends Component {
     }
 
     renderExecute() {
-        if (this.state.mode !== 'execute') {
-            return null;
-        }
-        return (
-            <div>
+        return <div>
+            <Collapsible trigger="Execute">
+
                 <label>Command: <input name={"command"}
                                        onChange={evt => this.onChange(evt, 'command')}
                                        value={this.state.command}/></label>
-                <button onClick={(evt) => this.clickExec(evt)}>exec</button>
+                <button onClick={(evt) => this.clickExec(evt)}><span className="material-icons">directions_run</span>
+                </button>
                 <table className={"table"}>
                     <tbody>
                     {this.state.commandEntries}
                     </tbody>
                 </table>
-            </div>
-        )
+            </Collapsible>
+        </div>
     }
 
     renderStatus() {
@@ -272,16 +256,26 @@ class Content extends Component {
     }
 
     renderDirectory() {
-        if (this.state.mode === 'explore') {
-            return <Directory
-                id={this.state.id}
-                pwd={'.'}
-                name={this.state.name}
-                status={this.state.status}
-                updateState={this.updateState}
-            />
-        }
-        return null
+        return <div>
+            <Collapsible trigger="Directory">
+
+                <Directory
+                    id={this.state.id}
+                    pwd={'.'}
+                    name={this.state.name}
+                    updateState={this.updateState}
+                />
+            </Collapsible>
+        </div>
+    }
+
+    renderLog() {
+        return <div>
+            <Collapsible trigger="Logs">
+
+                <LogContent/>
+            </Collapsible>
+        </div>
     }
 
     render() {
@@ -292,11 +286,10 @@ class Content extends Component {
                 {this.renderActions()}
                 {this.renderExecute()}
                 {this.renderDirectory()}
+                {this.renderLog()}
             </div>
         )
     }
 }
 
-ReactDOM.render(
-    <Content/>
-    , document.getElementById('jsx_content'));
+ReactDOM.render(<Content/>, document.getElementById('jsx_content'));

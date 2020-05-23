@@ -25,7 +25,7 @@ class LogEntry extends Component {
     }
 }
 
-class Content extends Component {
+export class LogContent extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -87,7 +87,7 @@ class Content extends Component {
                     <thead>
                     <tr>
                         <th className={"w-25"}>Time stamp</th>
-                        <th className={"w-75"}></th>
+                        <th className={"w-75"}>&nbsp;</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -102,4 +102,4 @@ class Content extends Component {
     }
 }
 
-ReactDOM.render(<Content/>, document.getElementById('jsx_content'));
+ReactDOM.render(<LogContent/>, document.getElementById('jsx_content'));
