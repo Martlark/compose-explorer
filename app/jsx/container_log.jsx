@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import $ from "jquery"
+import AutoInput from "./AutoInput";
 
 class LogEntry extends Component {
     constructor(props) {
@@ -33,6 +34,8 @@ export class LogContent extends Component {
             add: false,
             message: '',
             filter: '',
+            tail: 100,
+            autoUpdate: true,
             id: $("input[name=server-id]").val(),
             name: $("input[name=container-name]").val()
         };
@@ -46,18 +49,22 @@ export class LogContent extends Component {
             this.state.message = `Error getting container: ${textStatus} - ${errorThrown}`
         );
         this.refreshLogsInteval = setInterval(() => {
-            this.getLogs();
+            if (this.state.autoUpdate) {
+                this.getLogs();
+            }
         }, 10000);
     }
 
     getLogs() {
-        return $.getJSON(`/proxy/container/${this.state.id}/logs`, {name: this.state.name}
+        return $.getJSON(`/proxy/container/${this.state.id}/logs`, {name: this.state.name, tail: this.state.tail}
         ).then(result => {
-                if (this.previousLogHash !== result.hash) {
+                if (this.state.previousLogHash !== result.hash) {
                     const items = [];
                     result.logs.forEach(data => items.push(data));
                     this.setState({previousLogHash: result.hash, logs: items});
-                    baseView.scrollToBottom();
+                    if (this.state.autoUpdate) {
+                        baseView.scrollToBottom();
+                    }
                 }
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -81,8 +88,32 @@ export class LogContent extends Component {
         return null;
     }
 
+    onChange = (evt, item) => {
+        let {value, tagName, type} = evt.target;
+        const currentValue = this.state[item];
+        switch (type) {
+            case 'checkbox':
+                this.setState({[item]: evt.target.checked});
+                break;
+            default:
+                if (!isNaN(currentValue)) {
+                    value = Number(value)
+                }
+                this.setState({[item]: value});
+        }
+    }
+
+    clickRefresh = (evt) => {
+        this.getLogs();
+    }
+
     render() {
         return (<div>
+                <button className={'btn btn-sm'} onClick={evt => this.clickRefresh(evt)} title={"Refresh"}>
+                    Refresh <span className="material-icons">replay</span>
+                </button>
+                <AutoInput name="tail" type="number" min="1" parent={this} label="Tail:"/>
+                <AutoInput name="autoUpdate" type="checkbox" parent={this} label="Auto update:"/>
                 <table className={"table table-bordered table-striped"}>
                     <thead>
                     <tr>

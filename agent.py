@@ -129,6 +129,7 @@ def route_container(param):
             elif param == 'download':
                 return download_container_file(container)
             elif param == 'logs':
+                # download
                 logs = container.logs(tail=int(request.form.get('tail', '1000')), timestamps=True)
                 fd, tmp_filename = tempfile.mkstemp()
                 os.write(fd, logs)

@@ -4,6 +4,7 @@ import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
 import {LogContent} from './container_log'
+import AutoInput from "./AutoInput";
 
 class ExecEntry extends Component {
     constructor(props) {
@@ -39,7 +40,6 @@ class Content extends Component {
         this.name = $("input[name=container-name]").val();
         this.state = {
             message: '',
-            mode: '',
             id: this.server_id,
             name: this.name,
             pwd: '.',
@@ -69,7 +69,6 @@ class Content extends Component {
             this.setState({message: `Error getting commands: ${textStatus} - ${errorThrown}`})
         )
     }
-
 
     getContainerProps() {
         $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
@@ -226,10 +225,7 @@ class Content extends Component {
     renderExecute() {
         return <div>
             <Collapsible trigger="Execute">
-
-                <label>Command: <input name={"command"}
-                                       onChange={evt => this.onChange(evt, 'command')}
-                                       value={this.state.command}/></label>
+                <AutoInput name={"command"} parent={this} label={"Command: "}/>
                 <button onClick={(evt) => this.clickExec(evt)}><span className="material-icons">directions_run</span>
                 </button>
                 <table className={"table"}>
