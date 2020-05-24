@@ -9,6 +9,7 @@ export default class AutoInput extends Component {
         this.props.type = props.type || 'text';
         this.props.label = props.label || '';
         this.inputProps = {};
+        this.state = {value: props.parent.state[props.name]};
         // remove specific props and pass rest to the input control
         Object.keys(this.props).filter(prop => !AutoInput.propTypes.hasOwnProperty(prop)).forEach(prop => this.inputProps[prop] = this.props[prop]);
     }
@@ -22,6 +23,8 @@ export default class AutoInput extends Component {
         parent: PropTypes.instanceOf(Component).isRequired,
         type: PropTypes.string,
         label: PropTypes.string,
+        onChange: PropTypes.func,
+        options: PropTypes.array,
     };
 
     static defaultProps = {
@@ -32,34 +35,67 @@ export default class AutoInput extends Component {
         let {value, tagName, type, checked} = evt.target;
         const {name, parent} = this.props;
         const currentValue = parent.state[name];
+        if (!isNaN(currentValue)) {
+            value = Number(value)
+        }
         switch (type) {
             case 'checkbox':
                 parent.setState({[name]: checked});
+                this.setState({value: checked});
+                break;
+            case 'radio':
+                parent.setState({[name]: value});
+                this.setState({value});
                 break;
             default:
-                if (!isNaN(currentValue)) {
-                    value = Number(value)
-                }
                 parent.setState({[name]: value});
+                this.setState({value});
+        }
+        // call any extra onChange
+        if (this.props.onChange) {
+            this.props.onChange(evt);
         }
     }
 
     renderWithLabel(inputControl) {
         if (this.props.label) {
-            return <label>{this.props.label}{inputControl}</label>;
+            return <div className={"form-check-inline"}>
+                <label className={"form-check-label"}>{this.props.label}{inputControl}</label></div>;
         }
         return inputControl;
     }
 
     render() {
         const state = this.props.parent.state;
-        const {name, type, label} = this.props;
+        const {name, type, label, options} = this.props;
+
         switch (type) {
             case 'textarea':
-                return this.renderWithLabel(<textarea value={state[name]}
+                return this.renderWithLabel(<textarea className={"form-control"} value={state[name]}
                                                       onChange={evt => this.onChange(evt)} {...this.inputProps} />)
+            case 'radio':
+                return options.map(option =>
+                    <div className={"form-check"}>
+                        <label className={"form-check-label"}>
+                            <input className={"form-check-input"} name={name} type={type} value={option.value}
+                                   checked={option.value == this.state.value}
+                                   onChange={evt => this.onChange(evt)} {...this.inputProps} />{option.label}
+                        </label>
+                    </div>
+                );
+            case 'select':
+                return <div className={"form-check"}>
+                    <label className={"form-check-label"}>{label}
+                        <select name={name} value={state[name]}
+                                onChange={evt => this.onChange(evt)} {...this.inputProps}>
+                            {options.map(option => <option className={"form-check-input"}
+                                                           value={option.value}>{option.label}</option>)}
+                        </select>
+                    </label>
+                </div>
             default:
-                return this.renderWithLabel(<input type={type} value={state[name]} checked={state[name]}
+                return this.renderWithLabel(<input className={"form-control"} type={type} value={state[name]}
+                                                   checked={state[name]}
                                                    onChange={evt => this.onChange(evt)} {...this.inputProps} />)
         }
     }

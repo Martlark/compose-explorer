@@ -33,7 +33,7 @@ export class LogContent extends Component {
             logs: [],
             add: false,
             message: '',
-            filter: '',
+            radio: 1,
             tail: 100,
             autoUpdate: true,
             id: $("input[name=server-id]").val(),
@@ -86,21 +86,6 @@ export class LogContent extends Component {
             return <h3 className="{className} alert alert-warning">{this.state.message}</h3>
         }
         return null;
-    }
-
-    onChange = (evt, item) => {
-        let {value, tagName, type} = evt.target;
-        const currentValue = this.state[item];
-        switch (type) {
-            case 'checkbox':
-                this.setState({[item]: evt.target.checked});
-                break;
-            default:
-                if (!isNaN(currentValue)) {
-                    value = Number(value)
-                }
-                this.setState({[item]: value});
-        }
     }
 
     clickRefresh = (evt) => {
