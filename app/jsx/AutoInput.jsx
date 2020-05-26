@@ -9,6 +9,10 @@ export default class AutoInput extends Component {
         this.props.type = props.type || 'text';
         this.props.label = props.label || '';
         this.inputProps = {};
+        this.props.id = props.id || Math.random();
+        this.props.labelClassName = props.labelClassName || "form-check-label";
+        this.props.inputClassName = props.inputClassName || "form-control"
+        this.props.inlineClassName = props.inlineClassName || "form-check-inline";
         this.state = {value: props.parent.state[props.name]};
         // remove specific props and pass rest to the input control
         Object.keys(this.props).filter(prop => !AutoInput.propTypes.hasOwnProperty(prop)).forEach(prop => this.inputProps[prop] = this.props[prop]);
@@ -59,8 +63,11 @@ export default class AutoInput extends Component {
 
     renderWithLabel(inputControl) {
         if (this.props.label) {
-            return <div className={"form-check-inline"}>
-                <label className={"form-check-label"}>{this.props.label}{inputControl}</label></div>;
+            return <div className={this.props.inlineClassName}>
+                <label
+                    className={this.props.labelClassName}
+                    htmlFor={this.props.id}>{this.props.label}{inputControl}</label>
+            </div>;
         }
         return inputControl;
     }
@@ -72,11 +79,18 @@ export default class AutoInput extends Component {
         switch (type) {
             case 'textarea':
                 return this.renderWithLabel(<textarea className={"form-control"} value={state[name]}
-                                                      onChange={evt => this.onChange(evt)} {...this.inputProps} />)
+                                                      onChange={evt => this.onChange(evt)} {...this.inputProps} />);
+            case 'checkbox':
+                return (<div className={"form-check"}>
+                    <label className="form-check-label">
+                        <input className="form-check-input" type={type} value={state[name]}
+                               onChange={evt => this.onChange(evt)} {...this.inputProps} />{this.props.label}
+                    </label>
+                </div>);
             case 'radio':
                 return options.map(option =>
                     <div className={"form-check"}>
-                        <label className={"form-check-label"}>
+                        <label className={this.props.labelClassName}>
                             <input className={"form-check-input"} name={name} type={type} value={option.value}
                                    checked={option.value == this.state.value}
                                    onChange={evt => this.onChange(evt)} {...this.inputProps} />{option.label}
@@ -84,17 +98,15 @@ export default class AutoInput extends Component {
                     </div>
                 );
             case 'select':
-                return <div className={"form-check"}>
-                    <label className={"form-check-label"}>{label}
-                        <select name={name} value={state[name]}
-                                onChange={evt => this.onChange(evt)} {...this.inputProps}>
-                            {options.map(option => <option className={"form-check-input"}
-                                                           value={option.value}>{option.label}</option>)}
-                        </select>
-                    </label>
-                </div>
+                return <div className={"form-group"}>
+                    <label className={this.props.labelClassName} htmlFor={this.props.id}>{label}</label>
+                    <select name={name} value={state[name]} className={"form-control"}
+                            onChange={evt => this.onChange(evt)} {...this.inputProps}>
+                        {options.map(option => <option value={option.value}>{option.label}</option>)}
+                    </select>
+                </div>;
             default:
-                return this.renderWithLabel(<input className={"form-control"} type={type} value={state[name]}
+                return this.renderWithLabel(<input className={this.props.inputClassName} type={type} value={state[name]}
                                                    checked={state[name]}
                                                    onChange={evt => this.onChange(evt)} {...this.inputProps} />)
         }
