@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import join from 'join-path'
 import $ from "jquery"
-import AutoInput from "./AutoInput";
+import BootstrapInput from "./BootstrapInput";
 
 const Checkbox = props => (
     <input type="checkbox" {...props} />
@@ -37,7 +37,7 @@ class DirectoryEntry extends Component {
     render() {
         return (
             <tr>
-                <td><AutoInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}/></td>
+                <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}/></td>
                 <td>{this.state.modes}</td>
                 <td>{this.state.size}</td>
                 <td>{this.state.modified}</td>

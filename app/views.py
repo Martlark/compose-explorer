@@ -41,9 +41,9 @@ def page_server(item_id):
     return render_template('server.html', page_title=server.name, server=server)
 
 
-@bp.route('/auto_input')
-def public_page_server():
-    return render_template('auto_input.html', page_title='auto_input')
+@bp.route('/bootstrap_input')
+def public_page_bootstrap_input():
+    return render_template('bootstrap_input.html', page_title='auto_input')
 
 
 @bp.route('/container/<int:item_id>/<container_name>')

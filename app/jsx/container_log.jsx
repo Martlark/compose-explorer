@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
 import $ from "jquery"
-import AutoInput from "./AutoInput";
+import BootstrapInput from "./BootstrapInput";
 
 class LogEntry extends Component {
     constructor(props) {
@@ -97,8 +97,8 @@ export class LogContent extends Component {
                 <button className={'btn btn-sm'} onClick={evt => this.clickRefresh(evt)} title={"Refresh"}>
                     Refresh <span className="material-icons">replay</span>
                 </button>
-                <AutoInput name="tail" type="number" min="1" parent={this} label="Tail:"/>
-                <AutoInput name="autoUpdate" type="checkbox" parent={this} label="Auto update:"/>
+                <BootstrapInput name="tail" type="number" min="1" parent={this} label="Tail:"/>
+                <BootstrapInput name="autoUpdate" type="checkbox" parent={this} label="Auto update:"/>
                 <table className={"table table-bordered table-striped"}>
                     <thead>
                     <tr>

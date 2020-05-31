@@ -1,21 +1,18 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 
-export default class AutoInput extends Component {
+export default class BootstrapInput extends Component {
     constructor(props) {
         super(props);
-        this.props.name = props.name;
-        this.props.parent = props.parent;
-        this.props.type = props.type || 'text';
-        this.props.label = props.label || '';
         this.inputProps = {};
         this.props.id = props.id || Math.random();
-        this.props.labelClassName = props.labelClassName || "form-check-label";
-        this.props.inputClassName = props.inputClassName || "form-control"
-        this.props.inlineClassName = props.inlineClassName || "form-check-inline";
         this.state = {value: props.parent.state[props.name]};
         // remove specific props and pass rest to the input control
-        Object.keys(this.props).filter(prop => !AutoInput.propTypes.hasOwnProperty(prop)).forEach(prop => this.inputProps[prop] = this.props[prop]);
+        Object.keys(this.props).filter(prop => !BootstrapInput.propTypes.hasOwnProperty(prop)).forEach(prop => this.inputProps[prop] = this.props[prop]);
+    }
+
+    stringToNumber(str) {
+        return [...str].reduce((accum, c) => accum += c.charCodeAt(), 0);
     }
 
     /**
@@ -33,6 +30,11 @@ export default class AutoInput extends Component {
 
     static defaultProps = {
         type: 'text',
+        label: '',
+        inputClassName: "form-control",
+        inlineClassName: "form-check-inline",
+        labelClassName: "form-check-label",
+        options: ['set', 'options=[1,2,3]', 'for selections'],
     }
 
     onChange = (evt) => {
@@ -44,20 +46,14 @@ export default class AutoInput extends Component {
         }
         switch (type) {
             case 'checkbox':
-                parent.setState({[name]: checked});
-                this.setState({value: checked});
+                value = checked;
                 break;
-            case 'radio':
-                parent.setState({[name]: value});
-                this.setState({value});
-                break;
-            default:
-                parent.setState({[name]: value});
-                this.setState({value});
         }
+        parent.setState({[name]: value});
+        this.setState({value: value});
         // call any extra onChange
         if (this.props.onChange) {
-            this.props.onChange(evt);
+            this.props.onChange(evt, value);
         }
     }
 
@@ -102,7 +98,8 @@ export default class AutoInput extends Component {
                     <label className={this.props.labelClassName} htmlFor={this.props.id}>{label}</label>
                     <select name={name} value={state[name]} className={"form-control"}
                             onChange={evt => this.onChange(evt)} {...this.inputProps}>
-                        {options.map(option => <option value={option.value}>{option.label}</option>)}
+                        {options.map(option => <option
+                            value={option.value || option}>{option.label || option}</option>)}
                     </select>
                 </div>;
             default:

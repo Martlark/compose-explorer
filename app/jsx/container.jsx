@@ -4,7 +4,7 @@ import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
 import {LogContent} from './container_log'
-import AutoInput from "./AutoInput";
+import BootstrapInput from "./BootstrapInput";
 
 class ExecEntry extends Component {
     constructor(props) {
@@ -225,7 +225,7 @@ class Content extends Component {
     renderExecute() {
         return <div>
             <Collapsible trigger="Execute">
-                <AutoInput name={"command"} parent={this} label={"Command: "}/>
+                <BootstrapInput name={"command"} parent={this} label={"Command: "}/>
                 <button onClick={(evt) => this.clickExec(evt)}><span className="material-icons">directions_run</span>
                 </button>
                 <table className={"table"}>
