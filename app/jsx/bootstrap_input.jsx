@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import BootstrapInput from "./BootstrapInput";
+import BootstrapInput from "bootstrap-input-react";
 
 export class Content extends Component {
     constructor(props) {

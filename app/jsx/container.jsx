@@ -4,7 +4,7 @@ import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
 import {LogContent} from './container_log'
-import BootstrapInput from "./BootstrapInput";
+import BootstrapInput from "bootstrap-input-react";
 
 class ExecEntry extends Component {
     constructor(props) {

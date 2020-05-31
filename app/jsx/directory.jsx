@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import join from 'join-path'
 import $ from "jquery"
-import BootstrapInput from "./BootstrapInput";
+import BootstrapInput from "bootstrap-input-react";
 
 const Checkbox = props => (
     <input type="checkbox" {...props} />
