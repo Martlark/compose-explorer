@@ -31,9 +31,7 @@ export class LogContent extends Component {
         super(props);
         this.state = {
             logs: [],
-            add: false,
             message: '',
-            radio: 1,
             tail: 100,
             autoUpdate: true,
             id: $("input[name=server-id]").val(),

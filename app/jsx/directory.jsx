@@ -3,10 +3,6 @@ import join from 'join-path'
 import $ from "jquery"
 import BootstrapInput from "bootstrap-input-react";
 
-const Checkbox = props => (
-    <input type="checkbox" {...props} />
-)
-
 class DirectoryEntry extends Component {
     constructor(props) {
         super(props);
