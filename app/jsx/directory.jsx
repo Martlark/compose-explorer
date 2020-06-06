@@ -227,7 +227,6 @@ export default class Directory extends Component {
                 <table className={"table"}>
                     <thead>
                     <tr>
-                        <th>&nbsp;</th>
                         <th>Modes</th>
                         <th>Size</th>
                         <th>Modified</th>
