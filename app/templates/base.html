@@ -8,6 +8,8 @@
     <link href="/static/css/main.css" rel="stylesheet">
 </head>
 <body>
+<input type="hidden" name="flog" value="{{ csrf_token() }}">
+<input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
 
 
 <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark mb-4">
@@ -87,6 +89,5 @@
 <script src="/static/js/jquery.scrolly.min.js"></script>
 <script src="/static/js/skel.min.js"></script>
 <script src="/static/js/auto_reload.js"></script>
-<input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
 </body>
 </html>

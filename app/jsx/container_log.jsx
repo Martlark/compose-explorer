@@ -26,14 +26,14 @@ class LogEntry extends Component {
     }
 }
 
-export class LogContent extends Component {
+export default class LogContent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             logs: [],
             message: '',
             tail: 100,
-            autoUpdate: true,
+            autoUpdate: false,
             id: $("input[name=server-id]").val(),
             name: $("input[name=container-name]").val()
         };

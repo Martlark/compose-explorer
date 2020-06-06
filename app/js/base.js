@@ -157,6 +157,18 @@ $("form").submit(() => {
     })
 });
 
+$.ajaxPrefilter(function(options, originalOptions, jqXHR){
+    if (options.type.toLowerCase() === "post") {
+        // initialize `data` to empty string if it does not exist
+        options.data = options.data || "";
+
+        // add leading ampersand if `data` is non-empty
+        options.data += options.data?"&":"";
+
+        // add _token entry
+        options.data += "csrf_token=" + encodeURIComponent($("input[name=base-csrf_token]").val());
+    }
+});
 
 $.ajaxSetup({
     beforeSend: function (xhr, settings) {

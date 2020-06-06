@@ -2,6 +2,9 @@ import os
 import shutil
 import subprocess
 import tempfile
+import tarfile
+import time
+from io import BytesIO
 
 import docker
 from flask import Flask, jsonify, request, current_app, send_file, make_response
@@ -128,6 +131,8 @@ def route_container(param):
                     return 'not running'
             elif param == 'download':
                 return download_container_file(container)
+            elif param == 'upload':
+                return upload_container_file(container)
             elif param == 'logs':
                 # download
                 logs = container.logs(tail=int(request.form.get('tail', '1000')), timestamps=True)
@@ -153,13 +158,7 @@ def download_container_file(container):
     if not filename:
         raise Exception('no filename in form')
     current_app.logger.info(f'download: {filename}')
-    for old_tmp_dir in cleanup.copy():
-        try:
-            if os.path.isdir(old_tmp_dir):
-                shutil.rmtree(old_tmp_dir)
-            del cleanup[old_tmp_dir]
-        except Exception as e:
-            current_app.logger.exception(e)
+    cleanup_tmp()
     tmp_dir = tempfile.mkdtemp(suffix='.docker-explorer-agent')
     fd, tmp_filename = tempfile.mkstemp(suffix='.tar', dir=tmp_dir)
     # extract from container is an archive
@@ -175,6 +174,46 @@ def download_container_file(container):
     tmp_filename = os.path.join(tmp_dir, attachment_filename)
     cleanup[tmp_dir] = tmp_filename
     return send_file(tmp_filename, attachment_filename=attachment_filename, as_attachment=True)
+
+
+def upload_container_file(container):
+    filename = request.form.get('filename')
+    base_filename = os.path.basename(filename)
+    content = request.form.get('content')
+    if not filename:
+        raise Exception('no filename in form')
+    current_app.logger.info(f'upload: {filename}')
+
+    pw_tarstream = BytesIO()
+
+    pw_tar = tarfile.TarFile(fileobj=pw_tarstream, mode='w')
+
+    file_data = content.encode('utf8')
+
+    tarinfo = tarfile.TarInfo(name=base_filename)
+    tarinfo.size = len(file_data)
+    tarinfo.mtime = time.time()
+    # tarinfo.mode = 0600
+
+    pw_tar.addfile(tarinfo, BytesIO(file_data))
+    pw_tar.close()
+
+    pw_tarstream.seek(0)
+
+    dest_path = os.path.dirname(filename)
+
+    success = container.put_archive(dest_path, pw_tarstream)
+    return dict(dest_path=dest_path, base_filename=base_filename, success=success)
+
+
+def cleanup_tmp():
+    for old_tmp_dir in cleanup.copy():
+        try:
+            if os.path.isdir(old_tmp_dir):
+                shutil.rmtree(old_tmp_dir)
+            del cleanup[old_tmp_dir]
+        except Exception as e:
+            current_app.logger.exception(e)
 
 
 @app.route('/volume/<param>')

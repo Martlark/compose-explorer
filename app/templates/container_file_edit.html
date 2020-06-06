@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block body %}
+    <!-- One -->
+    <div class="container">
+        <h2>{{ file_name }}</h2>
+    </div>
+    <!-- One -->
+    <div class="container">
+        <div class="flex-item" id="jsx_content">
+
+        </div>
+    </div>
+    <input name="server-id" type="hidden" value="{{ server.id }}">
+    <input name="file_name" type="hidden" value="{{ file_name }}">
+    <input name="container-name" type="hidden" value="{{ container_name }}">
+    <input name="server-name" type="hidden" value="{{ server.name }}">
+    <input name="server-credentials" type="hidden" value="{{ server.credentials }}">
+    <script src="/static/src/jsx/container_edit_file.js"></script>
+
+{% endblock %}

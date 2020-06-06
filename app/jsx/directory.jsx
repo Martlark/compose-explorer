@@ -30,11 +30,19 @@ class DirectoryEntry extends Component {
         this.props.selectEntry(this.state.file_name, event.target.checked);
     }
 
+    renderSelectionMode() {
+        if (this.state.dir_type != 'd') {
+            return <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}
+                                       label={this.state.modes}/></td>
+        } else {
+            return <td>{this.state.modes}</td>
+        }
+    }
+
     render() {
         return (
             <tr>
-                <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}/></td>
-                <td>{this.state.modes}</td>
+                {this.renderSelectionMode()}
                 <td>{this.state.size}</td>
                 <td>{this.state.modified}</td>
                 <td>{this.renderFilename()}</td>
@@ -77,7 +85,7 @@ export default class Directory extends Component {
 
         return $.post(`/proxy/container/${this.state.id}/exec_run`, {
                 name: this.state.name,
-                cmd: `(cd ${this.state.pwd} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
+                cmd: `(cd ${this.state.directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
                 csrf_token: $("input[name=base-csrf_token]").val(),
             }
         ).then(result => {
@@ -97,9 +105,10 @@ export default class Directory extends Component {
     clickDownloadSelected = (evt) => {
         const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
+            const filename=join(this.state.directoryPath, dir.linked_file_name || dir.file_name)
             return $.post(`/proxy/container/${this.state.id}/download`, {
                     name: this.state.name,
-                    filename: join(this.state.pwd, dir.linked_file_name || dir.file_name),
+                    filename,
                     csrf_token: $("input[name=base-csrf_token]").val(),
                 }
             ).then((result, textStatus, request) => {
@@ -111,6 +120,19 @@ export default class Directory extends Component {
             ).fail((xhr, textStatus, errorThrown) =>
                 this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
             )
+        });
+    }
+
+    /***
+     * download_container_file any selected that are not directories.  they will download_container_file as tar
+     * @param evt
+     */
+    clickEditSelected = (evt) => {
+        const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
+        selected.forEach(dir => {
+            const fileName = join(this.state.directoryPath, dir.linked_file_name || dir.file_name);
+            const encodedFileName = encodeURIComponent(fileName)
+            window.open(`/container_file_edit/${this.state.id}/${this.state.name}?filename=${encodedFileName}`, "_blank")
         });
     }
 
@@ -151,6 +173,9 @@ export default class Directory extends Component {
         const downloadButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDownloadSelected(evt)}
                                   title={"Download selected files"}><span
             className="material-icons">arrow_downward</span></a>;
+        const editButton = <a href={"#"} className={"btn"} onClick={evt => this.clickEditSelected(evt)}
+                              title={"Edit selected files"}><span
+            className="material-icons">edit</span></a>;
         const refreshButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDirectory(evt, this.state.pwd)}
                                  title={"Refresh"}><span
             className="material-icons">cached</span></a>;
@@ -171,11 +196,12 @@ export default class Directory extends Component {
             <div>
                 {refreshButton}
                 {downloadButton}
+                {editButton}
                 {deleteButton}
                 {upButton}
                 {directoryLinks.map(d =>
                     <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
-                              title={d.cwd}>{d.dir}&nbsp;/&nbsp;</a>
+                       title={d.cwd}>{d.dir}&nbsp;/&nbsp;</a>
                 )}
                 {getting}
             </div>

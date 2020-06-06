@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
-import {LogContent} from './container_log'
+import LogContent from './container_log'
 import BootstrapInput from "bootstrap-input-react";
 
 class ExecEntry extends Component {
@@ -22,7 +22,7 @@ class ExecEntry extends Component {
                 <td className={"w-25"}>
                     <a href={'javascript:'} title={'Re-run command'} onClick={evt => this.props.clickExec(evt, this.props.cmd)}><span
                         className="material-icons">directions_run</span></a>
-                    <a href={'javascript:'} title={'delete from history'} onClick={evt => this.props.clickExecDelete(evt, this.props.id)}><span
+                    <a href={'javascript:'} title={'Remove from history'} onClick={evt => this.props.clickExecDelete(evt, this.props.id)}><span
                         className="material-icons">delete_forever</span></a>
                 </td>
                 <td className={"w-25"}><a href={'javascript:'} title={'Edit command string'} onClick={evt => this.clickCmd(evt)}>{this.props.cmd}</a></td>
