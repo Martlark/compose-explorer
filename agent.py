@@ -184,9 +184,9 @@ def upload_container_file(container):
         raise Exception('no filename in form')
     current_app.logger.info(f'upload: {filename}')
 
-    pw_tarstream = BytesIO()
+    tar_stream = BytesIO()
 
-    pw_tar = tarfile.TarFile(fileobj=pw_tarstream, mode='w')
+    tar = tarfile.TarFile(fileobj=tar_stream, mode='w')
 
     file_data = content.encode('utf8')
 
@@ -195,14 +195,14 @@ def upload_container_file(container):
     tarinfo.mtime = time.time()
     # tarinfo.mode = 0600
 
-    pw_tar.addfile(tarinfo, BytesIO(file_data))
-    pw_tar.close()
+    tar.addfile(tarinfo, BytesIO(file_data))
+    tar.close()
 
-    pw_tarstream.seek(0)
+    tar_stream.seek(0)
 
     dest_path = os.path.dirname(filename)
 
-    success = container.put_archive(dest_path, pw_tarstream)
+    success = container.put_archive(dest_path, tar_stream)
     return dict(dest_path=dest_path, base_filename=base_filename, success=success)
 
 

@@ -32,10 +32,16 @@ class DirectoryEntry extends Component {
 
     renderSelectionMode() {
         if (this.state.dir_type != 'd') {
-            return <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}
-                                       label={this.state.modes}/></td>
+            return (<>
+                <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}
+                /></td>
+                <td>{this.state.modes}</td>
+            </>)
         } else {
-            return <td>{this.state.modes}</td>
+            return <>
+                <td></td>
+                <td>{this.state.modes}</td>
+            </>
         }
     }
 
@@ -63,6 +69,8 @@ export default class Directory extends Component {
             directoryPath: '',
             directoryParent: '..',
             directoryEntries: [],
+            csrf: $("input[name=base-csrf_token]").val(),
+
         }
     }
 
@@ -86,7 +94,7 @@ export default class Directory extends Component {
         return $.post(`/proxy/container/${this.state.id}/exec_run`, {
                 name: this.state.name,
                 cmd: `(cd ${this.state.directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
-                csrf_token: $("input[name=base-csrf_token]").val(),
+                csrf_token: this.state.csrf,
             }
         ).then(result => {
                 this.state.updateState({message: result});
@@ -105,11 +113,11 @@ export default class Directory extends Component {
     clickDownloadSelected = (evt) => {
         const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
-            const filename=join(this.state.directoryPath, dir.linked_file_name || dir.file_name)
+            const filename = join(this.state.directoryPath, dir.linked_file_name || dir.file_name)
             return $.post(`/proxy/container/${this.state.id}/download`, {
                     name: this.state.name,
                     filename,
-                    csrf_token: $("input[name=base-csrf_token]").val(),
+                    csrf_token: this.state.csrf,
                 }
             ).then((result, textStatus, request) => {
                     const a = document.createElement('a');
@@ -227,6 +235,7 @@ export default class Directory extends Component {
                 <table className={"table"}>
                     <thead>
                     <tr>
+                        <th>&nbsp;</th>
                         <th>Modes</th>
                         <th>Size</th>
                         <th>Modified</th>
