@@ -94,9 +94,7 @@ export class FileEdit extends Component {
 
 
     clickRestore = (evt) => {
-        const content = ContentState.createFromText(this.state.originalContent);
-        this.setState({editorState: EditorState.createWithContent(content)})
-        this.setState({originalContent: content})
+        this.setState({editorState: EditorState.createWithContent(this.state.originalContent)})
     }
 
     static styles = {
