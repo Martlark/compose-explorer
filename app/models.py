@@ -1,9 +1,9 @@
-import string
-
 import os
 import random
+import string
 from datetime import datetime
 
+import humanize as humanize
 import requests
 from dateutil import tz
 from flask_login import UserMixin, current_user
@@ -71,6 +71,11 @@ class Command(db.Model, FlaskSerializeMixin):
     def verify(self, create=False):
         if create:
             self.user = current_user
+
+    @property
+    def naturaldelta(self):
+        return humanize.naturaldelta(datetime.utcnow() - self.created)
+
 
 # DockerServer class
 class DockerServer(db.Model, FlaskSerializeMixin):
