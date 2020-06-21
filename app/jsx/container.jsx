@@ -1,24 +1,24 @@
 import React, {Component} from 'react'
-import ReactDOM from 'react-dom'
 import Collapsible from 'react-collapsible'
 import $ from "jquery"
 import Directory from './directory'
 import Execute from './execute'
 import LogContent from './container_log'
 
-class Content extends Component {
+export class ManageContainer extends Component {
     constructor(props) {
         super(props);
-        this.server_id = $("input[name=server-id]").val();
-        this.name = $("input[name=container-name]").val();
         this.state = {
             message: '',
-            id: this.server_id,
-            name: this.name,
+            id: this.props.match.params.id,
+            name: this.props.match.params.name,
             pwd: '.',
-            hrefLog: `/container_log/${this.server_id}/${this.name}`
+            hrefLog: `/container_log/${this.props.match.params.id}/${this.props.match.params.name}`
         };
-        this.actions = [{cmd:'stop',icon: 'stop'}, {cmd:'start', icon:'play_arrow'}, {cmd:'restart', icon:'replay'}];
+        this.actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
+            cmd: 'restart',
+            icon: 'replay'
+        }];
     }
 
     componentDidMount() {
@@ -53,8 +53,8 @@ class Content extends Component {
         evt.preventDefault();
         this.setState({actioning: action.action});
         $.ajax({
-                type: 'POST', url: `/proxy/container/${this.server_id}/${action.action}`, data: {
-                    name: this.name,
+                type: 'POST', url: `/proxy/container/${this.state.id}/${action.action}`, data: {
+                    name: this.state.name,
                     csrf_token: $("input[name=base-csrf_token]").val(),
                 }
             }
@@ -99,7 +99,7 @@ class Content extends Component {
         return (
             <ul className="list-inline">
                 <li className={"list-inline-item"}>
-                    <button className={'btn btn-sm'} onClick={evt=>window.open(this.state.hrefLog)} title={"Logs"}>
+                    <button className={'btn btn-sm'} onClick={evt => window.open(this.state.hrefLog)} title={"Logs"}>
                         Logs <span className="material-icons">assignment</span>
                     </button>
                 </li>
@@ -118,7 +118,8 @@ class Content extends Component {
 
         return <li key={action.cmd} className={"list-inline-item"}>
             <button style={style} className={"btn btn-sm"}
-                    onClick={evt => this.clickAction(evt, action.cmd)}>{action.cmd}<span className="material-icons">{action.icon}</span></button>
+                    onClick={evt => this.clickAction(evt, action.cmd)}>{action.cmd}<span
+                className="material-icons">{action.icon}</span></button>
         </li>
     }
 
@@ -128,8 +129,8 @@ class Content extends Component {
 
     renderExecute() {
         return <Collapsible trigger="Execute">
-                <Execute/>
-            </Collapsible>
+            <Execute id={this.state.id} name={this.state.name}/>
+        </Collapsible>
     }
 
     renderStatus() {
@@ -162,9 +163,10 @@ class Content extends Component {
 
     renderLog() {
         return <div>
-            <Collapsible trigger="Logs">
+            <Collapsible trigger="Logs" >
 
-                <LogContent/>
+                <LogContent id={this.state.id}
+                    name={this.state.name}/>
             </Collapsible>
         </div>
     }
@@ -182,5 +184,3 @@ class Content extends Component {
         )
     }
 }
-
-ReactDOM.render(<Content/>, document.getElementById('jsx_content'));

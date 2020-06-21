@@ -36,25 +36,6 @@ def page_index():
     return render_template('index.html', page_title='Docker Explorer', listing=listing)
 
 
-@bp.route('/server/<int:item_id>')
-@login_required
-def page_server(item_id):
-    server = DockerServer.query.get_or_404(item_id)
-    return render_template('server.html', page_title=server.name, server=server)
-
-
-@bp.route('/bootstrap_input')
-def public_page_bootstrap_input():
-    return render_template('bootstrap_input.html', page_title='auto_input')
-
-
-@bp.route('/container/<int:item_id>/<container_name>')
-@login_required
-def page_container(item_id, container_name):
-    server = DockerServer.query.get_or_404(item_id)
-    return render_template('container.html', page_title=server.name, server=server, container_name=container_name)
-
-
 @bp.route('/container_log/<int:item_id>/<container_name>')
 @login_required
 def page_container_log(item_id, container_name):
@@ -129,7 +110,6 @@ def last_static_update():
             current_app.logger.debug(
                 'Refresh required because of:rand_check_number')
     return dict(max_age=max_age, rand_check_number=rand_check_number)
-
 
 
 @bp.route('/command/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])

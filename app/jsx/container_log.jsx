@@ -33,24 +33,10 @@ export default class LogContent extends Component {
             logs: [],
             message: '',
             tail: 100,
-            autoUpdate: false,
-            id: $("input[name=server-id]").val(),
-            name: $("input[name=container-name]").val()
+            autoUpdate: $('input[name=server-id]').val(),
+            id: props.id || $('input[name=server-id]').val(),
+            name: props.name || $('input[name=container-name]').val()
         };
-        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
-        ).then(result => {
-                this.state.status = result.status;
-                this.state.project = result.labels["com.docker.compose.project"];
-                this.state.service = result.labels["com.docker.compose.service"];
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.state.message = `Error getting container: ${textStatus} - ${errorThrown}`
-        );
-        this.refreshLogsInteval = setInterval(() => {
-            if (this.state.autoUpdate) {
-                this.getLogs();
-            }
-        }, 10000);
     }
 
     getLogs() {
@@ -75,6 +61,21 @@ export default class LogContent extends Component {
     };
 
     componentDidMount() {
+        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
+        ).then(result => {
+                this.setState({status : result.status});
+                this.setState({project : result.labels["com.docker.compose.project"]});
+                this.setState({service : result.labels["com.docker.compose.service"]});
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.setState({message: `Error getting container: ${textStatus} - ${errorThrown}`})
+        );
+
+        this.refreshLogsInteval = setInterval(() => {
+            if (this.state.autoUpdate) {
+                this.getLogs();
+            }
+        }, 10000);
         this.getLogs().then(result => {
         });
     }

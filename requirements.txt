@@ -13,3 +13,4 @@ WTForms>=2.3.1
 Flask-IpBan>=1.0.13
 docker>=4.2.0
 email_validator
+humanize

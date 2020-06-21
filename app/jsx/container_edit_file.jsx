@@ -2,11 +2,11 @@ import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import $ from "jquery"
+import {AppContext} from "./context";
 
 export class FileEdit extends Component {
     constructor(props) {
         super(props);
-        console.log($("input[name=csrf]").val())
         this.state = {
             file_name: $("input[name=file_name]").val(),
             message: '',
@@ -30,6 +30,7 @@ export class FileEdit extends Component {
         };
 
     }
+    static contextType = AppContext;
 
     updateState = (data) => {
         this.setState(data)

@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
-import $ from "jquery"
 import BootstrapInput from "bootstrap-input-react";
+import {AppContext} from "./context";
 
 class ExecEntry extends Component {
     constructor(props) {
@@ -37,21 +37,21 @@ export default class Execute extends Component {
         super(props);
         this.state = {
             message: '',
-            csrf: $("input[name=base-csrf_token]").val(),
-            id: $("input[name=server-id]").val(),
-            name: $("input[name=container-name]").val(),
+            id: props.id,
+            name: props.name,
             command: '',
             commandEntries: [],
         };
     }
+    static contextType = AppContext;
 
     componentDidMount() {
         this.getCommandEntries();
     }
 
     getCommandEntries() {
-        $.getJSON(`/command`
-        ).then(result =>
+        this.context.api.command(
+       ).then(result =>
             this.setState({commandEntries: result})
         ).fail((xhr, textStatus, errorThrown) =>
             this.setState({message: `Error getting commands: ${textStatus} - ${errorThrown}`})
@@ -65,14 +65,12 @@ export default class Execute extends Component {
     clickExec = (evt, command = null) => {
         const cmd = command || this.state.command;
         this.setState({executing: true, command: cmd}, () => {
-            return $.post(`/proxy/container/${this.state.id}/exec_run`, {
+            return this.context.api.proxyPost(`/container/${this.state.id}/exec_run`, {
                     name: this.state.name,
-                    csrf_token: this.state.csrf,
                     cmd: cmd,
                 }
             ).then(cmd_result => {
-                    return $.post(`/command`, {
-                        csrf_token: this.state.csrf,
+                    return this.context.api.command('POST',{
                         result: cmd_result,
                         cmd: cmd,
                     }).then(result => {
@@ -96,11 +94,7 @@ export default class Execute extends Component {
 
     clickExecDelete = (evt, command_id) => {
         this.setState({executing: true});
-        return $.ajax({
-                url: `/command/${command_id}`,
-                type: 'DELETE',
-                data: {csrf_token: this.state.csrf}
-            }
+        return this.context.api.command('DELETE', command_id
         ).then(
             result => {
                 const commandEntries = this.state.commandEntries.filter(command =>

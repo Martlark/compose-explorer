@@ -137,6 +137,9 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         except Exception as e:
             return dict(error=f'{e}')
 
+    @property
+    def summary(self):
+        return self.get_summary()
 
 class Setting(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)

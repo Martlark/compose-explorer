@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, flash, redirect
 from flask_admin import Admin
 import os
 from flask_ipban import IpBan
@@ -21,6 +21,7 @@ ip_ban = IpBan(ip_header='X-TRUE-IP',
 
 def create_app():
     from app.views import admin_views, bp as bp_main
+    from app.api import bp as bp_api
 
     def ensure_folder(folder):
         if not os.path.isdir(folder):
@@ -57,6 +58,7 @@ def create_app():
 
     app.register_blueprint(bp_auth, url_prefix='/auth')
     app.register_blueprint(bp_proxy, url_prefix='/proxy')
+    app.register_blueprint(bp_api, url_prefix='/api')
     app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
 
@@ -65,7 +67,7 @@ def create_app():
         app.logger.info('404 url:' + request.url)
         app.logger.info(request.remote_addr)
         app.logger.info(request.headers.get('User-Agent'))
-
-        return render_template("404.html", title=app.config['TITLE']), 404
+        flash(f'Page not found: {request.url}')
+        return redirect('/')
 
     return app

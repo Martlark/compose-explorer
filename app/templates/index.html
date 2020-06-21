@@ -1,28 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
-    <!-- One -->
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Docker Server</th>
-            <th>Containers</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in listing %}
-            <tr>
-                <td>
-                    <a href="{{ url_for('main.page_server', item_id=item.server.id ) }}">{{ item.server.name }}</a>
-                </td>
-                <td>
-                    {% if item.summary.error %}
-                        <div class="error">{{ item.summary.error }}</div>
-                    {% else %}
-                        {{ item.summary.containers }}
-                    {% endif %}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="flex-item" id="jsx_content"></div>
+    <script src="/static/src/jsx/index.js"></script>
+
 {% endblock %}

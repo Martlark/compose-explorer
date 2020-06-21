@@ -1,9 +1,10 @@
 import React, {Component} from 'react'
-import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
-import $ from "jquery"
+import {Link} from "react-router-dom";
+import {AppContext} from "./context";
 
-class Service extends Component {
+
+class ServerComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {...props, dirty: false, result: {}, deleteConfirm: false, actioning: '', message: ''};
@@ -11,13 +12,13 @@ class Service extends Component {
         this.state.hrefContainer = `/container/${props.server_id}/${this.state.name}`;
         this.actions = ['stop', 'start', 'restart'];
     }
+    static contextType = AppContext;
 
     clickAction = (evt, action) => {
         evt.preventDefault();
         this.setState({actioning: action.action});
-        return $.post(`/proxy/container/${this.state.server_id}/${action.action}`, {
+        return this.context.api.proxyPost(`/container/${this.state.server_id}/${action.action}`, {
                 name: this.state.name,
-                csrf_token: $("input[name=base-csrf_token]").val()
             }
         ).then(result =>
             this.setState({message: `container: ${result.status}`, status: result.status})
@@ -61,8 +62,8 @@ class Service extends Component {
         return (
             <tr>
                 <td>
-                    <a href={this.state.hrefLog} title={"Logs"}><span className="material-icons">assignment</span></a>
-                    <a href={this.state.hrefContainer} title={"Manage container"}>{this.state.name}</a>
+                    <a href={this.state.hrefLog} title="Logs"><span className="material-icons">assignment</span></a>
+                    <Link to={this.state.hrefContainer} title="Manage container">{this.state.name}</Link>
                     {this.renderMessage()}
                 </td>
                 <td>{this.state.status}</td>
@@ -102,30 +103,32 @@ class Project extends Component {
                     </thead>
                     <tbody>
 
-                    {this.state.services.map(service => <Service key={service.id}
-                                                                 server_id={this.state.server_id}
-                                                                 updateState={this.updateState}
-                                                                 name={service.name}
-                                                                 details={service}
-                                                                 status={service.status}/>)}
+                    {this.state.services.map(service => <ServerComponent key={service.id}
+                                                                         server_id={this.state.server_id}
+                                                                         updateState={this.updateState}
+                                                                         name={service.name}
+                                                                         details={service}
+                                                                         status={service.status}/>)}
                     </tbody>
                 </table>
             </div>)
     }
 }
 
-class Content extends Component {
+export class ManageServer extends Component {
     constructor(props) {
         super(props);
-        this.state = {items: [], add: false, message: '', filter: '', id: $("input[name=server-id]").val()};
+        this.state = {items: [], add: false, message: '', filter: '', id: props.match.params.id};
     }
+
+    static contextType = AppContext;
 
     updateState = (data) => {
         this.setState(data)
     };
 
     getItems() {
-        return $.getJSON(`/proxy/projects/${this.state.id}`
+        return this.context.api.proxyGet(`/projects/${this.state.id}`
         ).then(result => {
                 const items = [];
                 result.forEach(data => {
@@ -158,11 +161,9 @@ class Content extends Component {
                 {this.state.items.map(item => <Project key={item.name}
                                                        updateState={this.updateState}
                                                        details={item}
-                                                       services={item.services}/>)
+                                                       services={item.services} name={''}/>)
                 }
             </div>
         )
     }
 }
-
-ReactDOM.render(<Content/>, document.getElementById('jsx_content'));
