@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, flash, redirect
+from flask import Flask, request, render_template, flash, redirect, session
 from flask_admin import Admin
 import os
 from flask_ipban import IpBan
@@ -68,6 +68,7 @@ def create_app():
         app.logger.info(request.remote_addr)
         app.logger.info(request.headers.get('User-Agent'))
         flash(f'Page not found: {request.url}')
+        session['REDIRECTED'] = request.path
         return redirect('/')
 
     return app

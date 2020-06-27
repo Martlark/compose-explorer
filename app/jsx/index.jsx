@@ -1,15 +1,18 @@
 import React, {Component} from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Link, Route, Switch} from "react-router-dom";
-import {ApiService, AppContext} from './context'
+import {ApiService, AppContext, ErrorMessage, Message} from './context'
 
 import {ManageServer} from "./server"
 import {ManageContainer} from "./container"
+import Redirect from "react-router-dom/es/Redirect";
+import {FileEdit} from "./container_edit_file";
+import LogContent from "./container_log";
 
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.state = {items: [], message: ''};
+        this.state = {items: []};
     }
 
     static contextType = AppContext;
@@ -18,8 +21,10 @@ class Home extends Component {
         this.context.api.json('/servers').then(items =>
             this.setState({items})
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `${xhr.responseText}`})
-        );
+            this.context.setMessage(`${xhr.responseText}`)
+        ).always(() => {
+            this.context.setMessage(`${this.state.items.length} servers`);
+        })
     }
 
     render() {
@@ -35,7 +40,7 @@ class Home extends Component {
             {this.state.items.map(item =>
                 <tr>
                     <td>
-                        <Link to={`/server/${item.id}`}>{item.name}</Link>
+                        <Link to={`/r/server/${item.id}?name=${item.name}`}>{item.name}</Link>
                     </td>
                     <td>
                         {item.summary.containers}
@@ -49,19 +54,26 @@ class Home extends Component {
 
 class AppProvider extends Component {
     state = {
-        api: new ApiService()
+        api: new ApiService(),
+        message: '',
+        errorMessage: '',
+        setMessage: (message) => this.setState({message}),
+        setErrorMessage: (errorMessage) => this.setState({errorMessage}),
     }
 
     render() {
         return (<AppContext.Provider value={this.state}>
-            <h1>{this.state.name}</h1>
+            <Message message={this.state.message}/>
+            <ErrorMessage message={this.state.errorMessage}/>
             <Router>
                 <Switch>
                     <Route exact path="/">
                         <Home/>
                     </Route>
-                    <Route path="/server/:id" component={ManageServer}/>
-                    <Route path="/container/:id/:name" component={ManageContainer}/>
+                    <Route path="/r/server/:id" component={ManageServer}/>
+                    <Route path="/r/container/:id/:name" component={ManageContainer}/>
+                    <Route path="/r/container_file_edit/:id/:name" component={FileEdit}/>
+                    <Route path="/r/container_log/:id/:name" component={LogContent}/>
                 </Switch>
             </Router>
         </AppContext.Provider>)

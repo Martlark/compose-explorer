@@ -1,5 +1,19 @@
-import React from "react";
+import React, {useState} from "react";
 import $ from "jquery";
+
+export const ErrorMessage = ({message}) =>{
+    if(!message){
+        return null;
+    }
+    return(<h3 className={"alert alert-warning"}>{message}</h3>)
+}
+
+export const Message = ({message}) =>{
+    if(!message){
+        return null;
+    }
+    return(<h3 className={"alert alert-info"}>{message}</h3>)
+}
 
 export class ApiService {
     constructor(props) {
@@ -45,6 +59,6 @@ export class ApiService {
         return $.post('/proxy' + url, data);
     }
 }
-
+// https://www.robinwieruch.de/react-function-component
 // https://www.taniarascia.com/using-context-api-in-react/
 export const AppContext = React.createContext({});

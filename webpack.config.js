@@ -5,23 +5,23 @@ const entry = require('webpack-glob-entry');
 module.exports = (env) => {
     console.log(env);
     return {
-        mode: (env) || 'development',
+        mode: 'development',
         devtool:
             'eval-source-map',
         entry:
             entry(entry.basePath('./app/jsx'), './app/jsx/**/*.jsx'),
-        output:
-            {
-                path: path.resolve('./app/static/src/jsx/'),
-                filename:
-                    './[name].js',
-                sourceMapFilename: "[name].js.map",
-            }
-        ,
+        output: {
+            path: path.resolve('./app/static/src/jsx/'),
+            filename:
+                './[name].js',
+            sourceMapFilename: "[name].js.map",
+        },
         resolve: {
             extensions: ['.js', '.jsx', '.css']
-        }
-        ,
+        },
+        watchOptions: {
+            ignored: ['**/*.js', 'node_modules/**']
+        },
         module: {
             rules: [
                 {
@@ -40,14 +40,12 @@ module.exports = (env) => {
                         ]
                     }
                 }]
-        }
-        ,
-
+        },
         performance: {
-            hints: false
+            hints: env.production
         },
         optimization: {
-            minimize: false
+            minimize: env.production
         }
     }
 };

@@ -1,9 +1,9 @@
 import React, {Component} from 'react'
 import Collapsible from 'react-collapsible'
-import $ from "jquery"
 import Directory from './directory'
 import Execute from './execute'
 import LogContent from './container_log'
+import {AppContext} from "./context";
 
 export class ManageContainer extends Component {
     constructor(props) {
@@ -13,7 +13,7 @@ export class ManageContainer extends Component {
             id: this.props.match.params.id,
             name: this.props.match.params.name,
             pwd: '.',
-            hrefLog: `/container_log/${this.props.match.params.id}/${this.props.match.params.name}`
+            hrefLog: `/r/container_log/${this.props.match.params.id}/${this.props.match.params.name}`
         };
         this.actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
             cmd: 'restart',
@@ -21,12 +21,14 @@ export class ManageContainer extends Component {
         }];
     }
 
+    static contextType = AppContext;
+
     componentDidMount() {
         this.getContainerProps();
     }
 
     getContainerProps() {
-        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
+        this.context.api.proxyGet(`/container/${this.state.id}/get`, {name: this.state.name}
         ).then(result =>
             this.setState({
                 status: result.status,
@@ -51,13 +53,8 @@ export class ManageContainer extends Component {
 
     clickAction = (evt, action) => {
         evt.preventDefault();
-        this.setState({actioning: action.action});
-        $.ajax({
-                type: 'POST', url: `/proxy/container/${this.state.id}/${action.action}`, data: {
-                    name: this.state.name,
-                    csrf_token: $("input[name=base-csrf_token]").val(),
-                }
-            }
+        this.setState({actioning: action});
+        this.context.api.proxyPost(`/container/${this.state.id}/${action}`, {name: this.state.name}
         ).then(result =>
             this.setState({message: `container: ${result.status}`, status: result.status})
         ).fail((xhr, textStatus, errorThrown) =>
@@ -71,10 +68,9 @@ export class ManageContainer extends Component {
     clickDownloadLogs = (evt) => {
         const filename = 'logs.txt';
 
-        return $.post(`/proxy/container/${this.state.id}/logs`, {
+        return this.context.api.proxyPost(`/proxy/container/${this.state.id}/logs`, {
                 name: this.state.name,
                 filename,
-                csrf_token: $("input[name=base-csrf_token]").val(),
             }
         ).then((result, textStatus, request) => {
                 const a = document.createElement('a');
@@ -163,10 +159,10 @@ export class ManageContainer extends Component {
 
     renderLog() {
         return <div>
-            <Collapsible trigger="Logs" >
+            <Collapsible trigger="Logs">
 
                 <LogContent id={this.state.id}
-                    name={this.state.name}/>
+                            name={this.state.name}/>
             </Collapsible>
         </div>
     }

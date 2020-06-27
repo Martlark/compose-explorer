@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import ReactDOM from 'react-dom'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import $ from "jquery"
 import {AppContext} from "./context";
@@ -7,14 +6,14 @@ import {AppContext} from "./context";
 export class FileEdit extends Component {
     constructor(props) {
         super(props);
+        const u = new URLSearchParams(this.props.location.search)
         this.state = {
-            file_name: $("input[name=file_name]").val(),
+            file_name: u.get('filename').split('#')[0],
             message: '',
             content: '',
             originalContent: '',
-            id: $("input[name=server-id]").val(),
-            name: $("input[name=container-name]").val(),
-            csrf: $("input[name=base-csrf_token]").val(),
+            id: this.props.match.params.id,
+            name: this.props.match.params.name,
             editorState: EditorState.createEmpty()
         };
 
@@ -30,6 +29,7 @@ export class FileEdit extends Component {
         };
 
     }
+
     static contextType = AppContext;
 
     updateState = (data) => {
@@ -37,7 +37,7 @@ export class FileEdit extends Component {
     };
 
     componentDidMount() {
-        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
+        this.context.api.proxyGet(`/container/${this.state.id}/get`, {name: this.state.name}
         ).then(result => {
                 this.state.status = result.status;
                 this.state.project = result.labels["com.docker.compose.project"];
@@ -50,12 +50,9 @@ export class FileEdit extends Component {
     }
 
     getContent() {
-        return $.ajax({
-                url: `/proxy/container/${this.state.id}/download`, data: {
-                    name: this.state.name,
-                    filename: this.state.file_name,
-                    csrf_token: this.state.csrf,
-                }, type: 'POST'
+        return this.context.api.proxyPost(`/container/${this.state.id}/download`, {
+                name: this.state.name,
+                filename: this.state.file_name,
             }
         ).then((result, textStatus, request) => {
                 this.focusEditor();
@@ -76,13 +73,10 @@ export class FileEdit extends Component {
     }
 
     clickSave = (evt) => {
-        return $.ajax({
-                url: `/proxy/container/${this.state.id}/upload`, data: {
-                    name: this.state.name,
-                    filename: this.state.file_name,
-                    content: this.state.editorState.getCurrentContent().getPlainText(),
-                    csrf_token: this.state.csrf,
-                }, type: 'POST'
+        return this.context.api.proxyPost(`/container/${this.state.id}/upload`, {
+                name: this.state.name,
+                filename: this.state.file_name,
+                content: this.state.editorState.getCurrentContent().getPlainText(),
             }
         ).then((result, textStatus, request) => {
                 this.setState({message: `Saved: ${result.base_filename}`})
@@ -107,6 +101,7 @@ export class FileEdit extends Component {
 
     render() {
         return (<div>
+
                 {this.renderMessage()}
                 <button className={'btn btn-sm'} onClick={evt => this.clickSave(evt)} title={"Save"}>
                     Save <span className="material-icons">save</span>
@@ -125,5 +120,3 @@ export class FileEdit extends Component {
         )
     }
 }
-
-ReactDOM.render(<FileEdit/>, document.getElementById('jsx_content'));

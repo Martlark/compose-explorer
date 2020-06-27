@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
-import ReactDOM from 'react-dom'
 import PropTypes from 'prop-types'
-import $ from "jquery"
 import BootstrapInput from "bootstrap-input-react";
+import {AppContext} from "./context";
 
 class LogEntry extends Component {
     constructor(props) {
@@ -33,14 +32,15 @@ export default class LogContent extends Component {
             logs: [],
             message: '',
             tail: 100,
-            autoUpdate: $('input[name=server-id]').val(),
-            id: props.id || $('input[name=server-id]').val(),
-            name: props.name || $('input[name=container-name]').val()
+            autoUpdate: false,
+            id: props.id || this.props.match.params.id,
+            name: props.name || this.props.match.params.name
         };
     }
+    static contextType = AppContext;
 
     getLogs() {
-        return $.getJSON(`/proxy/container/${this.state.id}/logs`, {name: this.state.name, tail: this.state.tail}
+        return this.context.api.proxyGet(`/container/${this.state.id}/logs`, {name: this.state.name, tail: this.state.tail}
         ).then(result => {
                 if (this.state.previousLogHash !== result.hash) {
                     const items = [];
@@ -61,7 +61,7 @@ export default class LogContent extends Component {
     };
 
     componentDidMount() {
-        $.getJSON(`/proxy/container/${this.state.id}/get`, {name: this.state.name}
+        this.context.api.proxyGet(`/container/${this.state.id}/get`, {name: this.state.name}
         ).then(result => {
                 this.setState({status : result.status});
                 this.setState({project : result.labels["com.docker.compose.project"]});
@@ -116,5 +116,3 @@ export default class LogContent extends Component {
         )
     }
 }
-
-ReactDOM.render(<LogContent/>, document.getElementById('jsx_content'));

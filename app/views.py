@@ -3,7 +3,7 @@ import os
 import random
 import urllib
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
+from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, session
 from flask_login import logout_user, login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
@@ -29,28 +29,13 @@ def exception_handler(error):
 @bp.route('/')
 @login_required
 def page_index():
-    servers = DockerServer.query.filter_by(active=True).all()
-    listing = []
-    for server in servers:
-        listing.append(dict(summary=server.get_summary(), server=server))
-    return render_template('index.html', page_title='Docker Explorer', listing=listing)
+    return render_template('index.html', page_title='Docker Explorer')
 
 
-@bp.route('/container_log/<int:item_id>/<container_name>')
+@bp.route('/r/<path:path>')
 @login_required
-def page_container_log(item_id, container_name):
-    server = DockerServer.query.get_or_404(item_id)
-    return render_template('container_log.html', page_title=container_name, server=server,
-                           container_name=container_name)
-
-
-@bp.route('/container_file_edit/<int:item_id>/<container_name>')
-@login_required
-def page_container_file_edit(item_id, container_name):
-    server = DockerServer.query.get_or_404(item_id)
-    file_name = request.args.get('filename')
-    return render_template('container_file_edit.html', page_title=container_name, server=server,
-                           container_name=container_name, file_name=file_name)
+def page_react(path):
+    return render_template('index.html')
 
 
 @bp.route('/page/<page>')

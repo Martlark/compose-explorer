@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import join from 'join-path'
-import $ from "jquery"
 import BootstrapInput from "bootstrap-input-react";
+import {AppContext} from "./context";
 
 class DirectoryEntry extends Component {
     constructor(props) {
@@ -31,7 +31,7 @@ class DirectoryEntry extends Component {
     }
 
     renderSelectionMode() {
-        if (this.state.dir_type != 'd') {
+        if (this.state.dir_type !== 'd') {
             return (<>
                 <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}
                 /></td>
@@ -39,7 +39,7 @@ class DirectoryEntry extends Component {
             </>)
         } else {
             return <>
-                <td></td>
+                <td> </td>
                 <td>{this.state.modes}</td>
             </>
         }
@@ -69,10 +69,10 @@ export default class Directory extends Component {
             directoryPath: '',
             directoryParent: '..',
             directoryEntries: [],
-            csrf: $("input[name=base-csrf_token]").val(),
-
         }
     }
+
+    static contextType = AppContext;
 
     componentDidMount() {
         this.getDirectory(this.state.pwd);
@@ -91,10 +91,9 @@ export default class Directory extends Component {
 
         const selected = this.state.directoryEntries.filter(dir => dir.selected);
 
-        return $.post(`/proxy/container/${this.state.id}/exec_run`, {
+        return this.context.api.proxyPost(`/container/${this.state.id}/exec_run`, {
                 name: this.state.name,
                 cmd: `(cd ${this.state.directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
-                csrf_token: this.state.csrf,
             }
         ).then(result => {
                 this.state.updateState({message: result});
@@ -114,10 +113,9 @@ export default class Directory extends Component {
         const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
             const filename = join(this.state.directoryPath, dir.linked_file_name || dir.file_name)
-            return $.post(`/proxy/container/${this.state.id}/download`, {
+            return this.context.api.proxyPost(`/container/${this.state.id}/download`, {
                     name: this.state.name,
                     filename,
-                    csrf_token: this.state.csrf,
                 }
             ).then((result, textStatus, request) => {
                     const a = document.createElement('a');
@@ -140,7 +138,7 @@ export default class Directory extends Component {
         selected.forEach(dir => {
             const fileName = join(this.state.directoryPath, dir.linked_file_name || dir.file_name);
             const encodedFileName = encodeURIComponent(fileName)
-            window.open(`/container_file_edit/${this.state.id}/${this.state.name}?filename=${encodedFileName}`, "_blank")
+            window.open(`/r/container_file_edit/${this.state.id}/${this.state.name}?filename=${encodedFileName}`, "_blank")
         });
     }
 
@@ -151,7 +149,7 @@ export default class Directory extends Component {
 
     getDirectory(pwd) {
         this.setState({directoryGetting: true})
-        return $.getJSON(`/proxy/container/${this.state.id}/ls`, {name: this.state.name, pwd: pwd}
+        return this.context.api.proxyGet(`/container/${this.state.id}/ls`, {name: this.state.name, pwd: pwd}
         ).then(result =>
             this.setState({
                 pwd: result.pwd,

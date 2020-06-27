@@ -8,8 +8,8 @@ class ServerComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {...props, dirty: false, result: {}, deleteConfirm: false, actioning: '', message: ''};
-        this.state.hrefLog = `/container_log/${props.server_id}/${this.state.name}`;
-        this.state.hrefContainer = `/container/${props.server_id}/${this.state.name}`;
+        this.state.hrefLog = `/r/container_log/${props.server_id}/${this.state.name}`;
+        this.state.hrefContainer = `/r/container/${props.server_id}/${this.state.name}`;
         this.actions = ['stop', 'start', 'restart'];
     }
     static contextType = AppContext;
@@ -138,11 +138,12 @@ export class ManageServer extends Component {
                 this.setState({items});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting containers: ${textStatus} - ${errorThrown}`})
+            this.context.setMessage(`Error getting containers: ${textStatus} - ${errorThrown}`)
         );
     }
 
     componentDidMount() {
+        this.context.setMessage(`loaded server ${this.state.id}`);
         this.getItems().then(result => {
         })
     }
@@ -156,8 +157,6 @@ export class ManageServer extends Component {
 
     render() {
         return (<div>
-                <div className={"columns-1-2-4"}>
-                </div>
                 {this.state.items.map(item => <Project key={item.name}
                                                        updateState={this.updateState}
                                                        details={item}

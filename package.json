@@ -7,8 +7,6 @@
     "test": "test"
   },
   "dependencies": {
-    "@babel/cli": "^7.6.2",
-    "babel-preset-react-app": "^3.1.2",
     "classnames": "^2.2.6",
     "draft-js": "^0.11.6",
     "informed": "^2.11.9",
@@ -21,11 +19,13 @@
     "bootstrap-input-react": "^1.1.9"
   },
   "devDependencies": {
+    "@babel/cli": "^7.6.2",
     "@babel/core": "^7.8.4",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-transform-modules-commonjs": "^7.6.0",
     "@babel/preset-env": "^7.8.4",
     "@babel/preset-react": "^7.8.3",
+    "babel-preset-react-app": "^3.1.2",
     "babel-loader": "^8.0.6",
     "css-loader": "^3.5.2",
     "join-path": "^1.1.1",
@@ -43,7 +43,7 @@
   },
   "scripts": {
     "babel": "npx babel app/jsx --out-dir app/static/src/jsx",
-    "babel-watch": "webpack -p --watch --progress  --env=development --config webpack.config.js",
+    "babel-watch": "webpack -p --watch --progress  --mode development --env.development --config webpack.config.js --env.NODE_ENV=development",
     "build": "webpack -p --progress --config webpack.config.js",
     "dev-build": "webpack --progress -d --config webpack.config.js",
     "watch": "webpack --progress -d --config webpack.config.js --watch"
