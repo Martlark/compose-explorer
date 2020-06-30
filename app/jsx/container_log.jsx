@@ -37,10 +37,14 @@ export default class LogContent extends Component {
             name: props.name || this.props.match.params.name
         };
     }
+
     static contextType = AppContext;
 
     getLogs() {
-        return this.context.api.proxyGet(`/container/${this.state.id}/logs`, {name: this.state.name, tail: this.state.tail}
+        return this.context.api.proxyGet(`/container/${this.state.id}/logs`, {
+                name: this.state.name,
+                tail: this.state.tail
+            }
         ).then(result => {
                 if (this.state.previousLogHash !== result.hash) {
                     const items = [];
@@ -61,6 +65,8 @@ export default class LogContent extends Component {
     };
 
     componentDidMount() {
+        this.context.setServerId(this.state.id);
+
         this.context.api.container(this.state.id, this.state.name).then(result => {
                 this.setState({status: result.status, container: result});
             }

@@ -8,8 +8,8 @@ export class ProjectService extends Component {
     constructor(props) {
         super(props);
         this.state = {...props, dirty: false, result: {}, deleteConfirm: false, actioning: '', message: ''};
-        this.state.hrefLog = `/r/container_log/${props.server_id}/${this.state.name}`;
-        this.state.hrefContainer = `/r/container/${props.server_id}/${this.state.name}`;
+        this.state.hrefLog = `/server/${props.server_id}/container_log/${this.state.name}`;
+        this.state.hrefContainer = `/server/${props.server_id}/container/${this.state.name}`;
         this.actions = ['stop', 'start', 'restart'];
     }
     static contextType = AppContext;

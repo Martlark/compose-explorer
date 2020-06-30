@@ -32,11 +32,11 @@ def page_index():
     return render_template('index.html', page_title='Docker Explorer')
 
 
-@bp.route('/r/<path:path>')
+@bp.route('/server/<int:server_id>')
+@bp.route('/server/<int:server_id>/<path:path>')
 @login_required
-def page_react(path):
-    return render_template('index.html')
-
+def page_server(server_id, path=None):
+    return render_template('index.html', server_id=server_id)
 
 @bp.route('/page/<page>')
 def page_page(page, title=''):

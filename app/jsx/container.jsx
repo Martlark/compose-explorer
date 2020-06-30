@@ -13,7 +13,7 @@ export class ManageContainer extends Component {
             id: this.props.match.params.id,
             name: this.props.match.params.name,
             pwd: '.',
-            hrefLog: `/r/container_log/${this.props.match.params.id}/${this.props.match.params.name}`
+            hrefLog: `/server/${this.props.match.params.id}/container_log/${this.props.match.params.name}`
         };
         this.actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
             cmd: 'restart',
@@ -24,6 +24,7 @@ export class ManageContainer extends Component {
     static contextType = AppContext;
 
     componentDidMount() {
+        this.context.setServerId(this.state.id);
         this.getContainerProps();
     }
 
@@ -128,17 +129,20 @@ export class ManageContainer extends Component {
     }
 
     renderStatus() {
-        let textClass = 'text-warning';
+        let badgeClass = 'warning';
         switch (this.state) {
             case 'running':
-                textClass = 'text-success';
+                badgeClass = 'success';
                 break
             case 'exited':
             case 'stopped':
-                textClass = 'text-danger';
+                badgeClass = 'danger';
                 break
         }
-        return <h3 className={textClass} title={"status"}>{this.state.status}</h3>;
+        return (
+            <h3 title={"status"}>{this.state.name}: <span
+                className={`badge badge-${badgeClass}`}>{this.state.status}</span>
+            </h3>);
     }
 
     renderDirectory() {

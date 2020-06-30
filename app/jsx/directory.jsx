@@ -138,7 +138,7 @@ export default class Directory extends Component {
         selected.forEach(dir => {
             const fileName = join(this.state.directoryPath, dir.linked_file_name || dir.file_name);
             const encodedFileName = encodeURIComponent(fileName)
-            window.open(`/r/container_file_edit/${this.state.id}/${this.state.name}?filename=${encodedFileName}`, "_blank")
+            window.open(`/server/${this.state.id}/container_file_edit/${this.state.name}?filename=${encodedFileName}`, "_blank")
         });
     }
 

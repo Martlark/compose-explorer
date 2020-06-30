@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useContext, useEffect} from "react";
 import $ from "jquery";
 
 export const ErrorMessage = ({message}) => {
@@ -9,10 +9,12 @@ export const ErrorMessage = ({message}) => {
 }
 
 export const Message = ({message}) => {
-    if (!message) {
-        return null;
-    }
-    return (<h3 className={"alert alert-info"}>{message}</h3>)
+    const context = useContext(AppContext);
+    useEffect(() => {
+        if( message)
+            setTimeout(() => context.setMessage(null), 5000);
+    })
+    return (message && <h3 className={"alert alert-info"}>{message}</h3>)
 }
 
 export class ApiService {

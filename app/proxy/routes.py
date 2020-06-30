@@ -53,10 +53,10 @@ def route_project_services(server_id, project):
 @bp.route('/projects/<server_id>', methods=['GET'])
 @login_required
 def route_projects(server_id):
-    if server_id in ['null', 'undefined']:
+    try:
+        server = DockerServer.query.get(int(server_id))
+    except:
         return jsonify([])
-    server_id = int(server_id)
-    server = DockerServer.query.get(server_id)
     if not server:
         return jsonify([])
 

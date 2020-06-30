@@ -35,7 +35,7 @@ export default class Home extends Component {
             {this.state.items.map(item =>
                 <tr>
                     <td>
-                        <Link to={`/r/server/${item.id}`}>{item.name}</Link>
+                        <Link to={`/server/${item.id}`}>{item.name}</Link>
                     </td>
                     <td>
                         {item.summary.containers}
