@@ -30,3 +30,9 @@ def d_serialize(item):
 @login_required
 def api_servers():
     return DockerServer.json_filter_by(active=True)
+
+
+@bp.route('/server/<int:server_id>')
+@login_required
+def api_server(server_id):
+    return DockerServer.json_get(server_id)

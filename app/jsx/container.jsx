@@ -28,16 +28,12 @@ export class ManageContainer extends Component {
     }
 
     getContainerProps() {
-        this.context.api.proxyGet(`/container/${this.state.id}/get`, {name: this.state.name}
-        ).then(result =>
-            this.setState({
-                status: result.status,
-                project: result.labels["com.docker.compose.project"],
-                service: result.labels["com.docker.compose.service"]
-            })
+        this.context.api.container(this.state.id, this.state.name).then(result => {
+                this.setState({status: result.status, container: result});
+            }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting container: ${textStatus} - ${errorThrown}`})
-        )
+            this.context.setErrorMessage(`Error getting container: ${textStatus} - ${errorThrown}`)
+        );
     }
 
     updateState = (data) => {
@@ -55,10 +51,12 @@ export class ManageContainer extends Component {
         evt.preventDefault();
         this.setState({actioning: action});
         this.context.api.proxyPost(`/container/${this.state.id}/${action}`, {name: this.state.name}
-        ).then(result =>
-            this.setState({message: `container: ${result.status}`, status: result.status})
+        ).then(result => {
+                this.context.setMessage(`container: ${result.status}`);
+                this.setState({status: result.status});
+            }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error with action: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error with action: ${textStatus} - ${errorThrown}`)
         ).always(() => {
             this.setState({actioning: ''});
         });
@@ -79,7 +77,7 @@ export class ManageContainer extends Component {
                 a.click();
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage({message: `Error: ${textStatus} - ${errorThrown}`})
         )
     }
 

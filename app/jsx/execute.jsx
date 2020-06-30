@@ -43,6 +43,7 @@ export default class Execute extends Component {
             commandEntries: [],
         };
     }
+
     static contextType = AppContext;
 
     componentDidMount() {
@@ -51,10 +52,10 @@ export default class Execute extends Component {
 
     getCommandEntries() {
         this.context.api.command(
-       ).then(result =>
+        ).then(result =>
             this.setState({commandEntries: result})
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting commands: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error getting commands: ${textStatus} - ${errorThrown}`)
         )
     }
 
@@ -70,7 +71,7 @@ export default class Execute extends Component {
                     cmd: cmd,
                 }
             ).then(cmd_result => {
-                    return this.context.api.command('POST',{
+                    return this.context.api.command('POST', {
                         result: cmd_result,
                         cmd: cmd,
                     }).then(result => {
@@ -79,7 +80,7 @@ export default class Execute extends Component {
                     })
                 }
             ).fail((xhr, textStatus, errorThrown) =>
-                this.setState({message: `Error exec_run: ${textStatus} - ${errorThrown}`})
+                this.context.setErrorMessage(`Error exec_run: ${textStatus} - ${errorThrown}`)
             ).always(() => this.setState({executing: false})
             )
         })
@@ -100,11 +101,11 @@ export default class Execute extends Component {
                 const commandEntries = this.state.commandEntries.filter(command =>
                     command.id !== command_id
                 );
-
-                this.setState({message: result.message, commandEntries})
+                this.context.setMessage(result.message)
+                this.setState({commandEntries})
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error exec delete: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error exec delete: ${textStatus} - ${errorThrown}`)
         ).always(() => this.setState({executing: false})
         )
     }
@@ -117,9 +118,9 @@ export default class Execute extends Component {
             <table className={"table"}>
                 <tbody>
                 {this.state.commandEntries.map(result => <ExecEntry keycmd={result.cmd} clickExec={this.clickExec}
-                                                                clickExecDelete={this.clickExecDelete}
-                                                                updateState={this.updateState}
-                                                                entry={result}/>)}
+                                                                    clickExecDelete={this.clickExecDelete}
+                                                                    updateState={this.updateState}
+                                                                    entry={result}/>)}
                 </tbody>
             </table>
         </div>

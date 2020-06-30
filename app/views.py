@@ -74,9 +74,9 @@ rand_check_number = random.randint(0, 9999999999)
 
 @bp.route('/last_static_update')
 def last_static_update():
-    include_dirs = ['./app/js', './app/jsx', './app/templates']
+    include_dirs = ['./app/js', './app/static/src', './app/templates']
     exclude_dir = ['node_modules', 'venv', 'tmp']
-    notice_exts = ['js', 'html', 'css', 'jsx']
+    notice_exts = ['js', 'html', 'css']
     initial_max_age = max_age = float(request.args.get('max_age', -1))
     for include_dir in include_dirs:
         for root, dirs, files in os.walk(include_dir):

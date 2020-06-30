@@ -52,7 +52,7 @@ export default class LogContent extends Component {
                 }
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting log: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error getting log: ${textStatus} - ${errorThrown}`)
         );
     }
 
@@ -61,14 +61,11 @@ export default class LogContent extends Component {
     };
 
     componentDidMount() {
-        this.context.api.proxyGet(`/container/${this.state.id}/get`, {name: this.state.name}
-        ).then(result => {
-                this.setState({status : result.status});
-                this.setState({project : result.labels["com.docker.compose.project"]});
-                this.setState({service : result.labels["com.docker.compose.service"]});
+        this.context.api.container(this.state.id, this.state.name).then(result => {
+                this.setState({status: result.status, container: result});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.setState({message: `Error getting container: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error getting container: ${textStatus} - ${errorThrown}`)
         );
 
         this.refreshLogsInteval = setInterval(() => {
@@ -76,8 +73,7 @@ export default class LogContent extends Component {
                 this.getLogs();
             }
         }, 10000);
-        this.getLogs().then(result => {
-        });
+        this.getLogs();
     }
 
     renderMessage(className) {

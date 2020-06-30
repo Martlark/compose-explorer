@@ -1,18 +1,18 @@
-import React, {useState} from "react";
+import React from "react";
 import $ from "jquery";
 
-export const ErrorMessage = ({message}) =>{
-    if(!message){
+export const ErrorMessage = ({message}) => {
+    if (!message) {
         return null;
     }
-    return(<h3 className={"alert alert-warning"}>{message}</h3>)
+    return (<h3 className={"alert alert-warning"}>{message}</h3>)
 }
 
-export const Message = ({message}) =>{
-    if(!message){
+export const Message = ({message}) => {
+    if (!message) {
         return null;
     }
-    return(<h3 className={"alert alert-info"}>{message}</h3>)
+    return (<h3 className={"alert alert-info"}>{message}</h3>)
 }
 
 export class ApiService {
@@ -20,6 +20,10 @@ export class ApiService {
         this.csrf = $("input[name=base-csrf_token]").val();
         this.prefix_api = `/api`;
         this.prefix_command = `/command`;
+    }
+
+    container(id, name) {
+        return this.proxyGet(`/container/${id}/get`, {name})
     }
 
     json(url, params) {
@@ -58,7 +62,19 @@ export class ApiService {
         data.csrf_token = this.csrf;
         return $.post('/proxy' + url, data);
     }
+
+    projects(server_id) {
+        return this.proxyGet(`/projects/${server_id}`
+        ).then(result => {
+                return result.map(data => {
+                    data.server_id = server_id;
+                    return data
+                });
+            }
+        );
+    }
 }
+
 // https://www.robinwieruch.de/react-function-component
 // https://www.taniarascia.com/using-context-api-in-react/
 export const AppContext = React.createContext({});

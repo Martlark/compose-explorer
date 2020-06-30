@@ -1,4 +1,5 @@
 # routes.py
+# routes for calling docker proxy
 
 from flask import request, jsonify
 from flask_login import login_required, current_user
@@ -25,10 +26,40 @@ def route_container(server_id, verb):
         return str(e), 400
 
 
-@bp.route('/projects/<int:server_id>', methods=['GET'])
+@bp.route('/project/<int:server_id>/<project>', methods=['GET'])
+@login_required
+def route_project_services(server_id, project):
+    """
+    return all services for the given server and project
+
+    :param server_id:
+    :param project:
+    :return:
+    """
+    server = DockerServer.query.get_or_404(server_id)
+    services = []
+    if request.method == 'GET':
+        try:
+            result = server.get('container', 'list', params=request.args)
+            result.sort(key=lambda c: c["labels"]["com.docker.compose.project"])
+            for c in result:
+                if c["labels"]["com.docker.compose.project"] == project:
+                    services.append(c)
+            return jsonify(services)
+        except Exception as e:
+            return str(e), 400
+
+
+@bp.route('/projects/<server_id>', methods=['GET'])
 @login_required
 def route_projects(server_id):
-    server = DockerServer.query.get_or_404(server_id)
+    if server_id in ['null', 'undefined']:
+        return jsonify([])
+    server_id = int(server_id)
+    server = DockerServer.query.get(server_id)
+    if not server:
+        return jsonify([])
+
     projects = []
     if request.method == 'GET':
         try:

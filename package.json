@@ -7,6 +7,7 @@
     "test": "test"
   },
   "dependencies": {
+    "bootstrap-input-react": "^1.1.9",
     "classnames": "^2.2.6",
     "draft-js": "^0.11.6",
     "informed": "^2.11.9",
@@ -15,8 +16,7 @@
     "react": "^16.13.1",
     "react-collapsible": "^2.8.0",
     "react-dom": "^16.13.1",
-    "serialize-javascript": "^3.0.0",
-    "bootstrap-input-react": "^1.1.9"
+    "serialize-javascript": "^3.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.2",

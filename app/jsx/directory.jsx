@@ -96,11 +96,11 @@ export default class Directory extends Component {
                 cmd: `(cd ${this.state.directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
             }
         ).then(result => {
-                this.state.updateState({message: result});
+                this.context.setMessage(result);
                 return this.getDirectory(this.state.pwd);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
         ).always(() => this.setState({directoryGetting: false})
         )
     }
@@ -124,7 +124,7 @@ export default class Directory extends Component {
                     a.click();
                 }
             ).fail((xhr, textStatus, errorThrown) =>
-                this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+                this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
             )
         });
     }
@@ -159,7 +159,7 @@ export default class Directory extends Component {
                 directoryEntries: result.entries,
             })
         ).fail((xhr, textStatus, errorThrown) =>
-            this.state.updateState({message: `Error: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
         ).always(() => this.setState({directoryGetting: false})
         )
     }
