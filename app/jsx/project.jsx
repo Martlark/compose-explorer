@@ -2,6 +2,7 @@ import React, {Component} from "react";
 import PropTypes from "prop-types";
 import {ProjectService} from "./ProjectService";
 import {AppContext} from "./context";
+import {Link} from "react-router-dom";
 
 export class Project extends Component {
     constructor(props) {
@@ -48,7 +49,7 @@ export class Project extends Component {
     render() {
         return (
             <div>
-                <h2>{this.state.name}</h2>
+                <h2><Link to={`/server/${this.state.server_id}/project/${encodeURIComponent(this.state.project)}`} title={'Zoom to this project'}>{this.state.project}</Link></h2>
                 <table className={"table"}>
                     <thead>
                     <tr>

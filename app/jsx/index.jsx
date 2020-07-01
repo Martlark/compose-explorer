@@ -4,7 +4,7 @@ import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {ApiService, AppContext, ErrorMessage, Message} from './context'
 
 import {ManageServer} from "./server"
-import {ManageContainer} from "./container"
+import {ManageContainer} from "./manageContainer"
 import {FileEdit} from "./container_edit_file";
 import LogContent from "./container_log";
 import Home from "./home";
