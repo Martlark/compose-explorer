@@ -33,16 +33,18 @@ class AppProvider extends Component {
                 <Nav/>
                 <Message message={this.state.message}/>
                 <ErrorMessage message={this.state.errorMessage}/>
-                <Switch>
-                    <Route exact path="/">
-                        <Home/>
-                    </Route>
-                    <Route exact path="/server/:id" component={ManageServer}/>
-                    <Route exact path="/server/:id/project/:project" component={Project}/>
-                    <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
-                    <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
-                    <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
-                </Switch>
+                <div className={"container"}>
+                    <Switch>
+                        <Route exact path="/">
+                            <Home/>
+                        </Route>
+                        <Route exact path="/server/:id" component={ManageServer}/>
+                        <Route exact path="/server/:id/project/:project" component={Project}/>
+                        <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
+                        <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
+                        <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
+                    </Switch>
+                </div>
             </Router>
         </AppContext.Provider>)
     }

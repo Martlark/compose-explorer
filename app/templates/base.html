@@ -6,64 +6,34 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="/static/css/main.css" rel="stylesheet">
+
+    <script
+            src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
+            integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+    <script
+            src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
+    {% import_js 'base.js' %}
 </head>
 <body>
 <input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
-
-
-<nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-dark mb-4">
-    <a class="navbar-brand" href="/">Home</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-        <ul class="navbar-nav mr-auto">
-            {% if current_user.is_anonymous %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.public_page_login') }}">Login</a>
-                </li>
-            {% else %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('main.public_page_logout') }}">Logout</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a id="dropdown1" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
-                       aria-expanded="false" href="#">Admin</a>
-                    <div class="dropdown-menu" aria-labelledby="dropdown1">
-                        {% if current_user.user_type == "admin" %}
-                            <a class="dropdown-item" href="/admin">Flask Admin</a>
-                        {% endif %}
-                    </div>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
-<input type="hidden" value="{{ csrf_token() }}" name="csrf_token">
-
-<script
-        src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment-with-locales.min.js"
-        integrity="sha256-AdQN98MVZs44Eq2yTwtoKufhnU+uZ7v2kXnD5vqzZVo=" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
-<script
-        src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-        crossorigin="anonymous"></script>
-{% import_js 'base.js' %}"
-<section id="page_top" class="container">
-    {% with messages = get_flashed_messages(with_categories=True) %}
-        {% if messages %}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<script>g={{ g.d | tojson }}</script>
+{% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <section id="page_top" class="container">
             {% for category, message in messages %}
                 <div class="flashed-message alert alert-{{ category if category not in ['temporary', 'message'] else 'info' }} flashed-message-{{ category }}"
                      role="alert">
@@ -73,12 +43,10 @@
                     <span id="flash-message">{{ message }}</span>
                 </div>
             {% endfor %}
-        {% endif %}
-    {% endwith %}
-</section>
-<section role="main" id='content' class="container">
-    {% block body %}{% endblock %}
-</section>
+        </section>
+    {% endif %}
+{% endwith %}
+{% block body %}{% endblock %}
 <script src="/static/js/jquery.scrolly.min.js"></script>
 <script src="/static/js/skel.min.js"></script>
 <script src="/static/js/auto_reload.js"></script>

@@ -24,7 +24,6 @@ export class ManageContainer extends Component {
     static contextType = AppContext;
 
     componentDidMount() {
-        this.context.setServerId(this.state.id);
         this.getContainerProps();
     }
 

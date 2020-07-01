@@ -1,11 +1,13 @@
-from flask import Flask, request, render_template, flash, redirect, session
-from flask_admin import Admin
 import os
+
+from flask import Flask, request, flash, redirect, session, g
+from flask_admin import Admin
 from flask_ipban import IpBan
-from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
+
 from app.custom_tags import ImportJs
 
 db = SQLAlchemy()
@@ -16,6 +18,24 @@ csrf = CSRFProtect()
 ip_ban = IpBan(ip_header='X-TRUE-IP',
                abuse_IPDB_config=dict(key=os.getenv('ABUSE_IPDB_KEY'), report=os.getenv('DEPLOYMENT') == 'Prod'))
 
+
+
+def d_serialize(item):
+    """
+    convert the item into a dict
+    so they can be serialized back to the caller
+
+    :param item: an object
+    :return:
+    """
+    d = {}
+    for a in item.__dict__.keys():
+        if not a.startswith('_'):
+            value = getattr(item, a, '')
+            if type(value) not in [list, dict, int, float, str, bool]:
+                value = str(value)
+            d[a] = value
+    return d
 
 # Flask and Flask-SQLAlchemy initialization here
 
@@ -28,7 +48,8 @@ def create_app():
             os.makedirs(folder, exist_ok=True)
 
     app = Flask(__name__)
-
+    app.jinja_env.trim_blocks = True
+    app.jinja_env.lstrip_blocks = True
     app.config.from_object('config')
 
     ensure_folder(app.config['BASEDIR'])
@@ -48,6 +69,13 @@ def create_app():
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return User.query.get(int(user_id))
+
+    @app.before_request
+    def before_request():
+        g.current_user = current_user
+        g.anon = current_user.is_anonymous
+        g.admin = getattr(current_user, 'is_admin', False)
+        g.d = d_serialize(g)
 
     admin_views(admin, db)
     ip_ban.init_app(app)

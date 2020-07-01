@@ -65,8 +65,6 @@ export default class LogContent extends Component {
     };
 
     componentDidMount() {
-        this.context.setServerId(this.state.id);
-
         this.context.api.container(this.state.id, this.state.name).then(result => {
                 this.setState({status: result.status, container: result});
             }

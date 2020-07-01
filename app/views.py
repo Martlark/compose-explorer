@@ -1,9 +1,8 @@
 # views.py
 import os
 import random
-import urllib
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, session
+from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, g
 from flask_login import logout_user, login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin

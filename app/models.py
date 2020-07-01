@@ -36,6 +36,10 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         user = cls.query.filter_by(name=name.lower()).first()
         return user is None
 
+    @property
+    def is_admin(self):
+        return self.user_type == 'admin'
+
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
@@ -53,6 +57,9 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         db.session.add(command)
         db.session.commit()
         return command
+
+    def __repr__(self):
+        return f'{self.email}'
 
 
 class Command(db.Model, FlaskSerializeMixin):
@@ -140,6 +147,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     @property
     def summary(self):
         return self.get_summary()
+
 
 class Setting(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)

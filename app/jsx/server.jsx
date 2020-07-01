@@ -18,7 +18,6 @@ export class ManageServer extends Component {
     };
 
     getItems() {
-        this.context.setServerId(this.state.id);
         return this.context.api.projects(this.state.id
         ).then(projects => {
                 this.context.setMessage(`${projects.length} projects`);

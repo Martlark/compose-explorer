@@ -24,8 +24,6 @@ export class Project extends Component {
 
     getServices() {
         if (this.props.match) {
-            this.context.setServerId(this.state.server_id);
-
             this.context.api.proxyGet(`/project/${this.state.server_id}/${this.state.project}`
             ).then(result => this.setState({services: result})
             ).fail((xhr, textStatus, errorThrown) =>
