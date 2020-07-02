@@ -36,7 +36,8 @@ export class ManageServer extends Component {
         return (<div>
                 {this.state.projects.map(project => <Project key={project.name}
                                                              updateState={this.updateState}
-                                                             details={project}
+                                                             server_id={this.state.id}
+                                                             project={project.name}
                                                              services={project.services} name={''}/>)
                 }
             </div>

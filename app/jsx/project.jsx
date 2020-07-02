@@ -1,73 +1,52 @@
-import React, {Component} from "react";
-import PropTypes from "prop-types";
+import React, {useContext, useEffect, useState} from "react";
 import {ProjectService} from "./ProjectService";
 import {AppContext} from "./context";
 import {Link} from "react-router-dom";
 
-export class Project extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            ...props,
-            dirty: false,
-            server_id: (props.details && props.details.server_id) || props.match.params.id,
-            services: props.services || [],
-            project: (props.details && props.details.name) || props.match.params.project
-        };
+export const Project = (props) => {
+    const [server_id, setServer_id] = useState(props.server_id);
+    const [services, setServices] = useState(props.services ?? []);
+    const [project, setProject] = useState(props.project);
+    const context = useContext(AppContext)
+
+    function getServices() {
+        setServer_id(props.match.params.id);
+        setProject(props.match.params.project);
+        context.api.proxyGet(`/project/${props.match.params.id}/${props.match.params.project}`
+        ).then(result => setServices(result)
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error getting project services: ${textStatus} - ${errorThrown}`)
+        );
     }
 
-    static contextType = AppContext;
-
-    static propTypes = {
-        name: PropTypes.object.isRequired,
-        details: PropTypes.object.isRequired
-    };
-
-    getServices() {
-        if (this.props.match) {
-            this.context.api.proxyGet(`/project/${this.state.server_id}/${this.state.project}`
-            ).then(result => this.setState({services: result})
-            ).fail((xhr, textStatus, errorThrown) =>
-                this.context.setErrorMessage(`Error getting project services: ${textStatus} - ${errorThrown}`)
-            );
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.match) {
-            if (this.props.match.params.id !== prevState.server_id || this.props.match.params.project !== prevState.project) {
-                this.setState({server_id: this.props.match.params.id, project: this.props.match.params.project},
-                    () => this.getServices())
+    useEffect(() => {
+        if (props.match) {
+            if (props.match.params.id !== server_id || props.match.params.project !== project) {
+                getServices();
             }
         }
-    }
+    }, [props.match]);
 
-    componentDidMount() {
-        this.getServices();
-    }
+    return (
+        <div>
+            <h2><Link to={`/server/${server_id}/project/${encodeURIComponent(project)}`}
+                      title={'Zoom to this project'}>{project}</Link></h2>
+            <table className={"table"}>
+                <thead>
+                <tr>
+                    <th className="w-50">Service</th>
+                    <th className="w-25">Status</th>
+                    <th className="w-25">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
 
-    render() {
-        return (
-            <div>
-                <h2><Link to={`/server/${this.state.server_id}/project/${encodeURIComponent(this.state.project)}`} title={'Zoom to this project'}>{this.state.project}</Link></h2>
-                <table className={"table"}>
-                    <thead>
-                    <tr>
-                        <th className="w-50">Service</th>
-                        <th className="w-25">Status</th>
-                        <th className="w-25">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-
-                    {this.state.services.map(service => <ProjectService key={service.id}
-                                                                        server_id={this.state.server_id}
-                                                                        updateState={this.updateState}
-                                                                        name={service.name}
-                                                                        details={service}
-                                                                        status={service.status}/>)}
-                    </tbody>
-                </table>
-            </div>)
-    }
+                {services.map(service => <ProjectService key={service.id}
+                                                         server_id={server_id}
+                                                         name={service.name}
+                                                         details={service}
+                                                         status={service.status}/>)}
+                </tbody>
+            </table>
+        </div>)
 }
