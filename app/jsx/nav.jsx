@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {matchPath, NavLink, useLocation} from "react-router-dom";
 import {AppContext} from "./context";
 
@@ -6,23 +6,27 @@ export const Nav = (props) => {
     const location = useLocation();
     const [server_id, setServer_id] = useState();
     const [projects, setProjects] = useState([]);
-    const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
     const context = useContext(AppContext);
-    const current_id = match && match.params && match.params.id || 0;
+    console.log(1);
 
-    if (server_id !== current_id) {
-        setServer_id(current_id)
-        context.api.json(`/server/${current_id}`).then(result => {
-            if (result) {
-                context.setServerName(result.name);
-                context.setServerId(current_id);
-            }
-        });
-        context.api.projects(current_id
-        ).then(projects => setProjects(projects)
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`))
-    }
+    useEffect(() => {
+    console.log(2);
+        const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
+        const current_id = match && match.params && match.params.id || 0;
+        if (server_id !== current_id) {
+            setServer_id(current_id)
+            context.api.json(`/server/${current_id}`).then(result => {
+                if (result) {
+                    context.setServerName(result.name);
+                    context.setServerId(current_id);
+                }
+            });
+            context.api.projects(current_id
+            ).then(projects => setProjects(projects)
+            ).fail((xhr, textStatus, errorThrown) =>
+                context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`))
+        }
+    }, [location]);
 
     const adminLinks =
         <li className="nav-item dropdown">
@@ -45,7 +49,7 @@ export const Nav = (props) => {
                     <li key={project}>
                         <NavLink
                             className="dropdown-item"
-                            to={`/server/${current_id}/project/${project.name}`}>{project.name}
+                            to={`/server/${server_id}/project/${project.name}`}>{project.name}
                         </NavLink>
                     </li>)}
             </div>
@@ -65,17 +69,17 @@ export const Nav = (props) => {
                         <NavLink className="nav-link" to="/">Compose Explorer <span
                             className="sr-only">(current)</span></NavLink>
                     </li>
-                    {current_id > 0 && <li className="nav-item">
+                    {server_id > 0 && <li className="nav-item">
                         <NavLink
                             className="nav-link"
-                            to={`/server/${current_id}`}>
+                            to={`/server/${server_id}`}>
                             {context.server_name}
                         </NavLink>
                     </li>}
                     {/*<li className="nav-item">*/}
                     {/*    <a className="nav-link disabled" href="#">Disabled</a>*/}
                     {/*</li>*/}
-                    {current_id > 0 && projectLinks}
+                    {server_id > 0 && projectLinks}
                     {adminLinks}
                 </ul>
             </div>

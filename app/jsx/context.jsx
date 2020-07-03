@@ -2,10 +2,18 @@ import React, {useContext, useEffect} from "react";
 import $ from "jquery";
 
 export const ErrorMessage = ({message}) => {
+    const context = useContext(AppContext);
     if (!message) {
         return null;
     }
-    return (<h3 className={"alert alert-warning"}>{message}</h3>)
+    return (<div
+        className="alert alert-danger"
+        role="alert">
+        <a href="#" title="close" className="close" onClick={()=>context.setErrorMessage(null)}
+           aria-label="Close"
+           aria-hidden="true">&times;</a>
+        <span id="flash-message">{message}</span>
+    </div>)
 }
 
 export const Message = ({message}) => {

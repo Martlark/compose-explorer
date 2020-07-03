@@ -2,34 +2,28 @@ import React, {Component} from 'react'
 import BootstrapInput from "bootstrap-input-react";
 import {AppContext} from "./context";
 
-class ExecEntry extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    clickCmd = (evt) => {
+function ExecEntry(props) {
+    const clickCmd = (evt) => {
         evt.preventDefault();
-        this.props.updateState({command: this.props.entry.cmd});
+        props.updateState({command: props.entry.cmd});
     }
 
-    render() {
-        return (
-            <tr key={this.props.id}>
-                <td className={"w-25"}>
-                    <a href={'javascript:'} title={'Re-run command'}
-                       onClick={evt => this.props.clickExec(evt, this.props.entry.cmd)}><span
-                        className="material-icons">directions_run</span></a>
-                    <a href={'javascript:'} title={'Remove from history'}
-                       onClick={evt => this.props.clickExecDelete(evt, this.props.entry.id)}><span
-                        className="material-icons">delete_forever</span></a>
-                </td>
-                <td className={"w-25"}><a href={'javascript:'} title={'Edit command string'}
-                                          onClick={evt => this.clickCmd(evt)}>{this.props.entry.cmd}</a></td>
-                <td className={"w-50"} title={`${this.props.entry.naturaldelta} ago`}>
-                    <pre>{this.props.entry.result}</pre>
-                </td>
-            </tr>)
-    }
+    return (
+        <tr key={props.id}>
+            <td className={"w-25"}>
+                <a href={'javascript:'} title={'Re-run command'}
+                   onClick={evt => props.clickExec(evt, props.entry.cmd)}><span
+                    className="material-icons">directions_run</span></a>
+                <a href={'javascript:'} title={'Remove from history'}
+                   onClick={evt => props.clickExecDelete(evt, props.entry.id)}><span
+                    className="material-icons">delete_forever</span></a>
+            </td>
+            <td className={"w-25"}><a href={'javascript:'} title={'Edit command string'}
+                                      onClick={evt => clickCmd(evt)}>{props.entry.cmd}</a></td>
+            <td className={"w-50"} title={`${props.entry.naturaldelta} ago`}>
+                <pre>{props.entry.result}</pre>
+            </td>
+        </tr>)
 }
 
 export default class Execute extends Component {

@@ -1,46 +1,33 @@
-import React, {Component} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "./context";
 import {Project} from "./project";
 
-export class ManageServer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            projects: [],
-            id: props.match.params.id,
-        };
-    }
+export function ManageServer(props) {
+    const [projects, setProjects] = useState([]);
+    const server_id = props.match.params.id;
+    const context = useContext(AppContext);
 
-    static contextType = AppContext;
-
-    updateState = (data) => {
-        this.setState(data)
-    };
-
-    getItems() {
-        return this.context.api.projects(this.state.id
+    function getItems() {
+        context.api.projects(server_id
         ).then(projects => {
-                this.context.setMessage(`${projects.length} projects`);
-                this.setState({projects});
+                context.setMessage(`${projects.length} projects`);
+                setProjects(projects);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`)
         );
     }
 
-    componentDidMount() {
-        this.getItems();
-    }
+    useEffect(() => {
+        getItems();
+    }, [server_id]);
 
-    render() {
-        return (<div>
-                {this.state.projects.map(project => <Project key={project.name}
-                                                             updateState={this.updateState}
-                                                             server_id={this.state.id}
-                                                             project={project.name}
-                                                             services={project.services} name={''}/>)
-                }
-            </div>
-        )
-    }
+    return (<div>
+            {projects.map(project => <Project key={project.name}
+                                              server_id={server_id}
+                                              project={project.name}
+                                              services={project.services} name={''}/>)
+            }
+        </div>
+    )
 }

@@ -50,3 +50,8 @@ export const Project = (props) => {
             </table>
         </div>)
 }
+
+/*
+see:
+https://www.robinwieruch.de/react-hooks-fetch-data
+ */
