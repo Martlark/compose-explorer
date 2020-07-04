@@ -7,10 +7,8 @@ export const Nav = (props) => {
     const [server_id, setServer_id] = useState();
     const [projects, setProjects] = useState([]);
     const context = useContext(AppContext);
-    console.log(1);
 
     useEffect(() => {
-    console.log(2);
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
         if (server_id !== current_id) {

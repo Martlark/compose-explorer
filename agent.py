@@ -55,10 +55,18 @@ def exec_run(container, cmd, shell=False):
 
 def get_directory(container, args):
     pwd = args.get('pwd', '.')
-    parent = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''').split('\n')[0]
-    path = exec_run(container, f'''bash -c "(cd '{pwd}' && pwd)"''').split('\n')[0]
+    result = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''')
+    if result.startswith('bash: '):
+        raise Exception(f'invalid parent pwd: {result}')
+    parent = result.split('\n')[0]
+    result = exec_run(container, f'''bash -c "(cd '{pwd}' && pwd)"''')
+    if result.startswith('bash: '):
+        raise Exception(f'invalid pwd: {result}')
+    path = result.split('\n')[0]
     cmd = f'ls -la1Qt "{pwd}"'
     listing = exec_run(container, cmd)
+    if result.startswith('ls: '):
+        raise Exception(f'invalid ls: {listing}')
     entries = []
     total = ''
     for i, l in enumerate(listing.split('\n')):
@@ -126,7 +134,8 @@ def route_container(param):
             elif param == 'exec_run':
                 if container.status == 'running':
                     cmd = request.form.get('cmd')
-                    return exec_run(container, cmd, shell=True)
+                    output = exec_run(container, cmd, shell=True)
+                    return output
                 else:
                     return 'not running'
             elif param == 'download':

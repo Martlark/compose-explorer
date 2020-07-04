@@ -1,28 +1,21 @@
 import React, {Component} from 'react'
-import PropTypes from 'prop-types'
 import BootstrapInput from "bootstrap-input-react";
 import {AppContext} from "./context";
 
-class LogEntry extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {...props, dirty: false, result: {}, deleteConfirm: false, deleted: false};
-        this.value = React.createRef(props.item);
-        this.state.timeStamp = props.item.split(' ')[0];
-        this.state.text = props.item.substr(this.state.timeStamp.length);
+function LogEntry(props) {
+    const parts = props.item.split(' ')[0].split('.')[0].split('T');
+    if (parts.length < 2) {
+        return null;
     }
+    const datePart = parts[0];
+    const timePart = parts[1];
+    const text = props.item.substr(props.item.split(' ')[0].length);
 
-    static propTypes = {
-        item: PropTypes.object.isRequired
-    };
-
-    render() {
-        return (
-            <tr>
-                <td>{this.state.timeStamp}</td>
-                <td>{this.state.text}</td>
-            </tr>)
-    }
+    return (
+        <tr key={props.item}>
+            <td>{datePart} {timePart}</td>
+            <td>{text}</td>
+        </tr>)
 }
 
 export default class LogContent extends Component {

@@ -1,73 +1,82 @@
-import React, {Component} from "react";
+import React, {useContext, useState} from "react";
 import {AppContext} from "./context";
-import PropTypes from "prop-types";
 import {Link} from "react-router-dom";
 
-
-export class ProjectService extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {...props, dirty: false, result: {}, deleteConfirm: false, actioning: '', message: ''};
-        this.state.hrefLog = `/server/${props.server_id}/container_log/${this.state.name}`;
-        this.state.hrefContainer = `/server/${props.server_id}/container/${this.state.name}`;
-        this.actions = ['stop', 'start', 'restart'];
+export function ServiceStatus(props) {
+    let badgeClass = 'warning';
+    switch (props.status) {
+        case 'running':
+            badgeClass = 'success';
+            break
+        case 'exited':
+            badgeClass = 'danger';
+            break
+        case 'stopped':
+            badgeClass = 'warning';
+            break
     }
-    static contextType = AppContext;
+    return (<span className={`badge badge-${badgeClass}`}>{props.status}</span>)
 
-    clickAction = (evt, action) => {
+}
+
+export function ProjectService(props) {
+    const [status, setStatus] = useState(props.status);
+    const [message, setMessage] = useState('');
+    const [actioning, setActioning] = useState('');
+    const context = useContext(AppContext);
+
+    const hrefLog = `/server/${props.server_id}/container_log/${props.name}`;
+    const hrefContainer = `/server/${props.server_id}/container/${props.name}`;
+    const actions = ['stop', 'start', 'restart'];
+
+    const clickAction = (evt, action) => {
         evt.preventDefault();
-        this.setState({actioning: action.action});
-        return this.context.api.proxyPost(`/container/${this.state.server_id}/${action.action}`, {
-                name: this.state.name,
+        setActioning(action.action);
+        return context.api.proxyPost(`/container/${props.server_id}/${action.action}`, {
+                name: props.name,
             }
-        ).then(result =>
-            this.setState({message: `container: ${result.status}`, status: result.status})
+        ).then(result => {
+                setMessage(`${action.action}: ${result.status}`);
+                setStatus(result.status);
+            }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error with action: ${textStatus} - ${errorThrown}`)
+            setMessage(`Error with action: ${textStatus} - ${errorThrown}`)
         ).always(() => {
-            this.setState({actioning: ''});
+            setActioning('');
         });
     }
 
-    renderActions() {
-        if (this.state.actioning) {
-            return <p>Action under way</p>
+    function renderActions() {
+        if (actioning) {
+            return <p>Action: {actioning}, under way</p>
         }
-        return <ul className="list-inline">{this.actions.map(action => this.renderActionListItem(action))}</ul>
+        return <ul className="list-inline">{actions.map(action => renderActionListItem(action))}</ul>
     }
 
-    renderActionListItem(action) {
+    function renderActionListItem(action) {
         const style = {textTransform: "capitalize"};
 
         return <li key={action} className={"list-inline-item"}>
             <a style={style} href="#"
-               onClick={evt => this.clickAction(evt, {action})}>{action}</a>
+               onClick={evt => clickAction(evt, {action})}>{action}</a>
         </li>
     }
 
-    renderMessage() {
-        if (this.state.message) {
-            return <p className={"alert"}>{this.state.message}</p>
+    function renderMessage() {
+        if (message) {
+            return <p className={"alert alert-info"}>{message}</p>
         }
         return null;
     }
 
-    static propTypes = {
-        name: PropTypes.object.isRequired,
-        details: PropTypes.object.isRequired,
-        server_id: PropTypes.object.isRequired
-    };
-
-    render() {
-        return (
-            <tr>
-                <td>
-                    <a href={this.state.hrefLog} title="Logs"><span className="material-icons">assignment</span></a>
-                    <Link to={this.state.hrefContainer} title="Manage container">{this.state.name}</Link>
-                    {this.renderMessage()}
-                </td>
-                <td>{this.state.status}</td>
-                <td>{this.renderActions()}</td>
-            </tr>)
-    }
+    return (
+        <tr>
+            <td>
+                <a href={hrefLog} title="Logs"><span className="material-icons">assignment</span></a>
+                <Link to={hrefContainer} title="Manage container">{props.name}</Link>
+                {renderMessage()}
+            </td>
+            <td><ServiceStatus status={status}/></td>
+            <td>{renderActions()}</td>
+        </tr>)
 }

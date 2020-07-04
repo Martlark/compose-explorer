@@ -1,47 +1,42 @@
-import React, {Component} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import {AppContext} from './context';
 
-export default class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {items: []};
-    }
+export default function Home(props) {
+    const [servers, setServers] = useState([]);
+    const context = useContext(AppContext);
 
-    static contextType = AppContext;
+    useEffect(() => {
+        context.setServerId(null);
 
-    componentDidMount() {
-        this.context.setServerId(null);
-
-        this.context.api.json('/servers').then(items =>
-            this.setState({items})
+        context.api.json('/servers').then(items => {
+                setServers(items);
+                context.setMessage(`${items.length} servers`);
+            }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`${xhr.responseText}`)
-        ).always(() => {
-            this.context.setMessage(`${this.state.items.length} servers`);
-        })
-    }
+            context.setErrorMessage(`${xhr.responseText}`)
+        )
+    }, []);
 
-    render() {
-        return (<table className={"table"}>
-            <thead>
+    return (<table className={"table"}>
+        <thead>
+        <tr>
+            <th>Docker Server</th>
+            <th>Containers</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {servers.map(item =>
             <tr>
-                <th>Docker Server</th>
-                <th>Containers</th>
+                <td>
+                    <Link to={`/server/${item.id}`}>{item.name}</Link>
+                </td>
+                <td>
+                    {item.summary.containers}
+                </td>
             </tr>
-            </thead>
-
-            <tbody>
-            {this.state.items.map(item =>
-                <tr>
-                    <td>
-                        <Link to={`/server/${item.id}`}>{item.name}</Link>
-                    </td>
-                    <td>
-                        {item.summary.containers}
-                    </td>
-                </tr>)}
-            </tbody>
-        </table>)
-    }
+        )}
+        </tbody>
+    </table>)
 }

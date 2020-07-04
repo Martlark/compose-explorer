@@ -4,6 +4,7 @@ import Directory from './directory'
 import Execute from './execute'
 import LogContent from './container_log'
 import {AppContext} from "./context";
+import {ServiceStatus} from "./ProjectService";
 
 export class ManageContainer extends Component {
     constructor(props) {
@@ -13,6 +14,7 @@ export class ManageContainer extends Component {
             id: this.props.match.params.id,
             name: this.props.match.params.name,
             pwd: '.',
+            status: '...',
             hrefLog: `/server/${this.props.match.params.id}/container_log/${this.props.match.params.name}`
         };
         this.actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
@@ -128,19 +130,9 @@ export class ManageContainer extends Component {
     }
 
     renderStatus() {
-        let badgeClass = 'warning';
-        switch (this.state) {
-            case 'running':
-                badgeClass = 'success';
-                break
-            case 'exited':
-            case 'stopped':
-                badgeClass = 'danger';
-                break
-        }
+
         return (
-            <h3 title={"status"}>{this.state.name}: <span
-                className={`badge badge-${badgeClass}`}>{this.state.status}</span>
+            <h3 title={"status"}>{this.state.name}: <ServiceStatus status={this.state.status}/>
             </h3>);
     }
 
