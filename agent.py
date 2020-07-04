@@ -126,9 +126,9 @@ def route_container(param):
 
         if request.method == 'POST':
             if param == 'restart':
-                container.restart()
+                container.restart(timeout=60)
             elif param == 'stop':
-                container.stop()
+                container.stop(timeout=60)
             elif param == 'start':
                 container.start()
             elif param == 'exec_run':

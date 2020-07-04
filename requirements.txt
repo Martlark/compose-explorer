@@ -1,9 +1,9 @@
-requests
+requests>=2.24.0
 Flask>=1.1.2
 Flask-Admin>=1.5.6
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
-Flask-SQLAlchemy>=2.4.1
+Flask-SQLAlchemy>=2.4.3
 Flask-WhooshAlchemy==0.56
 Flask-WTF>=0.14.3
 Flask-Serialize>=1.1.9
@@ -11,6 +11,6 @@ python-dateutil>=2.8.1
 flask_migrate>=2.5.3
 WTForms>=2.3.1
 Flask-IpBan>=1.0.13
-docker>=4.2.0
-email_validator
-humanize
+docker>=4.2.2
+email_validator>=1.1.1
+humanize>=2.4.1
