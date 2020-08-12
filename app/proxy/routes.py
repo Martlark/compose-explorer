@@ -41,9 +41,9 @@ def route_project_services(server_id, project):
     if request.method == 'GET':
         try:
             result = server.get('container', 'list', params=request.args)
-            result.sort(key=lambda c: c["labels"]["com.docker.compose.project"])
+            result.sort(key=lambda c: c["labels"].get("com.docker.compose.project", ''))
             for c in result:
-                if c["labels"]["com.docker.compose.project"] == project:
+                if c["labels"].get("com.docker.compose.project", '') == project:
                     services.append(c)
             return jsonify(services)
         except Exception as e:
@@ -64,15 +64,15 @@ def route_projects(server_id):
     if request.method == 'GET':
         try:
             result = server.get('container', 'list', params=request.args)
-            result.sort(key=lambda c: c["labels"]["com.docker.compose.project"])
+            result.sort(key=lambda c: (c["labels"].get('com.docker.compose.project', '')))
             prev_project = ''
             services = []
             for c in result:
-                if c["labels"]["com.docker.compose.project"] != prev_project:
+                if c["labels"].get("com.docker.compose.project") != prev_project:
                     if len(prev_project) > 0:
                         projects.append(dict(name=prev_project, services=services))
                     services = []
-                    prev_project = c["labels"]["com.docker.compose.project"]
+                    prev_project = c["labels"].get("com.docker.compose.project", '')
                 services.append(c)
 
             if len(prev_project) > 0:
