@@ -1,3 +1,4 @@
+import mimetypes
 import os
 
 from flask import Flask, request, flash, redirect, session, g
@@ -19,7 +20,6 @@ ip_ban = IpBan(ip_header='X-TRUE-IP',
                abuse_IPDB_config=dict(key=os.getenv('ABUSE_IPDB_KEY'), report=os.getenv('DEPLOYMENT') == 'Prod'))
 
 
-
 def d_serialize(item):
     """
     convert the item into a dict
@@ -37,6 +37,7 @@ def d_serialize(item):
             d[a] = value
     return d
 
+
 # Flask and Flask-SQLAlchemy initialization here
 
 def create_app():
@@ -52,6 +53,7 @@ def create_app():
     app.jinja_env.lstrip_blocks = True
     app.config.from_object('config')
 
+    mimetypes.add_type('application/javascript', '.js')
     ensure_folder(app.config['BASEDIR'])
     ensure_folder(app.config['LOG_FOLDER'])
     ensure_folder(app.config['APP_STATIC'])

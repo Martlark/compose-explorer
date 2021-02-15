@@ -6,7 +6,7 @@ from flask_login import login_required, current_user
 
 from app.models import DockerServer, Command
 from app.proxy import bp
-
+from werkzeug.exceptions import HTTPException, GatewayTimeout
 
 @bp.route('/container/<int:server_id>/<verb>', methods=['GET', 'POST'])
 @login_required
@@ -21,6 +21,9 @@ def route_container(server_id, verb):
         if request.method == 'POST':
             result = server.post('container', verb, params=request.form)
             return result
+
+    except GatewayTimeout:
+        return f'could not connect to agent at {server.name} on port {server.port}', 400
 
     except Exception as e:
         return str(e), 400

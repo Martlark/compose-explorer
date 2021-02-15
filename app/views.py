@@ -2,7 +2,7 @@
 import os
 import random
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, g
+from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
 from flask_login import logout_user, login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
@@ -36,6 +36,7 @@ def page_index():
 @login_required
 def page_server(server_id, path=None):
     return render_template('index.html', server_id=server_id)
+
 
 @bp.route('/page/<page>')
 def page_page(page, title=''):
