@@ -34,7 +34,7 @@ export class ManageContainer extends Component {
                 this.setState({status: result.status, container: result});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 
@@ -58,7 +58,7 @@ export class ManageContainer extends Component {
                 this.setState({status: result.status});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error with action: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error with action: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => {
             this.setState({actioning: ''});
         });
@@ -79,7 +79,7 @@ export class ManageContainer extends Component {
                 a.click();
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage({message: `Error: ${textStatus} - ${errorThrown}`})
+            this.context.setErrorMessage({message: `Error: ${xhr.responseText} - ${errorThrown}`})
         )
     }
 

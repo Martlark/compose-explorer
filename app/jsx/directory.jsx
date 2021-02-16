@@ -100,7 +100,7 @@ export default class Directory extends Component {
                 return this.getDirectory(this.state.pwd);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => this.setState({directoryGetting: false})
         )
     }
@@ -124,7 +124,7 @@ export default class Directory extends Component {
                     a.click();
                 }
             ).fail((xhr, textStatus, errorThrown) =>
-                this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
+                this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
             )
         });
     }

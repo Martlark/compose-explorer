@@ -22,7 +22,7 @@ export const Nav = (props) => {
             context.api.projects(current_id
             ).then(projects => setProjects(projects)
             ).fail((xhr, textStatus, errorThrown) =>
-                context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`))
+                context.setErrorMessage(`Error getting projects: ${xhr.responseText} - ${errorThrown}`))
         }
     }, [location]);
 

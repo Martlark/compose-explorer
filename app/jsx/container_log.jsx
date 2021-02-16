@@ -49,7 +49,7 @@ export default class LogContent extends Component {
                 }
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting log: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error getting log: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 
@@ -62,7 +62,7 @@ export default class LogContent extends Component {
                 this.setState({status: result.status, container: result});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
 
         this.refreshLogsInteval = setInterval(() => {

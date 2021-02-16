@@ -40,7 +40,7 @@ export class FileEdit extends Component {
                 this.setState({status: result.status, container: result});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
         this.getContent();
     }
@@ -57,7 +57,7 @@ export class FileEdit extends Component {
                 this.setState({originalContent: content})
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
         )
     }
 

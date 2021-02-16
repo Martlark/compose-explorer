@@ -49,7 +49,7 @@ export default class Execute extends Component {
         ).then(result =>
             this.setState({commandEntries: result})
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting commands: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error getting commands: ${xhr.responseText} - ${errorThrown}`)
         )
     }
 
@@ -74,7 +74,7 @@ export default class Execute extends Component {
                     })
                 }
             ).fail((xhr, textStatus, errorThrown) =>
-                this.context.setErrorMessage(`Error exec_run: ${textStatus} - ${errorThrown}`)
+                this.context.setErrorMessage(`Error exec_run: ${xhr.responseText} - ${errorThrown}`)
             ).always(() => this.setState({executing: false})
             )
         })
@@ -99,7 +99,7 @@ export default class Execute extends Component {
                 this.setState({commandEntries})
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error exec delete: ${textStatus} - ${errorThrown}`)
+            this.context.setErrorMessage(`Error exec delete: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => this.setState({executing: false})
         )
     }

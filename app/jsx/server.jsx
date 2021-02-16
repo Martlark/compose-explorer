@@ -14,7 +14,7 @@ export function ManageServer(props) {
                 setProjects(projects);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting projects: ${textStatus} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting projects: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 

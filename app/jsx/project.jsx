@@ -15,7 +15,7 @@ export const Project = (props) => {
         context.api.proxyGet(`/project/${props.match.params.id}/${props.match.params.project}`
         ).then(result => setServices(result)
         ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting project services: ${textStatus} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting project services: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 

@@ -40,7 +40,7 @@ export function ProjectService(props) {
                 setStatus(result.status);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            setMessage(`Error with action: ${textStatus} - ${errorThrown}`)
+            setMessage(`Error with action: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => {
             setActioning('');
         });

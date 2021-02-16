@@ -1,12 +1,12 @@
 # routes.py
 # routes for calling docker proxy
-
 from flask import request, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required
+import requests
 
-from app.models import DockerServer, Command
+from app.models import DockerServer
 from app.proxy import bp
-from werkzeug.exceptions import HTTPException, GatewayTimeout
+
 
 @bp.route('/container/<int:server_id>/<verb>', methods=['GET', 'POST'])
 @login_required
@@ -21,9 +21,6 @@ def route_container(server_id, verb):
         if request.method == 'POST':
             result = server.post('container', verb, params=request.form)
             return result
-
-    except GatewayTimeout:
-        return f'could not connect to agent at {server.name} on port {server.port}', 400
 
     except Exception as e:
         return str(e), 400
@@ -49,6 +46,7 @@ def route_project_services(server_id, project):
                 if c["labels"].get("com.docker.compose.project", '') == project:
                     services.append(c)
             return jsonify(services)
+
         except Exception as e:
             return str(e), 400
 
@@ -81,6 +79,10 @@ def route_projects(server_id):
             if len(prev_project) > 0:
                 projects.append(dict(name=prev_project, services=services))
             return jsonify(projects)
+
+        except requests.ConnectionError as e:
+            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+
         except Exception as e:
             return str(e), 400
 
