@@ -94,10 +94,20 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     active = db.Column(db.Boolean(), default=True)
     protocol = 'http'
 
+    # fs fields
+
+    create_fields = ['name', 'credentials', 'port']
+    update_fields = create_fields + ['active']
+
     @classmethod
     def name_is_unused(cls, name):
-        found = cls.query.filter_by(name=name.lower()).first()
-        return found is None
+        """
+        check if server name is unused
+
+        """
+        with db.session.no_autoflush:
+            found = cls.query.filter_by(name=name.lower()).first()
+            return found is None
 
     def get(self, d_type, verb, params=None):
         """
@@ -136,7 +146,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     def get_summary(self):
         try:
             r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
-                             auth=('explorer', self.credentials))
+                             auth=('explorer', self.credentials), timeout=0.50)
             summary = dict(containers=0, volumes=0, error='')
             for c in r.json():
                 summary['containers'] += 1
@@ -147,6 +157,19 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     @property
     def summary(self):
         return self.get_summary()
+
+    def verify(self, create=False):
+        if not all([self.name, self.port]):
+            raise Exception('Missing values')
+
+        if create:
+            if not self.name_is_unused(self.name):
+                raise Exception('Server name already in use')
+
+        try:
+            self.port = str(int(self.port))
+        except Exception as e:
+            raise Exception('Port is not numeric')
 
 
 class Setting(db.Model, FlaskSerializeMixin):

@@ -80,7 +80,7 @@ def route_projects(server_id):
                 projects.append(dict(name=prev_project, services=services))
             return jsonify(projects)
 
-        except requests.ConnectionError as e:
+        except requests.exceptions.ConnectionError as e:
             return f'Remote agent at {server.name} on port {server.port} is not responding', 400
 
         except Exception as e:

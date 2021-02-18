@@ -9,7 +9,7 @@ export const ErrorMessage = ({message}) => {
     return (<div
         className="alert alert-danger"
         role="alert">
-        <a href="#" title="close" className="close" onClick={()=>context.setErrorMessage(null)}
+        <a href="#" title="close" className="close" onClick={() => context.setErrorMessage(null)}
            aria-label="Close"
            aria-hidden="true">&times;</a>
         <span id="flash-message">{message}</span>
@@ -19,7 +19,7 @@ export const ErrorMessage = ({message}) => {
 export const Message = ({message}) => {
     const context = useContext(AppContext);
     useEffect(() => {
-        if( message)
+        if (message)
             setTimeout(() => context.setMessage(null), 5000);
     })
     return (message && <h3 className={"alert alert-info"}>{message}</h3>)
@@ -27,9 +27,15 @@ export const Message = ({message}) => {
 
 export class ApiService {
     constructor(props) {
-        this.csrf = $("input[name=base-csrf_token]").val();
+        this.csrf_token = $("input[name=base-csrf_token]").val();
         this.prefix_api = `/api`;
         this.prefix_command = `/command`;
+    }
+
+    urlJoin(base, url) {
+        let fullPath = `${base}/${url}/`;
+        fullPath = fullPath.replaceAll('//', '/');
+        return fullPath;
     }
 
     container(id, name) {
@@ -37,28 +43,28 @@ export class ApiService {
     }
 
     json(url, params) {
-        return $.getJSON(this.prefix_api + url, params)
+        return $.getJSON(this.urlJoin(this.prefix_api, url), params)
     }
 
     post(url, data) {
-        data.csrf = this.csrf;
-        return $.post(this.prefix_api, data);
+        data.csrf_token = this.csrf_token;
+        return $.post(this.urlJoin(this.prefix_api, url), data);
     }
 
     command(method = 'GET', data = {}) {
         const url = '/command'
         switch (method) {
             case "POST":
-                data.csrf_token = this.csrf;
+                data.csrf_token = this.csrf_token;
                 return $.post(url, data);
             case "PUT":
-                data.csrf_token = this.csrf;
+                data.csrf_token = this.csrf_token;
                 return $.put(url, data);
             case "DELETE":
                 return $.ajax({
                     url: `${url}/${data}`,
                     type: 'DELETE',
-                    data: {csrf_token: this.csrf}
+                    data: {csrf_token: this.csrf_token}
                 });
         }
         return $.getJSON(url, data);
@@ -69,7 +75,7 @@ export class ApiService {
     }
 
     proxyPost(url, data) {
-        data.csrf_token = this.csrf;
+        data.csrf_token = this.csrf_token;
         return $.post('/proxy' + url, data);
     }
 
