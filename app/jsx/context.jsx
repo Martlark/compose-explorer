@@ -51,6 +51,15 @@ export class ApiService {
         return $.post(this.urlJoin(this.prefix_api, url), data);
     }
 
+    delete(url) {
+        const urlPath = this.urlJoin(this.prefix_api, url);
+        return $.ajax({
+            url: urlPath,
+            type: 'DELETE',
+            data: {csrf_token: this.csrf_token}
+        });
+    }
+
     command(method = 'GET', data = {}) {
         const url = '/command'
         switch (method) {
@@ -93,4 +102,5 @@ export class ApiService {
 
 // https://www.robinwieruch.de/react-function-component
 // https://www.taniarascia.com/using-context-api-in-react/
-export const AppContext = React.createContext({});
+export const
+    AppContext = React.createContext({});
