@@ -31,3 +31,7 @@ GTAG = os.environ.get('GTAG', 'UA-157072071-1')
 # administrator list
 # https://admin.google.com/AdminHome?fral=1&pli=1
 ADMINS = ['rowe.andrew.d@gmail.com']
+
+# token expiry in seconds
+
+WTF_CSRF_TIME_LIMIT = 3600 * 10

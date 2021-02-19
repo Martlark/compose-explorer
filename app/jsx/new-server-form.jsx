@@ -1,13 +1,11 @@
 import React, {useContext} from "react";
 import {AppContext} from './context';
-import {useHistory} from 'react-router-dom';
 
 export function NewServerForm(props) {
     const setNewServer = props.setNewServer;
     const getItems = props.getItems;
 
     const context = useContext(AppContext);
-    const history = useHistory();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -15,7 +13,7 @@ export function NewServerForm(props) {
         return context.api.post('/server/', {name: formData.get('name'), port: formData.get('port')}).then(items => {
 
                 context.setMessage(`${formData.get("name")} added`);
-                Promise.resolve().then(() => setNewServer(false)).then(() => getItems());
+                setNewServer(false, () => getItems());
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)

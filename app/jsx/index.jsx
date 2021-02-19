@@ -23,7 +23,7 @@ class AppProvider extends Component {
         setProjects: (projects) => this.setState({projects}),
         setServerId: (id) => this.setState({server_id: id}),
         setServerName: (name) => this.setState({server_name: name}),
-        setMessage: (message) => this.setState({message}),
+        setMessage: (message, callback=null) => this.setState({message}, callback),
         setErrorMessage: (errorMessage) => this.setState({errorMessage}),
     }
 
