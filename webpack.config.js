@@ -7,7 +7,7 @@ module.exports = (env) => {
     return {
         mode: 'development',
         devtool:
-            'eval-source-map',
+            'inline-source-map',
         entry:
             entry(entry.basePath('./app/jsx'), './app/jsx/**/*.jsx'),
         output: {

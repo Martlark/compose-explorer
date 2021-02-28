@@ -20,6 +20,8 @@ export const ErrorMessage = ({message}) => {
 export const Message = ({message}) => {
     const context = useContext(AppContext);
     useEffect(() => {
+                console.log(3);
+
         if (message)
             setTimeout(() => context.setMessage(null), 5000);
     })

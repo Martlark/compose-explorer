@@ -18,8 +18,7 @@
     "react-confirm-alert": "^2.7.0",
     "react-dom": "^16.13.1",
     "react-inline-confirm": "^3.0.0",
-    "serialize-javascript": "^3.1.0",
-    "use-state-with-callback": "^2.0.3"
+    "serialize-javascript": "^3.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.16",

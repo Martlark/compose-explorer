@@ -20,12 +20,14 @@ export const Project = (props) => {
     }
 
     useEffect(() => {
-        if (props.match) {
+                console.log(4);
+
+        if (props?.match) {
             if (props.match.params.id !== server_id || props.match.params.project !== project) {
                 getServices();
             }
         }
-    }, [props.match]);
+    }, [props?.match]);
 
     return (
         <div>

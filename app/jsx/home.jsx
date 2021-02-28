@@ -3,11 +3,10 @@ import {Link} from "react-router-dom";
 import {AppContext} from './context';
 import {NewServerForm} from './new-server-form'
 import InlineConfirmButton from "react-inline-confirm";
-import {useStateWithCallbackLazy} from "use-state-with-callback";
 
 export default function Home(props) {
     const [servers, setServers] = useState([]);
-    const [newServer, setNewServer] = useStateWithCallbackLazy(false);
+    const [newServer, setNewServer] = useState(false);
     const context = useContext(AppContext);
 
     const getItems = () => {
@@ -28,6 +27,7 @@ export default function Home(props) {
     }
 
     useEffect(() => {
+        console.log(1);
         context.setServerId(null);
         getItems().then((items) =>
             context.setMessage(`${servers.length} servers`));

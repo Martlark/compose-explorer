@@ -1,7 +1,6 @@
 import React, {useContext, useState} from "react";
 import {AppContext} from "./context";
 import {Link} from "react-router-dom";
-import useStateWithCallbackLazy from 'use-state-with-callback';
 
 export function ServiceStatus(props) {
     let badgeClass = 'warning';
@@ -22,7 +21,7 @@ export function ServiceStatus(props) {
 
 export function ProjectService(props) {
     const [status, setStatus] = useState(props.status);
-    const [message, setMessage] = useStateWithCallbackLazy('');
+    const [message, setMessage] = useState('');
     const [actioning, setActioning] = useState('');
     const context = useContext(AppContext);
 
