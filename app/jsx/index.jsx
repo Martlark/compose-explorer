@@ -1,4 +1,4 @@
-import React, {Component} from "react";
+import React, {useState} from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {ApiService, AppContext, ErrorMessage, Message} from './context'
@@ -12,42 +12,45 @@ import {Project} from "./project";
 import {Nav} from "./nav";
 
 
-class AppProvider extends Component {
-    state = {
+export function AppProvider() {
+    const [projects, setProjects] = useState([]);
+    const [serverId, setServerId] = useState(-1);
+    const [serverName, setServerName] = useState('');
+    const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const state = {
         api: new ApiService(),
-        message: '',
-        errorMessage: '',
-        projects: [],
-        server_id: -1,
-        server_name: '',
-        setProjects: (projects) => this.setState({projects}),
-        setServerId: (id) => this.setState({server_id: id}),
-        setServerName: (name) => this.setState({server_name: name}),
-        setMessage: (message, callback=null) => this.setState({message}, callback),
-        setErrorMessage: (errorMessage) => this.setState({errorMessage}),
+        projects,
+        setProjects,
+        serverId,
+        setServerId,
+        serverName,
+        setServerName,
+        message,
+        setMessage,
+        errorMessage,
+        setErrorMessage
     }
 
-    render() {
-        return (<AppContext.Provider value={this.state}>
-            <Router>
-                <Nav/>
-                <Message message={this.state.message}/>
-                <ErrorMessage message={this.state.errorMessage}/>
-                <div className={"container"}>
-                    <Switch>
-                        <Route exact path="/">
-                            <Home/>
-                        </Route>
-                        <Route exact path="/server/:id" component={ManageServer}/>
-                        <Route exact path="/server/:id/project/:project" component={Project}/>
-                        <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
-                        <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
-                        <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
-                    </Switch>
-                </div>
-            </Router>
-        </AppContext.Provider>)
-    }
+    return (<AppContext.Provider value={state}>
+        <Router>
+            <Nav/>
+            <Message message={message}/>
+            <ErrorMessage message={errorMessage}/>
+            <div className={"container"}>
+                <Switch>
+                    <Route exact path="/">
+                        <Home/>
+                    </Route>
+                    <Route exact path="/server/:id" component={ManageServer}/>
+                    <Route exact path="/server/:id/project/:project" component={Project}/>
+                    <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
+                    <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
+                    <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
+                </Switch>
+            </div>
+        </Router>
+    </AppContext.Provider>)
 }
 
 ReactDOM.render(<AppProvider/>, document.getElementById('jsx_content'));

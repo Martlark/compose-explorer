@@ -27,7 +27,6 @@ export default function Home(props) {
     }
 
     useEffect(() => {
-        console.log(1);
         context.setServerId(null);
         getItems().then((items) =>
             context.setMessage(`${servers.length} servers`));

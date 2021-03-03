@@ -9,8 +9,6 @@ export const Nav = (props) => {
     const context = useContext(AppContext);
 
     useEffect(() => {
-                console.log(2);
-
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
         if (server_id !== current_id) {

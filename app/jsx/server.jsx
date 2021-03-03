@@ -19,8 +19,6 @@ export function ManageServer(props) {
     }
 
     useEffect(() => {
-                console.log(5);
-
         getItems();
     }, [server_id]);
 
