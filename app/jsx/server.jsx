@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "./context";
-import {Project} from "./project";
+import Project from "./project";
 
-export function ManageServer(props) {
+export default function ManageServer(props) {
     const [projects, setProjects] = useState([]);
     const server_id = props.match.params.id;
     const context = useContext(AppContext);

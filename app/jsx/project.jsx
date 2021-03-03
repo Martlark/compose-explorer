@@ -3,7 +3,7 @@ import {ProjectService} from "./ProjectService";
 import {AppContext} from "./context";
 import {Link} from "react-router-dom";
 
-export const Project = (props) => {
+export default function Project(props){
     const [server_id, setServer_id] = useState(props.server_id);
     const [services, setServices] = useState(props.services ?? []);
     const [project, setProject] = useState(props.project);

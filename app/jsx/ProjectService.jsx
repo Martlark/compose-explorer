@@ -3,20 +3,27 @@ import {AppContext} from "./context";
 import {Link} from "react-router-dom";
 
 export function ServiceStatus(props) {
+    if(!props && !props.status){
+        return('');
+    }
+
     let badgeClass = 'warning';
-    switch (props.status) {
+    let text = props.status;
+    switch (text) {
         case 'running':
             badgeClass = 'success';
-            break
+            break;
         case 'exited':
             badgeClass = 'danger';
-            break
+            break;
         case 'stopped':
             badgeClass = 'warning';
-            break
+            break;
+        default:
+            text = 'unknown'
+            break;
     }
-    return (<span className={`badge badge-${badgeClass}`}>{props.status}</span>)
-
+    return (<span className={`badge badge-${badgeClass}`}>{text}</span>)
 }
 
 export function ProjectService(props) {

@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import {AppContext} from "./context";
 
-export class FileEdit extends Component {
+export default class FileEdit extends Component {
     constructor(props) {
         super(props);
         const u = new URLSearchParams(this.props.location.search)

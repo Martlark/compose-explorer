@@ -65,7 +65,6 @@ export default class Directory extends Component {
             pwd: props.pwd,
             id: props.id,
             name: props.name,
-            updateState: props.updateState,
             directoryPath: '',
             directoryParent: '..',
             directoryEntries: [],

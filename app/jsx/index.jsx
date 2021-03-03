@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {ApiService, AppContext, ErrorMessage, Message} from './context'
 
-import {ManageServer} from "./server"
-import {ManageContainer} from "./manageContainer"
-import {FileEdit} from "./container_edit_file";
+import ManageServer from "./server"
+import ManageContainer from "./manageContainer"
+import FileEdit from "./container_edit_file";
 import LogContent from "./container_log";
 import Home from "./home";
-import {Project} from "./project";
+import Project from "./project";
 import {Nav} from "./nav";
 
 

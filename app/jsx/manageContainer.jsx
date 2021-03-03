@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import Collapsible from 'react-collapsible'
 import Directory from './directory'
 import Execute from './execute'
@@ -6,170 +6,150 @@ import LogContent from './container_log'
 import {AppContext} from "./context";
 import {ServiceStatus} from "./ProjectService";
 
-export class ManageContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            message: '',
-            id: this.props.match.params.id,
-            name: this.props.match.params.name,
-            pwd: '.',
-            status: '...',
-            hrefLog: `/server/${this.props.match.params.id}/container_log/${this.props.match.params.name}`
-        };
-        this.actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
-            cmd: 'restart',
-            icon: 'replay'
-        }];
-    }
+export default function ManageContainer(props) {
+    const [message, setMessage] = useState('');
+    const id = props.match.params.id;
+    const name = props.match.params.name;
+    const [status, setStatus] = useState('');
+    const [actioning, setActioning] = useState('');
+    const hrefLog = `/server/${props.match.params.id}/container_log/${props.match.params.name}`;
 
-    static contextType = AppContext;
+    const actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
+        cmd: 'restart',
+        icon: 'replay'
+    }];
+    const context = useContext(AppContext)
 
-    componentDidMount() {
-        this.getContainerProps();
-    }
+    useEffect(() => {
+        getContainerProps();
+    });
 
-    getContainerProps() {
-        this.context.api.container(this.state.id, this.state.name).then(result => {
-                this.setState({status: result.status, container: result});
+    function getContainerProps() {
+        context.api.container(id, name).then(result => {
+                setStatus(result.status);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 
-    updateState = (data) => {
-        this.setState(data)
-    };
-
-    renderMessage(className) {
-        if (this.state && this.state.message) {
-            return <h3 className="{className} alert alert-warning">{this.state.message}</h3>
+    function renderMessage() {
+        if (message) {
+            return <h3 className="alert alert-warning">{message}</h3>
         }
         return null;
     }
 
-    clickAction = (evt, action) => {
+    function clickAction(evt, action) {
         evt.preventDefault();
-        this.setState({actioning: action});
-        this.context.api.proxyPost(`/container/${this.state.id}/${action}`, {name: this.state.name}
+        setActioning(action);
+        context.api.proxyPost(`/container/${id}/${action}`, {name: name}
         ).then(result => {
-                this.context.setMessage(`container: ${result.status}`);
-                this.setState({status: result.status});
+                setMessage(`container: ${result.status}`);
+                setStatus(result.status);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error with action: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error with action: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => {
-            this.setState({actioning: ''});
+            setActioning('');
         });
     }
 
 
-    clickDownloadLogs = (evt) => {
+    function clickDownloadLogs() {
         const filename = 'logs.txt';
 
-        return this.context.api.proxyPost(`/proxy/container/${this.state.id}/logs`, {
-                name: this.state.name,
+        return context.api.proxyPost(`/proxy/container/${id}/logs`, {
+                name: name,
                 filename,
             }
-        ).then((result, textStatus, request) => {
+        ).then((result) => {
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(new Blob([result]));
                 a.download = filename;
                 a.click();
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage({message: `Error: ${xhr.responseText} - ${errorThrown}`})
+            context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
         )
     }
 
-    clickToggleVisible = (evt, item) => {
-        this.setState({[`visible-${item}`]: !this.state[`visible-${item}`]});
-    }
-
-    renderActions() {
-        if (this.state.actioning) {
+    function renderActions() {
+        if (actioning) {
             return <p>Action under way</p>
         }
 
         return (
             <ul className="list-inline">
-                <li className={"list-inline-item"}>
-                    <button className={'btn btn-sm'} onClick={evt => window.open(this.state.hrefLog)} title={"Logs"}>
+                <li key='logs' className={"list-inline-item"}>
+                    <button className={'btn btn-sm'} onClick={() => window.open(hrefLog)} title={"Logs"}>
                         Logs <span className="material-icons">assignment</span>
                     </button>
                 </li>
-                <li className={"list-inline-item"}>
-                    <button className={'btn btn-sm'} onClick={evt => this.clickDownloadLogs()} title={"Download logs"}>
+                <li key='download' className={"list-inline-item"}>
+                    <button className={'btn btn-sm'} onClick={() => clickDownloadLogs()} title={"Download logs"}>
                         Download Logs <span className="material-icons">texture</span>
                     </button>
                 </li>
-                {this.actions.map(action => this.renderActionListItem(action))}
+                {actions.map(action => renderActionListItem(action))}
             </ul>
         )
     }
 
-    renderActionListItem(action) {
+    function renderActionListItem(action) {
         const style = {textTransform: "capitalize"};
 
         return <li key={action.cmd} className={"list-inline-item"}>
             <button style={style} className={"btn btn-sm"}
-                    onClick={evt => this.clickAction(evt, action.cmd)}>{action.cmd}<span
+                    onClick={evt => clickAction(evt, action.cmd)}>{action.cmd}<span
                 className="material-icons">{action.icon}</span></button>
         </li>
     }
 
-    onChange = (evt, stateProp) => {
-        this.setState({[stateProp]: evt.target.value})
-    }
-
-    renderExecute() {
+    function renderExecute() {
         return <Collapsible trigger="Execute">
-            <Execute id={this.state.id} name={this.state.name}/>
+            <Execute id={id} name={name}/>
         </Collapsible>
     }
 
-    renderStatus() {
+    function renderStatus() {
 
         return (
-            <h3 title={"status"}>{this.state.name}: <ServiceStatus status={this.state.status}/>
+            <h3 title={"status"}>{name}: <ServiceStatus status={status}/>
             </h3>);
     }
 
-    renderDirectory() {
+    function renderDirectory() {
         return <div>
             <Collapsible trigger="Directory">
 
                 <Directory
-                    id={this.state.id}
+                    id={id}
                     pwd={'.'}
-                    name={this.state.name}
-                    updateState={this.updateState}
+                    name={name}
                 />
             </Collapsible>
         </div>
     }
 
-    renderLog() {
+    function renderLog() {
         return <div>
             <Collapsible trigger="Logs">
 
-                <LogContent id={this.state.id}
-                            name={this.state.name}/>
+                <LogContent id={id}
+                            name={name}/>
             </Collapsible>
         </div>
     }
 
-    render() {
-        return (
-            <div>
-                {this.renderStatus()}
-                {this.renderMessage()}
-                {this.renderActions()}
-                {this.renderExecute()}
-                {this.renderDirectory()}
-                {this.renderLog()}
-            </div>
-        )
-    }
+    return (
+        <div>
+            {renderStatus()}
+            {renderMessage()}
+            {renderActions()}
+            {renderExecute()}
+            {renderDirectory()}
+            {renderLog()}
+        </div>
+    )
 }
