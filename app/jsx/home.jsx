@@ -66,7 +66,7 @@ export default function Home(props) {
 
             <tbody>
             {servers.map(item =>
-                <tr>
+                <tr key={item.id}>
                     <td>
                         <InlineConfirmButton className={"btn-sm btn-danger"}
                                              textValues={['Delete', 'Confirm', 'Deleting']} showTimer
