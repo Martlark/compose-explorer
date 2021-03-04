@@ -1,5 +1,4 @@
-import React, {Component} from 'react'
-import BootstrapInput from "bootstrap-input-react";
+import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "./context";
 
 function LogEntry(props) {
@@ -18,94 +17,75 @@ function LogEntry(props) {
         </tr>)
 }
 
-export default class LogContent extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            logs: [],
-            message: '',
-            tail: 100,
-            autoUpdate: false,
-            id: props.id || this.props.match.params.id,
-            name: props.name || this.props.match.params.name
-        };
-    }
+export default function LogContent(props) {
+    const [logs, setLogs] = useState([]);
+    const [previousLogHash, setPreviousLogHash] = useState('');
+    const [tail, setTail] = useState(100);
+    const [autoUpdate, setAutoUpdate] = useState(false);
+    const id = props.id || props.match.params.id;
+    const name = props.name || props.match.params.name;
+    let refreshLogsInterval = null
 
-    static contextType = AppContext;
+    const context = useContext(AppContext);
 
-    getLogs() {
-        return this.context.api.proxyGet(`/container/${this.state.id}/logs`, {
-                name: this.state.name,
-                tail: this.state.tail
-            }
+    function getLogs() {
+        return context.api.proxyGet(`/container/${id}/logs`, {name,tail}
         ).then(result => {
-                if (this.state.previousLogHash !== result.hash) {
+                if (previousLogHash !== result.hash) {
                     const items = [];
                     result.logs.forEach(data => items.push(data));
-                    this.setState({previousLogHash: result.hash, logs: items});
-                    if (this.state.autoUpdate) {
+                    setPreviousLogHash(result.hash);
+                    setLogs(items);
+                    if (autoUpdate) {
                         baseView.scrollToBottom();
                     }
                 }
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting log: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting log: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 
-    updateState = (data) => {
-        this.setState(data)
-    };
-
-    componentDidMount() {
-        this.context.api.container(this.state.id, this.state.name).then(result => {
-                this.setState({status: result.status, container: result});
+    useEffect(() => {
+        context.api.container(id, name).then(result => {
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
 
-        this.refreshLogsInteval = setInterval(() => {
-            if (this.state.autoUpdate) {
-                this.getLogs();
+        refreshLogsInterval = setInterval(() => {
+            if (autoUpdate) {
+                getLogs();
             }
         }, 10000);
-        this.getLogs();
+        getLogs();
+    }, [props]);
+
+    function clickRefresh(evt) {
+        getLogs();
     }
 
-    renderMessage(className) {
-        if (this.state && this.state.message) {
-            return <h3 className="{className} alert alert-warning">{this.state.message}</h3>
-        }
-        return null;
-    }
-
-    clickRefresh = (evt) => {
-        this.getLogs();
-    }
-
-    render() {
-        return (<div>
-                <button className={'btn btn-sm'} onClick={evt => this.clickRefresh(evt)} title={"Refresh"}>
-                    Refresh <span className="material-icons">replay</span>
-                </button>
-                <BootstrapInput name="tail" type="number" min="1" parent={this} label="Tail:"/>
-                <BootstrapInput name="autoUpdate" type="checkbox" parent={this} label="Auto update:"/>
-                <table className={"table table-bordered table-striped"}>
-                    <thead>
-                    <tr>
-                        <th className={"w-25"}>Time stamp</th>
-                        <th className={"w-75"}>&nbsp;</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.logs.map((item) => <LogEntry key={item}
-                                                             updateState={this.updateState}
-                                                             item={item}/>)
-                    }
-                    </tbody>
-                </table>
-            </div>
-        )
-    }
+    return (<div>
+            <button className={'btn btn-sm'} onClick={evt => clickRefresh(evt)} title={"Refresh"}>
+                Refresh <span className="material-icons">replay</span>
+            </button>
+            <label>Tail:<input name="tail" type="number" defaultValue={tail}
+                               onChange={(evt) => setTail(evt.target.value)} min="1"/></label>
+            <label>Auto Update: <input name="autoUpdate" defaultValue={autoUpdate}
+                                       onClick={(evt) => setAutoUpdate(!autoUpdate)} type="checkbox"/></label>
+            <table className={"table table-bordered table-striped"}>
+                <thead>
+                <tr>
+                    <th className={"w-25"}>Time stamp</th>
+                    <th className={"w-75"}>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {logs.map((item) => <LogEntry key={item}
+                                              item={item}/>)
+                }
+                </tbody>
+            </table>
+        </div>
+    )
 }

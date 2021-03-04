@@ -1,120 +1,102 @@
-import React, {Component} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import {AppContext} from "./context";
 
-export default class FileEdit extends Component {
-    constructor(props) {
-        super(props);
-        const u = new URLSearchParams(this.props.location.search)
-        this.state = {
-            file_name: u.get('filename').split('#')[0],
-            message: '',
-            content: '',
-            originalContent: '',
-            id: this.props.match.params.id,
-            name: this.props.match.params.name,
-            editorState: EditorState.createEmpty()
-        };
+export default function FileEdit(props) {
+    const [originalContent, setOriginalContent] = useState(ContentState.createFromText(''));
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
-        this.onChange = (editorState) => this.setState({editorState});
-        this.setEditor = (editor) => {
-            this.editor = editor;
-        };
+    let editor = null;
+    const u = new URLSearchParams(props.location.search)
+    const file_name = u.get('filename').split('#')[0];
+    const name = props.match.params.name;
+    const id = props.match.params.id;
+    const context = useContext(AppContext);
 
-        this.focusEditor = () => {
-            if (this.editor) {
-                this.editor.focus();
-            }
-        };
-
-    }
-
-    static contextType = AppContext;
-
-    updateState = (data) => {
-        this.setState(data)
+    const onChange = (editorState) => setEditorState(editorState);
+    const setEditor = (e) => {
+        editor = e;
     };
 
-    componentDidMount() {
-        this.context.api.container(this.state.id, this.state.name).then(result => {
-                this.setState({status: result.status, container: result});
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
-        );
-        this.getContent();
+    function focusEditor() {
+        if (editor) {
+            editor.focus();
+        }
     }
 
-    getContent() {
-        return this.context.api.proxyPost(`/container/${this.state.id}/download`, {
-                name: this.state.name,
-                filename: this.state.file_name,
-            }
-        ).then((result, textStatus, request) => {
-                this.focusEditor();
-                const content = ContentState.createFromText(result);
-                this.setState({editorState: EditorState.createWithContent(content)})
-                this.setState({originalContent: content})
+    useEffect(() => {
+        context.api.container(id, name).then(result => {
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
+        );
+        getContent();
+    }, [props]);
+
+    function getContent() {
+        return context.api.proxyPost(`/container/${id}/download`, {
+                name: name,
+                filename: file_name,
+            }
+        ).then((result, textStatus, request) => {
+                focusEditor();
+                const content = ContentState.createFromText(result);
+                setEditorState(EditorState.createWithContent(content));
+                setOriginalContent(content);
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
         )
     }
 
-    renderTitle() {
+    function renderTitle() {
         return (
             <div>
-                <h3 className="">{this.state.container && this.state.container.name}</h3>
-                <p className="alert alert-warning">{this.state.file_name}</p>
+                <h3 className="">{name}</h3>
+                <p className="alert alert-warning">{file_name}</p>
             </div>
         )
     }
 
-
-    clickSave = (evt) => {
-        return this.context.api.proxyPost(`/container/${this.state.id}/upload`, {
-                name: this.state.name,
-                filename: this.state.file_name,
-                content: this.state.editorState.getCurrentContent().getPlainText(),
+    function clickSave(evt) {
+        return context.api.proxyPost(`/container/${id}/upload`, {
+                name: name,
+                filename: file_name,
+                content: editorState.getCurrentContent().getPlainText(),
             }
         ).then((result, textStatus, request) => {
-                this.context.setMessage(`Saved: ${result.base_filename}`)
+                context.setMessage(`Saved: ${result.base_filename}`)
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
+            context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
         )
     }
 
-
-    clickRestore = (evt) => {
-        this.setState({editorState: EditorState.createWithContent(this.state.originalContent)})
+    function clickRestore(evt) {
+        setEditorState(EditorState.createWithContent(originalContent));
     }
 
-    static styles = {
-        editor: {
-            border: '1px solid gray',
-            minHeight: '20em'
-        }
+    const editorContainerStyles = {
+        border: '1px solid gray',
+        padding: '5px',
+        minHeight: '20em'
     };
 
-    render() {
-        return (<div>
-
-                {this.renderTitle()}
-                <button className={'btn btn-sm'} onClick={evt => this.clickSave(evt)} title={"Save"}>
-                    Save <span className="material-icons">save</span>
-                </button>
-                <button className={'btn btn-sm'} onClick={evt => this.clickRestore(evt)} title={"Undo changes"}>
-                    Reload <span className="material-icons">cached</span>
-                </button>
-                <div style={FileEdit.styles.editor} onClick={this.focusEditor}>
-                    <Editor
-                        ref={this.setEditor}
-                        editorState={this.state.editorState}
-                        onChange={this.onChange}
-                    />
-                </div>
+    return (<div>
+            {renderTitle()}
+            <button className={'btn btn-sm'} onClick={evt => clickSave(evt)} title={"Save"}>
+                Save <span className="material-icons">save</span>
+            </button>
+            <button className={'btn btn-sm'} onClick={evt => clickRestore(evt)} title={"Undo changes"}>
+                Reload <span className="material-icons">cached</span>
+            </button>
+            <div style={editorContainerStyles} onClick={focusEditor}>
+                <Editor
+                    ref={setEditor}
+                    editorState={editorState}
+                    onChange={onChange}
+                />
             </div>
-        )
-    }
+        </div>
+    )
 }

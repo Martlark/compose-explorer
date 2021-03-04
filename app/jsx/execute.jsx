@@ -1,11 +1,10 @@
-import React, {Component} from 'react'
-import BootstrapInput from "bootstrap-input-react";
+import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "./context";
 
 function ExecEntry(props) {
     const clickCmd = (evt) => {
         evt.preventDefault();
-        props.updateState({command: props.entry.cmd});
+        props.setCommand(props.entry.cmd);
     }
 
     return (
@@ -26,97 +25,98 @@ function ExecEntry(props) {
         </tr>)
 }
 
-export default class Execute extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            message: '',
-            id: props.id,
-            name: props.name,
-            command: '',
-            commandEntries: [],
-        };
-    }
+export default function Execute(props) {
+    const id = props.id;
+    const name = props.name;
+    const [executing, setExecuting] = useState(false);
+    const [command, setCommand] = useState('');
+    const [commandEntries, setCommandEntries] = useState([]);
 
-    static contextType = AppContext;
+    const context = useContext(AppContext);
 
-    componentDidMount() {
-        this.getCommandEntries();
-    }
+    useEffect(() => {
+        getCommandEntries();
+    }, [props]);
 
-    getCommandEntries() {
-        this.context.api.command(
+    function getCommandEntries() {
+        context.api.command(
         ).then(result =>
-            this.setState({commandEntries: result})
+            setCommandEntries(result)
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting commands: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting commands: ${xhr.responseText} - ${errorThrown}`)
         )
     }
 
-    updateState = (data) => {
-        this.setState(data)
-    };
-
-    clickExec = (evt, command = null) => {
-        const cmd = command || this.state.command;
-        this.setState({executing: true, command: cmd}, () => {
-            return this.context.api.proxyPost(`/container/${this.state.id}/exec_run`, {
-                    name: this.state.name,
+    function clickExec(evt, p_command = null) {
+        const cmd = p_command || command;
+        setExecuting(true);
+        setCommand(cmd);
+        return context.api.proxyPost(`/container/${id}/exec_run`, {
+                name: name,
+                cmd: cmd,
+            }
+        ).then(cmd_result => {
+                return context.api.command('POST', {
+                    result: cmd_result,
                     cmd: cmd,
-                }
-            ).then(cmd_result => {
-                    return this.context.api.command('POST', {
-                        result: cmd_result,
-                        cmd: cmd,
-                    }).then(result => {
-                        this.state.commandEntries.unshift(result);
-                        this.setState({commandEntries: this.state.commandEntries.slice(0)});
-                    })
-                }
-            ).fail((xhr, textStatus, errorThrown) =>
-                this.context.setErrorMessage(`Error exec_run: ${xhr.responseText} - ${errorThrown}`)
-            ).always(() => this.setState({executing: false})
-            )
-        })
-    }
-
-    renderMessage(className) {
-        if (this.state && this.state.message) {
-            return <h3 className="{className} alert alert-warning">{this.state.message}</h3>
-        }
-        return null;
-    }
-
-    clickExecDelete = (evt, command_id) => {
-        this.setState({executing: true});
-        return this.context.api.command('DELETE', command_id
-        ).then(
-            result => {
-                const commandEntries = this.state.commandEntries.filter(command =>
-                    command.id !== command_id
-                );
-                this.context.setMessage(result.message)
-                this.setState({commandEntries})
+                }).then(result => {
+                    commandEntries.unshift(result);
+                    setCommandEntries(commandEntries.slice(0));
+                })
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error exec delete: ${xhr.responseText} - ${errorThrown}`)
-        ).always(() => this.setState({executing: false})
+            context.setErrorMessage(`Error exec_run: ${xhr.responseText} - ${errorThrown}`)
+        ).always(() => setExecuting(false)
         )
     }
 
-    render() {
-        return <div>
-            <BootstrapInput name={"command"} parent={this}/>
-            <button onClick={(evt) => this.clickExec(evt)}><span className="material-icons">directions_run</span>
-            </button>
-            <table className={"table"}>
-                <tbody>
-                {this.state.commandEntries.map(result => <ExecEntry keycmd={result.cmd} clickExec={this.clickExec}
-                                                                    clickExecDelete={this.clickExecDelete}
-                                                                    updateState={this.updateState}
-                                                                    entry={result}/>)}
-                </tbody>
-            </table>
-        </div>
+    function clickExecDelete(evt, command_id) {
+        setExecuting(true);
+        return context.api.command('DELETE', command_id
+        ).then(
+            result => {
+                const entries = commandEntries.filter(command =>
+                    command.id !== command_id
+                );
+                context.setMessage(result.message);
+                setCommandEntries(entries);
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error exec delete: ${xhr.responseText} - ${errorThrown}`)
+        ).always(() => setExecuting(false)
+        )
     }
+
+    function commandOnKeyUp(evt) {
+        if (evt.key === "Enter") {
+            clickExec(evt);
+        }
+    }
+
+    function renderExecuting() {
+        if (executing) {
+            return (<div>running {command}</div>)
+        }
+        return (<div><input
+                defaultValue={command}
+                onChange={(evt) => setCommand(evt.target.value)}
+                onKeyUp={(evt) => commandOnKeyUp(evt)}
+            />
+                <button onClick={(evt) => clickExec(evt)}><span className="material-icons">directions_run</span>
+                </button>
+            </div>
+        )
+    }
+
+    return <div>
+        <table className={"table"}>
+            <tbody>
+            {renderExecuting()}
+            {commandEntries.map(result => <ExecEntry keycmd={result.cmd} clickExec={clickExec}
+                                                     clickExecDelete={clickExecDelete}
+                                                     setCommand={setCommand}
+                                                     entry={result}/>)}
+            </tbody>
+        </table>
+    </div>
 }
