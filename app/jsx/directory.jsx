@@ -1,106 +1,91 @@
-import React, {Component} from 'react'
+import React, {useContext, useEffect, useState} from 'react'
 import join from 'join-path'
-import BootstrapInput from "bootstrap-input-react";
 import {AppContext} from "./context";
 
-class DirectoryEntry extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            ...props.entry,
-            message: '',
-            selected: false,
-        };
-    }
+function DirectoryEntry(props) {
+    const [entry, setEntry] = useState(props.entry);
 
-    clickDirectory = (evt, fileName) => {
+    function clickDirectory(evt, fileName) {
         evt.preventDefault();
-        this.props.parentChangeDirectory(fileName);
+        props.parentChangeDirectory(fileName);
     }
 
-    renderFilename() {
-        if (this.state.dir_type === 'd') {
+    function renderFilename() {
+        if (entry.dir_type === 'd') {
             return (<a href={"#"}
-                       onClick={evt => this.clickDirectory(evt, this.state.file_name)}>{this.state.file_name}</a>)
+                       onClick={evt => clickDirectory(evt, entry.file_name)}>{entry.file_name}</a>)
         }
-        return this.state.file_name;
+        return entry.file_name;
     }
 
-    checkboxOnChange = (event) => {
-        this.props.selectEntry(this.state.file_name, event.target.checked);
+    function checkboxOnChange(event) {
+        props.selectEntry(entry.file_name, event.target.checked);
     }
 
-    renderSelectionMode() {
-        if (this.state.dir_type !== 'd') {
+    function renderSelectionMode() {
+        if (entry.dir_type !== 'd') {
             return (<>
-                <td><BootstrapInput type="checkbox" name="selected" onChange={this.checkboxOnChange} parent={this}
-                /></td>
-                <td>{this.state.modes}</td>
+                <td><input type="checkbox" name="selected" onChange={checkboxOnChange}/></td>
+                <td>{entry.modes}</td>
             </>)
         } else {
             return <>
-                <td> </td>
-                <td>{this.state.modes}</td>
+                <td>&nbsp;</td>
+                <td>{entry.modes}</td>
             </>
         }
     }
 
-    render() {
-        return (
-            <tr>
-                {this.renderSelectionMode()}
-                <td>{this.state.size}</td>
-                <td>{this.state.modified}</td>
-                <td>{this.renderFilename()}</td>
-                <td>{this.state.linked_file_name}</td>
-            </tr>
-        )
-    }
+    return (
+        <tr>
+            {renderSelectionMode()}
+            <td>{entry.size}</td>
+            <td>{entry.modified}</td>
+            <td>{renderFilename()}</td>
+            <td>{entry.linked_file_name}</td>
+        </tr>
+    )
 }
 
-export default class Directory extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            pwd: props.pwd,
-            id: props.id,
-            name: props.name,
-            directoryPath: '',
-            directoryParent: '..',
-            directoryEntries: [],
-        }
+export default function Directory(props) {
+    const [pwd, setPwd] = useState(props.pwd);
+    const [directoryPath, setDirectoryPath] = useState('');
+    const [directoryParent, setDirectoryParent] = useState('..');
+    const [directoryEntries, setDirectoryEntries] = useState([]);
+    const [directoryGetting, setDirectoryGetting] = useState(false);
+
+    const context = useContext(AppContext);
+    const id = props.id;
+    const name = props.name;
+
+    useEffect(() => {
+        getDirectory(pwd);
+    }, [pwd]);
+
+    function clickUpDirectory(evt) {
+        getDirectory(join(pwd, '..'));
     }
 
-    static contextType = AppContext;
-
-    componentDidMount() {
-        this.getDirectory(this.state.pwd);
+    function clickDirectory(evt, dir = '/') {
+        getDirectory(dir);
     }
 
-    clickUpDirectory = (evt) => {
-        this.getDirectory(join(this.state.pwd, '..'));
-    }
+    function clickDeleteSelected(evt) {
+        setDirectoryGetting(true);
 
-    clickDirectory = (evt, dir = '/') => {
-        this.getDirectory(dir);
-    }
+        const selected = directoryEntries.filter(dir => dir.selected);
 
-    clickDeleteSelected = (evt) => {
-        this.setState({directoryGetting: true})
-
-        const selected = this.state.directoryEntries.filter(dir => dir.selected);
-
-        return this.context.api.proxyPost(`/container/${this.state.id}/exec_run`, {
-                name: this.state.name,
-                cmd: `(cd ${this.state.directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
+        return context.api.proxyPost(`/container/${id}/exec_run`, {
+                name: name,
+                cmd: `(cd ${directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
             }
         ).then(result => {
-                this.context.setMessage(result);
-                return this.getDirectory(this.state.pwd);
+                context.setMessage(result);
+                return getDirectory(pwd);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
-        ).always(() => this.setState({directoryGetting: false})
+            context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
+        ).always(() => setDirectoryGetting(false)
         )
     }
 
@@ -108,12 +93,12 @@ export default class Directory extends Component {
      * download_container_file any selected that are not directories.  they will download_container_file as tar
      * @param evt
      */
-    clickDownloadSelected = (evt) => {
-        const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
+    function clickDownloadSelected(evt) {
+        const selected = directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
-            const filename = join(this.state.directoryPath, dir.linked_file_name || dir.file_name)
-            return this.context.api.proxyPost(`/container/${this.state.id}/download`, {
-                    name: this.state.name,
+            const filename = join(directoryPath, dir.linked_file_name || dir.file_name)
+            return context.api.proxyPost(`/container/${id}/download`, {
+                    name: name,
                     filename,
                 }
             ).then((result, textStatus, request) => {
@@ -123,7 +108,7 @@ export default class Directory extends Component {
                     a.click();
                 }
             ).fail((xhr, textStatus, errorThrown) =>
-                this.context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
+                context.setErrorMessage(`Error: ${xhr.responseText} - ${errorThrown}`)
             )
         });
     }
@@ -132,67 +117,64 @@ export default class Directory extends Component {
      * download_container_file any selected that are not directories.  they will download_container_file as tar
      * @param evt
      */
-    clickEditSelected = (evt) => {
-        const selected = this.state.directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
+    function clickEditSelected(evt) {
+        const selected = directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
-            const fileName = join(this.state.directoryPath, dir.linked_file_name || dir.file_name);
+            const fileName = join(directoryPath, dir.linked_file_name || dir.file_name);
             const encodedFileName = encodeURIComponent(fileName)
-            window.open(`/server/${this.state.id}/container_file_edit/${this.state.name}?filename=${encodedFileName}`, "_blank")
+            window.open(`/server/${id}/container_file_edit/${name}?filename=${encodedFileName}`, "_blank")
         });
     }
 
-    changeDirectory = (directoryName) => {
-        const pwd = join(this.state.directoryPath, directoryName);
-        this.getDirectory(pwd);
+    function changeDirectory(directoryName) {
+        const pwd = join(directoryPath, directoryName);
+        getDirectory(pwd);
     }
 
-    getDirectory(pwd) {
-        this.setState({directoryGetting: true})
-        return this.context.api.proxyGet(`/container/${this.state.id}/ls`, {name: this.state.name, pwd: pwd}
-        ).then(result =>
-            this.setState({
-                pwd: result.pwd,
-                directoryPath: result.path,
-                directoryParent: result.parent,
-                directoryTotal: result.total,
-                directoryEntries: result.entries,
-            })
+    function getDirectory(pwd) {
+        setDirectoryGetting(true);
+        return context.api.proxyGet(`/container/${id}/ls`, {name: name, pwd: pwd}
+        ).then(result => {
+                setPwd(result.pwd);
+                setDirectoryPath(result.path);
+                setDirectoryParent(result.parent);
+                setDirectoryEntries(result.entries);
+            }
         ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
-        ).always(() => this.setState({directoryGetting: false})
+            context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
+        ).always(() => setDirectoryGetting(false)
         )
     }
 
-    renderActions() {
-        if (!this.state.directoryPath) {
+    function renderActions() {
+        if (!directoryPath) {
             return <h3>No directory found</h3>
         }
 
-        const upButton = (this.state.directoryPath !== '/') ?
-            <a href={"#"} className={"btn"} onClick={evt => this.clickUpDirectory(evt)}
+        const upButton = (directoryPath !== '/') ?
+            <a href={"#"} className={"btn"} onClick={evt => clickUpDirectory(evt)}
                title={"Up one level of directory"}><span
                 className="material-icons">reply</span></a> : null;
-        const deleteButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDeleteSelected(evt)}
+        const deleteButton = <a href={"#"} className={"btn"} onClick={evt => clickDeleteSelected(evt)}
                                 title={"Remove selected files"}><span
             className="material-icons">delete</span></a>;
-        const downloadButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDownloadSelected(evt)}
+        const downloadButton = <a href={"#"} className={"btn"} onClick={evt => clickDownloadSelected(evt)}
                                   title={"Download selected files"}><span
             className="material-icons">arrow_downward</span></a>;
-        const editButton = <a href={"#"} className={"btn"} onClick={evt => this.clickEditSelected(evt)}
+        const editButton = <a href={"#"} className={"btn"} onClick={evt => clickEditSelected(evt)}
                               title={"Edit selected files"}><span
             className="material-icons">edit</span></a>;
-        const refreshButton = <a href={"#"} className={"btn"} onClick={evt => this.clickDirectory(evt, this.state.pwd)}
+        const refreshButton = <a href={"#"} className={"btn"} onClick={evt => clickDirectory(evt, pwd)}
                                  title={"Refresh"}><span
             className="material-icons">cached</span></a>;
-        const getting = this.state.directoryGetting ? <div className="spinner-border text-success" role="status">
+        const getting = directoryGetting ? <div className="spinner-border text-success" role="status">
             <span className="sr-only">Loading...</span>
         </div> : null;
         let cwd = '/';
         const directoryLinks = [];
-        this.state.directoryPath.split('/').forEach((dir, index) => {
+        directoryPath.split('/').forEach((dir, index) => {
             if (index === 0 || dir.length) {
                 cwd = join(cwd, dir);
-                let thisCwd = cwd.toString();
                 directoryLinks.push({cwd: cwd, dir: dir});
             }
         });
@@ -205,7 +187,7 @@ export default class Directory extends Component {
                 {deleteButton}
                 {upButton}
                 {directoryLinks.map(d =>
-                    <a href={"#"} onClick={(evt) => this.clickDirectory(evt, d.cwd)}
+                    <a href={"#"} onClick={(evt) => clickDirectory(evt, d.cwd)}
                        title={d.cwd}>{d.dir}&nbsp;/&nbsp;</a>
                 )}
                 {getting}
@@ -213,41 +195,39 @@ export default class Directory extends Component {
         );
     }
 
-    selectEntry = (fileName, state) => {
-        let data = this.state.directoryEntries;
+    function selectEntry(fileName, state) {
+        let data = directoryEntries;
         data.some(entry => {
             if (entry.file_name === fileName) {
                 entry.selected = state;
                 return true;
             }
         })
-        this.setState({directoryEntries: data})
-    };
-
-    render() {
-        return (
-            <div>
-                {this.renderActions()}
-
-                <table className={"table"}>
-                    <thead>
-                    <tr>
-                        <th>&nbsp;</th>
-                        <th>Modes</th>
-                        <th>Size</th>
-                        <th>Modified</th>
-                        <th>Name</th>
-                        <th>link</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {this.state.directoryEntries.map(entry => <DirectoryEntry entry={entry}
-                                                                              key={entry.file_name}
-                                                                              parentChangeDirectory={this.changeDirectory}
-                                                                              selectEntry={this.selectEntry}/>)}
-                    </tbody>
-                </table>
-            </div>
-        )
+        setDirectoryEntries(data)
     }
+
+    return (
+        <div>
+            {renderActions()}
+
+            <table className={"table"}>
+                <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Modes</th>
+                    <th>Size</th>
+                    <th>Modified</th>
+                    <th>Name</th>
+                    <th>link</th>
+                </tr>
+                </thead>
+                <tbody>
+                {directoryEntries.map(entry => <DirectoryEntry entry={entry}
+                                                               key={entry.file_name}
+                                                               parentChangeDirectory={changeDirectory}
+                                                               selectEntry={selectEntry}/>)}
+                </tbody>
+            </table>
+        </div>
+    )
 }

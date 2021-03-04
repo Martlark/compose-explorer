@@ -22,7 +22,7 @@ export default function ManageContainer(props) {
 
     useEffect(() => {
         getContainerProps();
-    });
+    }, [props]);
 
     function getContainerProps() {
         context.api.container(id, name).then(result => {
