@@ -62,7 +62,7 @@ export class ApiService {
 
     command(method = 'GET', data = {}) {
         const url = '/command'
-        switch (method) {
+        switch (method.toUpperCase()) {
             case "POST":
                 data.csrf_token = this.csrf_token;
                 return $.post(url, data);

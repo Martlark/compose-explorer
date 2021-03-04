@@ -45,12 +45,16 @@ export default function Home(props) {
         )
     }
 
-    if (newServer) {
-        return <NewServerForm setNewServer={setNewServer} getItems={getItems}/>
+    function renderNewServer() {
+        if (newServer) {
+            return <NewServerForm setNewServer={setNewServer} getItems={getItems}/>
+        } else {
+            return (<button className={"btn-primary btn-sm"} onClick={evt => clickAddServer()}>Add Server</button>)
+        }
     }
 
     return (<div>
-        <button className={"btn-primary btn-sm"} onClick={evt => clickAddServer()}>Add Server</button>
+        {renderNewServer()}
         <table className={"table"}>
             <thead>
             <tr>
