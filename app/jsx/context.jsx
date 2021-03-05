@@ -46,6 +46,16 @@ export class ApiService {
         return $.getJSON(this.urlJoin(this.prefix_api, url), params)
     }
 
+    put(url, data) {
+        data.csrf_token = this.csrf_token;
+        const urlPath = this.urlJoin(this.prefix_api, url);
+        return $.ajax({
+            url: urlPath,
+            type: 'PUT',
+            data: data
+        });
+    }
+
     post(url, data) {
         data.csrf_token = this.csrf_token;
         return $.post(this.urlJoin(this.prefix_api, url), data);

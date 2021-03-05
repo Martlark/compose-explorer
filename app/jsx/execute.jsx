@@ -95,7 +95,7 @@ export default function Execute(props) {
 
     function renderExecuting() {
         if (executing) {
-            return (<div>running {command}</div>)
+            return (<div>running {command} <progress /></div>)
         }
         return (<div><input
                 defaultValue={command}

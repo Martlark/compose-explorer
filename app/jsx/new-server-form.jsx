@@ -11,9 +11,9 @@ export function NewServerForm(props) {
         e.preventDefault();
         const formData = new FormData(e.target);
         return context.api.post('/server/', {name: formData.get('name'), port: formData.get('port')}).then(items => {
-
                 context.setMessage(`${formData.get("name")} added`);
-                setNewServer(false, () => getItems());
+                setNewServer(false);
+                getItems();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
