@@ -144,19 +144,12 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         raise Exception(r.text)
 
     def get_summary(self):
-        try:
-            r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
-                             auth=('explorer', self.credentials), timeout=0.50)
-            summary = dict(containers=0, volumes=0, error='')
-            for c in r.json():
-                summary['containers'] += 1
-            return summary
-        except Exception as e:
-            return dict(error=f'{e}')
-
-    @property
-    def summary(self):
-        return self.get_summary()
+        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
+                         auth=('explorer', self.credentials), timeout=1.50)
+        summary = dict(containers=0, volumes=0, error='')
+        for c in r.json():
+            summary['containers'] += 1
+        return summary
 
     def verify(self, create=False):
         if not all([self.name, self.port]):

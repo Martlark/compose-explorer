@@ -19,3 +19,14 @@ def api_servers():
 @login_required
 def api_server(server_id=None):
     return DockerServer.get_delete_put_post(item_id=server_id)
+
+
+@bp.route('/server_summary/<int:server_id>/', methods=['GET'])
+@login_required
+def api_server_summary(server_id):
+    server = DockerServer.query.get_or_404(server_id)
+    try:
+        summary = server.get_summary()
+    except Exception as e:
+        return f'{e}', 400
+    return summary

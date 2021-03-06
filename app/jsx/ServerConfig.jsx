@@ -1,14 +1,20 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from "./context";
 import InlineConfirmButton from "react-inline-confirm";
 import {Link} from "react-router-dom";
+import TempMessage from "./TempMessage";
 
 export function ServerConfig(props) {
     const [item, setItem] = useState(props.item);
     const [edit, setEdit] = useState(false);
     const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const getItems = props.getItems;
     const context = useContext(AppContext);
+
+    useEffect(() => {
+        getSummary(item);
+    }, [props]);
 
     const clickDeleteServer = (item) => {
         context.api.delete(`/server/${item.id}`).then(response => {
@@ -16,7 +22,30 @@ export function ServerConfig(props) {
                 getItems();
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`${xhr.responseText}`)
+            setErrorMessage(`${xhr.responseText}`)
+        )
+    }
+
+    function getSummary(item) {
+        context.api.json(`/server_summary/${item.id}`).then(response => {
+                setItem({...item, summary: response});
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            setErrorMessage(`getSummary: ${xhr.responseText}`)
+        )
+    }
+
+    function clickSubmit(evt) {
+        evt.preventDefault();
+        const data = Object.fromEntries(new FormData(evt.target))
+
+        return context.api.put(`/server/${item.id}`, data).then(result => {
+                setItem(result.item);
+                setEdit(false);
+                setMessage('updated');
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
         )
     }
 
@@ -40,25 +69,6 @@ export function ServerConfig(props) {
                                                                 onClick={() => clickDeleteServer(item)}/></span>);
     }
 
-    function updateMessage(msg) {
-        setMessage(msg);
-        setTimeout(() => setMessage(''), 3000);
-    }
-
-    function clickSubmit(evt) {
-        evt.preventDefault();
-        const data = Object.fromEntries(new FormData(evt.target))
-
-        return context.api.put(`/server/${item.id}`, data).then(result => {
-                setItem(result.item);
-                setEdit(false);
-                updateMessage('updated')
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
-        )
-    }
-
     function renderItem() {
         if (edit) {
             return (<form onSubmit={(evt) => clickSubmit(evt)}>
@@ -71,11 +81,22 @@ export function ServerConfig(props) {
         return (<Link to={`/server/${item.id}`}>{item.name}</Link>);
     }
 
-    function renderMessage() {
-        if (!message) {
+    function renderErrorMessage() {
+        if (!errorMessage) {
             return null;
         }
-        return (<span className={"alert alert-warning"}>{message}</span>);
+
+        return (<p className={"alert alert-danger"}>{errorMessage}</p>);
+    }
+
+    function renderSummary() {
+        if (!item?.summary) {
+            if (errorMessage) {
+                return null;
+            }
+            return <progress/>;
+        }
+        return (<span>{item?.summary?.containers}<TempMessage message={message} setMessage={setMessage}/></span>);
     }
 
     return (<tr key={item.id}>
@@ -84,9 +105,10 @@ export function ServerConfig(props) {
         </td>
         <td>
             {renderItem()}
+            {renderErrorMessage()}
         </td>
         <td>
-            {item.summary.containers || item.summary.error}{renderMessage()}
+            {renderSummary()}
         </td>
     </tr>)
 }
