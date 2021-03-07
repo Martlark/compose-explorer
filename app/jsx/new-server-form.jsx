@@ -20,6 +20,16 @@ export function NewServerForm(props) {
         )
     };
 
+    function clickTestConnection(e) {
+        return context.api.json('/server_test_connection/', {
+            name: $('input[name=name]').val(),
+            port: $('input[name=port]').val()
+        }).then(result => context.setMessage(`${result.message}`)
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
+        )
+    }
+
     const clickCancel = (evt) => {
         setNewServer(false);
     }
@@ -45,8 +55,9 @@ export function NewServerForm(props) {
                         className={"form-control"}
                     />
                 </div>
-                <button className="btn btn-default" type={"submit"}>Create</button>
-                <button className="btn btn-danger" onClick={evt => clickCancel(evt)}>Cancel</button>
+                <button className="ml-1 btn btn-default" type={"submit"}>Create</button>
+                <button className="ml-1 btn btn-danger" onClick={evt => clickCancel(evt)}>Cancel</button>
+                <button className="ml-1 btn btn-success" onClick={evt => clickTestConnection(evt)}>Test Connection</button>
             </form>
         </div>
     );

@@ -164,6 +164,15 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         except Exception as e:
             raise Exception('Port is not numeric')
 
+    @classmethod
+    def test_connection(cls, name, port, protocol='http', credentials=None):
+        try:
+            r = requests.get(f'{protocol}://{name}:{port}/container/list',
+                             auth=('explorer', credentials), timeout=1.50)
+        except Exception as e:
+            return f'{e}', 400
+        return {'message': 'connected'}
+
 
 class Setting(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)
