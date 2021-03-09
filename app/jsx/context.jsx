@@ -110,6 +110,49 @@ export class ApiService {
     }
 }
 
+export class ServerService {
+    constructor(props) {
+        this.item = props;
+        this.api = new ApiService();
+    }
+
+    delete() {
+        return this.api.delete(`/server/${this.item.id}`);
+    }
+
+    getSummary(setItem) {
+        return this.api.json(`/server_summary/${this.item.id}`).then(response => {
+                setItem({...this.item, summary: response});
+            }
+        )
+    }
+
+    update(evt, setItem) {
+        evt.preventDefault();
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.api.put(`/server/${this.item.id}`, data).then(result => {
+            this.item = result.item;
+            setItem(result.item);
+        });
+    }
+
+    testConnection(name, port) {
+        return this.api.json('/server_test_connection/', {name, port});
+    }
+
+    create(evt, name, port) {
+        const formData = new FormData(evt?.target);
+        evt?.preventDefault();
+
+        return this.api.post('/server/', {
+            name: name ?? formData.get('name'),
+            port: port ?? formData.get('port')
+        }).then(result => this.item = result
+        );
+    };
+}
+
 // https://www.robinwieruch.de/react-function-component
 // https://www.taniarascia.com/using-context-api-in-react/
 export const

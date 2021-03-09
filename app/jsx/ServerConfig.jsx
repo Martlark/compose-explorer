@@ -1,52 +1,63 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext} from "./context";
+import {AppContext, ServerService} from "./context";
 import InlineConfirmButton from "react-inline-confirm";
 import {Link} from "react-router-dom";
+import ErrorMessage from "./ErrorMessage";
 import TempMessage from "./TempMessage";
 
 export function ServerConfig(props) {
     const [item, setItem] = useState(props.item);
     const [edit, setEdit] = useState(false);
+    const [waiting, setWaiting] = useState('');
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const getItems = props.getItems;
     const context = useContext(AppContext);
+    const api = new ServerService(props.item);
 
     useEffect(() => {
         getSummary(item);
     }, [props]);
 
     const clickDeleteServer = (item) => {
-        context.api.delete(`/server/${item.id}`).then(response => {
+        setWaiting('Deleting');
+        api.delete().then(response => {
                 context.setMessage(`Deleted ${response.item.name}`);
                 getItems();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             setErrorMessage(`${xhr.responseText}`)
-        )
+        ).always(() => setWaiting(''));
     }
 
     function getSummary(item) {
-        context.api.json(`/server_summary/${item.id}`).then(response => {
-                setItem({...item, summary: response});
+        api.getSummary(setItem).fail((xhr, textStatus, errorThrown) => {
+                setErrorMessage(`getSummary: ${xhr.responseText}`);
+                setItem(Object.assign(...item, {summary: {containers: 'error'}}));
             }
-        ).fail((xhr, textStatus, errorThrown) =>
-            setErrorMessage(`getSummary: ${xhr.responseText}`)
-        )
+        );
     }
 
     function clickSubmit(evt) {
-        evt.preventDefault();
-        const data = Object.fromEntries(new FormData(evt.target))
-
-        return context.api.put(`/server/${item.id}`, data).then(result => {
-                setItem(result.item);
+        setWaiting('Updating');
+        return api.update(evt, setItem).then(result => {
                 setEdit(false);
                 setMessage('updated');
             }
         ).fail((xhr, textStatus, errorThrown) =>
             setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
-        )
+        ).always(() => setWaiting(null));
+    }
+
+    function clickTestConnection(evt) {
+        evt.preventDefault();
+        setWaiting('Testing');
+        setErrorMessage('');
+        const formData = Object.fromEntries(new FormData(evt.target.form));
+
+        api.testConnection(formData.name, formData.port).then(result => setMessage('Connected')).fail((xhr, textStatus, errorThrown) =>
+            setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
+        ).always(() => setWaiting(null));
     }
 
     function renderEditButton() {
@@ -54,6 +65,8 @@ export function ServerConfig(props) {
 
         function click(evt) {
             setEdit(!edit);
+            setErrorMessage('');
+            setMessage('');
             setItem(props.item);
         }
 
@@ -61,6 +74,9 @@ export function ServerConfig(props) {
     }
 
     function renderButtons() {
+        if (waiting) {
+            return null;
+        }
         if (!edit) {
             return (renderEditButton());
         }
@@ -70,33 +86,34 @@ export function ServerConfig(props) {
     }
 
     function renderItem() {
-        if (edit) {
-            return (<form onSubmit={(evt) => clickSubmit(evt)}>
-                <input name={"name"} defaultValue={item.name}/>
-                :
-                <input name={"port"} defaultValue={item.port}/>
-                <button className={"btn btn-sm btn-success"} type={"submit"}>✔</button>
-            </form>);
-        }
-        return (<Link to={`/server/${item.id}`}>{item.name}</Link>);
-    }
-
-    function renderErrorMessage() {
-        if (!errorMessage) {
+        if (waiting) {
             return null;
         }
 
-        return (<p className={"alert alert-danger"}>{errorMessage}</p>);
+        const testButton = <button className="btn btn-sm btn-warning"
+                                   onClick={(evt) => clickTestConnection(evt)}
+        >Test connection</button>
+        const form = <form onSubmit={(evt) => clickSubmit(evt)}>
+            <input name={"name"} defaultValue={item.name}/>
+            :
+            <input name={"port"} defaultValue={item.port}/>
+            {testButton}
+            <button className={"btn btn-sm btn-success"} type={"submit"}>✔</button>
+        </form>
+        const link = <Link to={`/server/${item.id}`}>{item.name}</Link>;
+
+        if (edit) {
+            return (<div>{form}</div>);
+        }
+        return (<div>{link}</div>);
     }
 
+
     function renderSummary() {
-        if (!item?.summary) {
-            if (errorMessage) {
-                return null;
-            }
-            return <progress/>;
+        if (waiting){
+            return <p>{waiting}... <progress/></p>;
         }
-        return (<span>{item?.summary?.containers}<TempMessage message={message} setMessage={setMessage}/></span>);
+        return (<span>{item?.summary?.containers}</span>);
     }
 
     return (<tr key={item.id}>
@@ -105,7 +122,8 @@ export function ServerConfig(props) {
         </td>
         <td>
             {renderItem()}
-            {renderErrorMessage()}
+            <TempMessage message={message} setMessage={setMessage}/>
+            <ErrorMessage errorMessage={errorMessage} setErrorMessage={setErrorMessage}/>
         </td>
         <td>
             {renderSummary()}

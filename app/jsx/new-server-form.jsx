@@ -1,18 +1,18 @@
 import React, {useContext} from "react";
-import {AppContext} from './context';
+import {AppContext, ServerService} from './context';
 
 export function NewServerForm(props) {
+
     const setNewServer = props.setNewServer;
     const getItems = props.getItems;
+    const api = new ServerService()
 
     const context = useContext(AppContext);
 
     const handleSubmit = (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        return context.api.post('/server/', {name: formData.get('name'), port: formData.get('port')}).then(items => {
-                context.setMessage(`${formData.get("name")} added`);
+        return api.create(e, setNewServer).then(item => {
                 setNewServer(false);
+                context.setMessage(`Added ${item.name}`);
                 getItems();
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -21,10 +21,11 @@ export function NewServerForm(props) {
     };
 
     function clickTestConnection(e) {
-        return context.api.json('/server_test_connection/', {
-            name: $('input[name=name]').val(),
-            port: $('input[name=port]').val()
-        }).then(result => context.setMessage(`${result.message}`)
+        e.preventDefault();
+        context.setErrorMessage('');
+        return api.testConnection($('input[name=name]').val(),
+            $('input[name=port]').val()
+        ).then(result => context.setMessage(`${result.message}`)
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
         )
@@ -57,7 +58,8 @@ export function NewServerForm(props) {
                 </div>
                 <button className="ml-1 btn btn-default" type={"submit"}>Create</button>
                 <button className="ml-1 btn btn-danger" onClick={evt => clickCancel(evt)}>Cancel</button>
-                <button className="ml-1 btn btn-success" onClick={evt => clickTestConnection(evt)}>Test Connection</button>
+                <button className="ml-1 btn btn-success" onClick={evt => clickTestConnection(evt)}>Test Connection
+                </button>
             </form>
         </div>
     );

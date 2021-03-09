@@ -52,3 +52,10 @@ def logout():
         flash('Logged out')
         logout_user()
     return redirect(url_for('main.page_index'))
+
+
+@bp.route('/is_logged_in/')
+def is_logged_in():
+    if current_user and current_user.is_authenticated:
+        return 'ok'
+    return url_for('logoutb')

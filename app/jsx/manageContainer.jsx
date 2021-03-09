@@ -76,7 +76,7 @@ export default function ManageContainer(props) {
 
     function renderActions() {
         if (actioning) {
-            return <p>Action under way</p>
+            return <p>{actioning} under way... <progress/></p>
         }
 
         return (

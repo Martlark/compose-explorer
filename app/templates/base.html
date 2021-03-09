@@ -28,6 +28,7 @@
     {% import_js 'base.js' %}
 </head>
 <body>
+<input type="hidden" name="logout_link_active" value="yes">
 <input type="hidden" name="base-csrf_token" value="{{ csrf_token() }}">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 <script>g={{ g.d | tojson }}</script>

@@ -9,7 +9,7 @@ const gCurrentUser = {
 class ViewModel {
     constructor() {
         this.since = 0;
-        $(".flashed-message").on("click", ".close", (evt) => {
+        $("body").on("click", ".close", (evt) => {
             $(evt.currentTarget).parent().slideUp('slow');
         });
 
@@ -52,10 +52,10 @@ class ViewModel {
     }
 
     loggedInHandler() {
-        if ($("#logout_link").length) {
-            $.ajax(`/auth/is_logged_in`).done((result) => {
-                if (result != 'ok') {
-                    window.location = '/auth/auto_logged_out';
+        if ($("input[name=logout_link_active]").val()) {
+            $.ajax(`/auth/is_logged_in/`).done((result) => {
+                if (result !== 'ok') {
+                    window.location = result;
                 }
             });
         }
@@ -87,15 +87,15 @@ class ViewModel {
     init() {
         // every ten minutes
         setInterval(() =>
-            this.loggedInHandler, 60000 * 10);
+            this.loggedInHandler(), 60 * 1000 * 10);
         return this;
     }
 }
 
 function setCookie(c_name, value, exdays) {
-    const exdate = new Date();
-    exdate.setDate(exdate.getDate() + exdays);
-    const c_value = escape(value) + "; expires=" + exdate.toUTCString();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + exdays);
+    const c_value = escape(value) + "; expires=" + expiryDate.toUTCString();
     document.cookie = c_name + "=" + c_value;
 }
 
