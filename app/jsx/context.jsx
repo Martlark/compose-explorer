@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from "react";
 import $ from "jquery";
 
-export const ErrorMessage = ({message}) => {
+export const ContextErrorMessage = ({message}) => {
     const context = useContext(AppContext);
     if (!message) {
         return null;
@@ -16,7 +16,7 @@ export const ErrorMessage = ({message}) => {
     </div>)
 }
 
-export const Message = ({message}) => {
+export const ContextMessage = ({message}) => {
     const context = useContext(AppContext);
     useEffect(() => {
         if (message)

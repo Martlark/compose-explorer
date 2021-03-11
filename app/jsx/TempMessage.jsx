@@ -1,30 +1,25 @@
 import React, {useEffect, useState} from "react";
 
 export default function TempMessage(props) {
-    const [style, setStyle] = useState({display: "None"});
+    const [styleCloseButton, setStyleCloseButton] = useState({position: 'inherit'});
     const timeout = props.timeout || 3000;
     const message = props.message;
     const setMessage = props.setMessage;
-    const fadeOut = {
-        opacity: 0,
-        width: 0,
-        height: 0,
-        transition: "width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s"
-    };
-    const fadeIn = {
-        opacity: "1",
-        width: "100px",
-        height: "100px",
-        transition: "width 0.5s, height 0.5s, opacity 0.5s 0.5s"
-    };
+    const id = Math.random();
+    const closeButton = <a href="#" title="close" className="close" aria-label="Close"
+                           aria-hidden="true">&times;</a>;
 
     useEffect(() => {
         if (!message) {
-            setStyle(fadeOut);
+            $(`#${id}`).fadeOut();
         } else {
-            setStyle(fadeIn);
-            setTimeout(() => setMessage(''), timeout);
+            $(`#${id}`).fadeIn();
+            setTimeout(() => $(`#${id}`).fadeOut(), timeout);
         }
     }, [message]);
-    return (<span className={"alert alert-warning"} style={style}>{message}</span>);
+    if(!message){
+        return null;
+    }
+    return (<div id={id} role="alert">{closeButton}<p className="alert alert-warning"
+                                                                    style={styleCloseButton}>{message}</p></div>);
 }

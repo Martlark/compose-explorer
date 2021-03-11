@@ -5,6 +5,7 @@ import Execute from './execute'
 import LogContent from './container_log'
 import {AppContext} from "./context";
 import {ServiceStatus} from "./ProjectService";
+import TempMessage from "./TempMessage";
 
 export default function ManageContainer(props) {
     const [message, setMessage] = useState('');
@@ -16,7 +17,10 @@ export default function ManageContainer(props) {
 
     const actions = [{cmd: 'stop', icon: 'stop'}, {cmd: 'start', icon: 'play_arrow'}, {
         cmd: 'restart',
-        icon: 'replay'
+        icon: 'replay',
+    }, {
+        cmd: 'sleep',
+        icon: 'edit',
     }];
     const context = useContext(AppContext)
 
@@ -34,10 +38,7 @@ export default function ManageContainer(props) {
     }
 
     function renderMessage() {
-        if (message) {
-            return <h3 className="alert alert-warning">{message}</h3>
-        }
-        return null;
+        return <TempMessage message={message}/>
     }
 
     function clickAction(evt, action) {

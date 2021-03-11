@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import {ApiService, AppContext, ErrorMessage, Message} from './context'
+import {ApiService, AppContext, ContextErrorMessage, ContextMessage} from './context'
 
 import ManageServer from "./server"
 import ManageContainer from "./manageContainer"
@@ -35,8 +35,8 @@ export function AppProvider() {
     return (<AppContext.Provider value={state}>
         <Router>
             <Nav/>
-            <Message message={message}/>
-            <ErrorMessage message={errorMessage}/>
+            <ContextMessage message={message}/>
+            <ContextErrorMessage message={errorMessage}/>
             <div className={"container"}>
                 <Switch>
                     <Route exact path="/">

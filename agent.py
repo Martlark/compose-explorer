@@ -1,18 +1,65 @@
 import os
 import shutil
 import subprocess
-import tempfile
 import tarfile
+import tempfile
 import time
+from functools import wraps
 from io import BytesIO
 
 import docker
-from flask import Flask, jsonify, request, current_app, send_file, make_response
+from flask import Flask, jsonify, request, current_app, send_file, abort
 
 app = Flask(__name__)
 # https://docker-py.readthedocs.io/en/stable/
 dc = docker.from_env()
 cleanup = {}
+
+
+def request_arg(arg_name, arg_type=str, arg_default=None):
+    """
+    decorator to auto convert arg or form fields to
+    named method parameters with the correct type
+    conversion
+
+        @route('/something/<greeting>/')
+        @request_arg('repeat', int, 1)
+        def route_something(greeting='', repeat):
+            return greeting * repeat
+
+        # /something/yo/?repeat=10
+
+        # yoyoyoyoyoyoyoyoyoyo
+
+    :param arg_name str: name of the form field or arg
+    :param arg_type lambda: (optional) the type to convert to
+    :param arg_default any: (optional) a default value.  Use '' or 0 when allowing optional fields
+    :return: a decorator
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            form_value = request.form.get(arg_name)
+            arg_value = request.args.get(arg_name)
+            if form_value:
+                arg_value = form_value
+            if not arg_value:
+                arg_value = arg_default
+            if arg_value is not None:
+                try:
+                    arg_value = arg_type(arg_value)
+                except Exception as e:
+                    abort(400, f"""Required argument failed type conversion: {arg_name}, {str(e)}""")
+
+                kwargs[arg_name] = arg_value
+                return f(*args, **kwargs)
+            abort(400, f"""Required argument missing: {arg_name}""")
+
+        return decorated
+
+    return decorator
+
 
 def d_serialize(item, attributes):
     """
@@ -54,6 +101,7 @@ def exec_run(container, cmd, shell=False):
 
 
 def get_directory(container, args):
+    current_app.logger.info(args)
     pwd = args.get('pwd', '.')
     result = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''')
     if result.startswith('bash: '):
@@ -87,15 +135,16 @@ def get_directory(container, args):
             entry['file_name'] = file_name
             if file_name_pos > end_file_name_pos:
                 end_file_name_pos = l.find('"', file_name_pos + 2)
-                linked_file_name = l[file_name_pos+1:end_file_name_pos]
+                linked_file_name = l[file_name_pos + 1:end_file_name_pos]
                 entry['linked_file_name'] = linked_file_name
             entries.append(entry)
     return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
 
 
 @app.route('/container/<param>', methods=['GET', 'POST'])
-def route_container(param):
-    # current_app.logger.debug(f'route_container {request.method} {param}')
+@request_arg('sleep_seconds', int, 10)
+def route_container(param, sleep_seconds=10):
+    current_app.logger.info(f'route_container {request.method} {param}')
     try:
         container = None
         attrs = ['id', 'labels', 'name', 'short_id', 'status', 'image']
@@ -142,6 +191,9 @@ def route_container(param):
                 return download_container_file(container)
             elif param == 'upload':
                 return upload_container_file(container)
+            elif param == 'sleep':
+                time.sleep(sleep_seconds)
+                return 'slept'
             elif param == 'logs':
                 # download
                 logs = container.logs(tail=int(request.form.get('tail', '1000')), timestamps=True)

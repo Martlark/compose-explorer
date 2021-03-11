@@ -33,7 +33,6 @@ export function ServerConfig(props) {
     function getSummary(item) {
         api.getSummary(setItem).fail((xhr, textStatus, errorThrown) => {
                 setErrorMessage(`getSummary: ${xhr.responseText}`);
-                setItem(Object.assign(...item, {summary: {containers: 'error'}}));
             }
         );
     }
@@ -43,6 +42,7 @@ export function ServerConfig(props) {
         return api.update(evt, setItem).then(result => {
                 setEdit(false);
                 setMessage('updated');
+                getSummary(item);
             }
         ).fail((xhr, textStatus, errorThrown) =>
             setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
