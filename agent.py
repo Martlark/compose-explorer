@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 import subprocess
@@ -61,16 +62,17 @@ def request_arg(arg_name, arg_type=str, arg_default=None):
     return decorator
 
 
-def d_serialize(item, attributes):
+def d_serialize(item, attributes=[]):
     """
     convert the given attributes for the item into a dict
     so they can be serialized back to the caller
 
     :param item: an object
-    :param attributes: list of attributes
+    :param attributes: list of attributes, defaults to all in item
     :return:
     """
     d = {}
+    attributes = attributes or d.keys()
     attributes.sort()
     for a in attributes:
         value = getattr(item, a, '')
@@ -86,6 +88,7 @@ def exec_run(container, cmd, shell=False):
 
     :param container: container object
     :param cmd: command to run
+    :param shell: run in a shell instead of directly
     :return: text result string
     """
     if shell:
@@ -141,14 +144,15 @@ def get_directory(container, args):
     return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
 
 
-@app.route('/container/<param>', methods=['GET', 'POST'])
+@app.route('/container/<action>', methods=['GET', 'POST'])
+@request_arg('name', str, '')
 @request_arg('sleep_seconds', int, 10)
-def route_container(param, sleep_seconds=10):
-    current_app.logger.info(f'route_container {request.method} {param}')
+@request_arg('tail', int, 100)
+def route_container(action, name='', sleep_seconds=10, tail=100):
+    current_app.logger.info(f'route_container {request.method} {action}')
     try:
         container = None
         attrs = ['id', 'labels', 'name', 'short_id', 'status', 'image']
-        name = request.args.get('name') or request.form.get('name')
         if name:
             container = dc.containers.get(name)
 
@@ -156,45 +160,52 @@ def route_container(param, sleep_seconds=10):
                 raise Exception(f'container {name} not found')
 
         if request.method == 'GET':
-            if param == 'list':
+            if action == 'list':
                 # get all containers
                 return jsonify([d_serialize(d, attrs) for d in dc.containers.list(all=True)])
-            elif param == 'get':
+            elif action == 'get':
                 # get specified container
                 return d_serialize(container, attrs)
-            elif param == 'logs':
-                params = dict(request.args)
-                logs = container.logs(tail=int(request.args.get('tail', '100')), timestamps=True)
+            elif action == 'logs':
+                logs = container.logs(tail=tail, timestamps=True)
                 log_hash = logs.__hash__()
                 logs = [l.strip() for l in logs.decode().split('\n') if l.strip()]
                 return dict(hash=log_hash, logs=logs)
-            elif param == 'ls':
+            elif action == 'ls':
                 if container.status == 'running':
                     return get_directory(container, request.args)
                 return {'entries': []}
+            elif action == 'date':
+                result = None
+                if container and container.status == 'running':
+                    result = exec_run(container, f'''date''')
+                if not container:
+                    result = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+                return {'date': result}
 
         if request.method == 'POST':
-            if param == 'restart':
+            if action == 'restart':
                 container.restart(timeout=60)
-            elif param == 'stop':
+            elif action == 'stop':
                 container.stop(timeout=60)
-            elif param == 'start':
+            elif action == 'start':
                 container.start()
-            elif param == 'exec_run':
+            elif action == 'exec_run':
                 if container.status == 'running':
                     cmd = request.form.get('cmd')
                     output = exec_run(container, cmd, shell=True)
                     return output
                 else:
                     return 'not running'
-            elif param == 'download':
+            elif action == 'download':
                 return download_container_file(container)
-            elif param == 'upload':
+            elif action == 'upload':
                 return upload_container_file(container)
-            elif param == 'sleep':
+            elif action == 'sleep':
                 time.sleep(sleep_seconds)
                 return 'slept'
-            elif param == 'logs':
+            elif action == 'logs':
                 # download
                 logs = container.logs(tail=int(request.form.get('tail', '1000')), timestamps=True)
                 fd, tmp_filename = tempfile.mkstemp()
@@ -206,7 +217,7 @@ def route_container(param, sleep_seconds=10):
             container = dc.containers.get(name)
             return d_serialize(container, attrs)
 
-        raise Exception('Method and action not supported')
+        raise Exception(f'Method {request.method} and action {action} not supported')
 
     except Exception as e:
         current_app.logger.exception(e)

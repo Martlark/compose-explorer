@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {ApiService, AppContext, ContextErrorMessage, ContextMessage} from './context'
 
-import ManageServer from "./server"
+import ManageServer from "./ManageServer"
 import ManageContainer from "./manageContainer"
 import FileEdit from "./container_edit_file";
 import LogContent from "./container_log";
