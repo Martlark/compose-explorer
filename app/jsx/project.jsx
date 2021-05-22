@@ -5,6 +5,7 @@ import {Link} from "react-router-dom";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
 import {GitService} from "./GitService";
+import {ComposeService} from "./ComposeService";
 
 export default function Project(props) {
     const [server_id, setServer_id] = useState(props.server_id);
@@ -46,6 +47,7 @@ export default function Project(props) {
                 <TabList>
                     <Tab>Containers</Tab>
                     <Tab>Git</Tab>
+                    <Tab>Compose</Tab>
                 </TabList>
                 <TabPanel>
                     <table className={"table"}>
@@ -67,6 +69,10 @@ export default function Project(props) {
                     </table>
                 </TabPanel>
                 <TabPanel><GitService key={server_id}
+                                      working_dir={working_dir}
+                                      server_id={server_id}
+                /></TabPanel>
+                <TabPanel><ComposeService key={server_id}
                                       working_dir={working_dir}
                                       server_id={server_id}
                 /></TabPanel>

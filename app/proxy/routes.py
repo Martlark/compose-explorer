@@ -116,6 +116,34 @@ def route_git(server_id, action=None):
             return str(e), 400
 
 
+@bp.route('/compose/<int:server_id>/<action>/', methods=['GET', 'POST'])
+@login_required
+def route_compose(server_id, action=None):
+    server = DockerServer.query.get(int(server_id))
+
+    if request.method == 'GET':
+        try:
+            result = server.get('compose', 'ps', params=request.args)
+            return result
+
+        except requests.exceptions.ConnectionError as e:
+            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+
+        except Exception as e:
+            return str(e), 400
+
+    if request.method == 'POST':
+        try:
+            result = server.post('compose', action, params=request.form)
+            return result
+
+        except requests.exceptions.ConnectionError as e:
+            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+
+        except Exception as e:
+            return str(e), 400
+
+
 @bp.route('/volume/<int:server_id>/<verb>/', methods=['GET', 'POST'])
 @login_required
 def route_volume(server_id, verb):

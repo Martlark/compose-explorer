@@ -84,7 +84,7 @@ def d_serialize(item, attributes=None):
 
 
 def local_run(cmd):
-    result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE)
+    result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if result.returncode != 0:
         current_app.logger.warning(result)
     return result.stdout.decode('utf-8')
@@ -330,6 +330,33 @@ def route_volume(param):
     if param == 'list':
         return jsonify([d_serialize(d, ['attrs']) for d in dc.volumes.list()])
     return 'not supported', 400
+
+
+@app.route('/compose/<action>/', methods=['GET', 'POST'])
+@request_arg('working_dir', str)
+def route_compose(action, working_dir):
+    current_app.logger.info(f'route_compose {request.method} {action}')
+    try:
+        if request.method == 'GET':
+            if action == 'ps':
+                cmd = f"""cd {working_dir} && docker-compose {action}"""
+                output = local_run(cmd)
+
+                return dict(result=output)
+        if request.method == 'POST':
+            if action in ['ps', 'build', 'up', 'log', 'restart']:
+                params = ''
+                if action == 'up':
+                    params = '-d'
+                cmd = f"""cd {working_dir} && docker-compose {action} {params}"""
+                output = local_run(cmd)
+                return output
+
+    except Exception as e:
+        current_app.logger.exception(e)
+        return f'{e}', 400
+
+    return f'unknown operation', 400
 
 
 if __name__ == '__main__':

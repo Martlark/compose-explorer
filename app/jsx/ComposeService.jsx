@@ -2,14 +2,14 @@ import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from "./context";
 import TempMessage from "./TempMessage";
 
-export function GitService(props) {
+export function ComposeService(props) {
     const [resultLog, setResultLog] = useState([]);
     const [message, setMessage] = useState('');
     const [actioning, setActioning] = useState('');
     const [working_dir, setWorking_dir] = useState(props.working_dir);
     const context = useContext(AppContext);
 
-    const actions = ['pull', 'fetch', 'status', 'log'];
+    const actions = ['ps', 'up', 'build', 'stop', 'log', 'restart'];
 
     useEffect(() => {
         getStatus();
@@ -20,12 +20,12 @@ export function GitService(props) {
     }
 
     function getStatus() {
-        return context.api.proxyGet(`/git/${props.server_id}`, {working_dir: working_dir}
+        return context.api.proxyGet(`/compose/${props.server_id}/ps/`, {working_dir: working_dir}
         ).then(result => {
                 prependResultLog(result.result);
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting project git status: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error getting project compose ps status: ${xhr.responseText} - ${errorThrown}`)
         );
     }
 
@@ -38,7 +38,7 @@ export function GitService(props) {
                 setActioning('');
             });
         } else {
-            return context.api.proxyPost(`/git/${props.server_id}/${action.action}/`, {working_dir: working_dir}
+            return context.api.proxyPost(`/compose/${props.server_id}/${action.action}/`, {working_dir: working_dir}
             ).then(result => {
                     setMessage(`${action.action}`);
                     prependResultLog(result);
@@ -79,7 +79,7 @@ export function GitService(props) {
         <table>
             <tr>
                 <td>
-                    <TempMessage message={message} setMessage={setMessage}/>
+                     <TempMessage message={message} setMessage={setMessage}/>
                 </td>
             </tr>
             <tr>
