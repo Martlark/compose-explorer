@@ -135,7 +135,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         :return:
         """
         # call the remote agent
-        r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
+        r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/',
                           auth=('explorer', self.credentials), data=params)
         if r.ok:
             try:

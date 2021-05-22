@@ -8,7 +8,7 @@ from app.models import DockerServer
 from app.proxy import bp
 
 
-@bp.route('/container/<int:server_id>/<verb>', methods=['GET', 'POST'])
+@bp.route('/container/<int:server_id>/<verb>/', methods=['GET', 'POST'])
 @login_required
 def route_container(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
@@ -26,7 +26,7 @@ def route_container(server_id, verb):
         return str(e), 400
 
 
-@bp.route('/project/<int:server_id>/<project>', methods=['GET'])
+@bp.route('/project/<int:server_id>/<project>/', methods=['GET'])
 @login_required
 def route_project_services(server_id, project):
     """
@@ -51,7 +51,7 @@ def route_project_services(server_id, project):
             return str(e), 400
 
 
-@bp.route('/projects/<server_id>', methods=['GET'])
+@bp.route('/projects/<server_id>/', methods=['GET'])
 @login_required
 def route_projects(server_id):
     try:
@@ -87,7 +87,36 @@ def route_projects(server_id):
             return str(e), 400
 
 
-@bp.route('/volume/<int:server_id>/<verb>', methods=['GET', 'POST'])
+@bp.route('/git/<int:server_id>/', methods=['GET'])
+@bp.route('/git/<int:server_id>/<action>/', methods=['POST'])
+@login_required
+def route_git(server_id, action=None):
+    server = DockerServer.query.get(int(server_id))
+
+    if request.method == 'GET':
+        try:
+            result = server.get('git', 'status', params=request.args)
+            return result
+
+        except requests.exceptions.ConnectionError as e:
+            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+
+        except Exception as e:
+            return str(e), 400
+
+    if request.method == 'POST':
+        try:
+            result = server.post('git', action, params=request.form)
+            return result
+
+        except requests.exceptions.ConnectionError as e:
+            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+
+        except Exception as e:
+            return str(e), 400
+
+
+@bp.route('/volume/<int:server_id>/<verb>/', methods=['GET', 'POST'])
 @login_required
 def route_volume(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)

@@ -7,6 +7,7 @@ import tempfile
 import time
 from functools import wraps
 from io import BytesIO
+from typing import Any, Callable
 
 import docker
 from flask import Flask, jsonify, request, current_app, send_file, abort
@@ -17,7 +18,7 @@ dc = docker.from_env()
 cleanup = {}
 
 
-def request_arg(arg_name, arg_type=str, arg_default=None):
+def request_arg(arg_name:str, arg_type:Any=str, arg_default=None)->Callable:
     """
     decorator to auto convert arg or form fields to
     named method parameters with the correct type
@@ -33,7 +34,7 @@ def request_arg(arg_name, arg_type=str, arg_default=None):
         # yoyoyoyoyoyoyoyoyoyo
 
     :param arg_name str: name of the form field or arg
-    :param arg_type lambda: (optional) the type to convert to
+    :param arg_type str: (optional) the type to convert to
     :param arg_default any: (optional) a default value.  Use '' or 0 when allowing optional fields
     :return: a decorator
     """
@@ -62,7 +63,7 @@ def request_arg(arg_name, arg_type=str, arg_default=None):
     return decorator
 
 
-def d_serialize(item, attributes=[]):
+def d_serialize(item, attributes=None):
     """
     convert the given attributes for the item into a dict
     so they can be serialized back to the caller
@@ -80,6 +81,13 @@ def d_serialize(item, attributes=[]):
             value = str(value)
         d[a] = value
     return d
+
+
+def local_run(cmd):
+    result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE)
+    if result.returncode != 0:
+        current_app.logger.warning(result)
+    return result.stdout.decode('utf-8')
 
 
 def exec_run(container, cmd, shell=False):
@@ -142,6 +150,35 @@ def get_directory(container, args):
                 entry['linked_file_name'] = linked_file_name
             entries.append(entry)
     return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
+
+
+@app.route('/git/<action>/', methods=['GET', 'POST'])
+@request_arg('working_dir', str)
+def route_git(action, working_dir):
+    current_app.logger.info(f'route_git {request.method} {action}')
+    try:
+        if request.method == 'GET':
+            if action == 'status':
+                cmd = f"""cd {working_dir} && git status"""
+                output = local_run(cmd)
+
+                return dict(result=output)
+            if action == 'pwd':
+                cmd = f"""pwd"""
+                output = local_run(cmd)
+
+                return dict(result=output)
+        if request.method == 'POST':
+            if action in ['fetch', 'pull', 'log']:
+                cmd = f"""cd {working_dir} && git {action}"""
+                output = local_run(cmd)
+                return output
+
+    except Exception as e:
+        current_app.logger.exception(e)
+        return f'{e}', 400
+
+    return f'unknown operation', 400
 
 
 @app.route('/container/<action>', methods=['GET', 'POST'])

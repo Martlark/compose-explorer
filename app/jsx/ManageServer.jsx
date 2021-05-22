@@ -20,7 +20,8 @@ export default function ManageServer(props) {
     }
 
     function getServer() {
-        return context.api.json(`/server/${server_id}/`).then(item => {
+        return context.api.json(`/server/${server_id}/`
+        ).then(item => {
                 setServer(item);
             }
         ).fail((xhr, textStatus, errorThrown) =>
