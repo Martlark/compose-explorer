@@ -1,5 +1,6 @@
 import mimetypes
 import os
+import logging
 
 from flask import Flask, request, flash, redirect, session, g
 from flask_admin import Admin
@@ -10,6 +11,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
 from app.custom_tags import ImportJs
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=os.getenv('LOG_LEVL', 'DEBUG'))
 
 db = SQLAlchemy()
 admin = Admin(name='docker-explorer', template_mode='bootstrap3')

@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import shutil
 import subprocess
@@ -11,14 +12,26 @@ from typing import Any, Callable
 
 import docker
 from flask import Flask, jsonify, request, current_app, send_file, abort
+from flask_httpauth import HTTPTokenAuth
+
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
 app = Flask(__name__)
 # https://docker-py.readthedocs.io/en/stable/
 dc = docker.from_env()
 cleanup = {}
+auth = HTTPTokenAuth(scheme='Bearer')
+tokens = {os.getenv('AUTH_TOKEN', 'debug'): "AUTH_TOKEN"}
 
 
-def request_arg(arg_name:str, arg_type:Any=str, arg_default=None)->Callable:
+@auth.verify_token
+def verify_token(token):
+    logging.info(f"""verify_token({token})""")
+    if token in tokens:
+        return tokens.get(token)
+
+
+def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callable:
     """
     decorator to auto convert arg or form fields to
     named method parameters with the correct type
@@ -84,6 +97,7 @@ def d_serialize(item, attributes=None):
 
 
 def local_run(cmd):
+    logging.info(cmd)
     result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if result.returncode != 0:
         current_app.logger.warning(result)
@@ -152,27 +166,31 @@ def get_directory(container, args):
     return {'pwd': pwd, 'total': total, 'entries': entries, 'path': path, 'parent': parent}
 
 
-@app.route('/git/<action>/', methods=['GET', 'POST'])
+@app.route('/action/<service>/<action>/', methods=['POST'])
+@auth.login_required
 @request_arg('working_dir', str)
-def route_git(action, working_dir):
-    current_app.logger.info(f'route_git {request.method} {action}')
+def route_action(service, action, working_dir):
+    current_app.logger.info(f'route_action {service} {action}')
+    cmd = ''
+    params = ''
     try:
-        if request.method == 'GET':
-            if action == 'status':
-                cmd = f"""cd {working_dir} && git status"""
-                output = local_run(cmd)
+        if service == 'git':
+            if action in ['status', 'fetch', 'pull', 'log']:
+                if action == 'log':
+                    params = '-n 10'
+                cmd = f"""cd {working_dir} && git {action} {params}"""
 
-                return dict(result=output)
-            if action == 'pwd':
-                cmd = f"""pwd"""
-                output = local_run(cmd)
+        if service == 'compose':
+            if action in ['ps', 'build', 'up', 'stop', 'logs', 'restart']:
+                if action == 'up':
+                    params = '-d'
+                if action == 'logs':
+                    params = '--tail=20 --no-color'
+                cmd = f"""cd {working_dir} && docker-compose {action} {params}"""
 
-                return dict(result=output)
-        if request.method == 'POST':
-            if action in ['fetch', 'pull', 'log']:
-                cmd = f"""cd {working_dir} && git {action}"""
-                output = local_run(cmd)
-                return output
+        if cmd:
+            output = local_run(cmd)
+            return output
 
     except Exception as e:
         current_app.logger.exception(e)
@@ -182,6 +200,7 @@ def route_git(action, working_dir):
 
 
 @app.route('/container/<action>', methods=['GET', 'POST'])
+@auth.login_required
 @request_arg('name', str, '')
 @request_arg('sleep_seconds', int, 10)
 @request_arg('tail', int, 100)
@@ -326,37 +345,11 @@ def cleanup_tmp():
 
 
 @app.route('/volume/<param>')
+@auth.login_required
 def route_volume(param):
     if param == 'list':
         return jsonify([d_serialize(d, ['attrs']) for d in dc.volumes.list()])
     return 'not supported', 400
-
-
-@app.route('/compose/<action>/', methods=['GET', 'POST'])
-@request_arg('working_dir', str)
-def route_compose(action, working_dir):
-    current_app.logger.info(f'route_compose {request.method} {action}')
-    try:
-        if request.method == 'GET':
-            if action == 'ps':
-                cmd = f"""cd {working_dir} && docker-compose {action}"""
-                output = local_run(cmd)
-
-                return dict(result=output)
-        if request.method == 'POST':
-            if action in ['ps', 'build', 'up', 'log', 'restart']:
-                params = ''
-                if action == 'up':
-                    params = '-d'
-                cmd = f"""cd {working_dir} && docker-compose {action} {params}"""
-                output = local_run(cmd)
-                return output
-
-    except Exception as e:
-        current_app.logger.exception(e)
-        return f'{e}', 400
-
-    return f'unknown operation', 400
 
 
 if __name__ == '__main__':

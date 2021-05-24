@@ -119,8 +119,9 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         :return:
         """
         # call the remote agent
+        headers = {"Authorization": f"Bearer {self.credentials}"}
         r = requests.get(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
-                         auth=('explorer', self.credentials), params=params)
+                         params=params, headers=headers)
         if r.ok:
             return r.json()
         raise Exception(r.text)
@@ -135,8 +136,9 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         :return:
         """
         # call the remote agent
+        headers = {"authorization": f"Bearer {self.credentials}"}
         r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/',
-                          auth=('explorer', self.credentials), data=params)
+                          data=params, headers=headers)
         if r.ok:
             try:
                 return r.json()
@@ -147,15 +149,13 @@ class DockerServer(db.Model, FlaskSerializeMixin):
 
     def get_summary(self):
         # call the remote agent
-        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/list',
-                         auth=('explorer', self.credentials), timeout=1.50)
+        r = self.get('container', 'list')
         summary = dict(containers=0, volumes=0, error='', date='')
-        for c in r.json():
+        for c in r:
             summary['containers'] += 1
         # call the remote agent
-        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/container/date',
-                         auth=('explorer', self.credentials), timeout=1.50)
-        summary['date'] = r.json().get('date')
+        r = self.get('container', 'date')
+        summary['date'] = r.get('date')
         return summary
 
     def verify(self, create=False):

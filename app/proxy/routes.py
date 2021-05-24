@@ -1,8 +1,8 @@
 # routes.py
 # routes for calling docker proxy
+import requests
 from flask import request, jsonify
 from flask_login import login_required
-import requests
 
 from app.models import DockerServer
 from app.proxy import bp
@@ -87,61 +87,23 @@ def route_projects(server_id):
             return str(e), 400
 
 
-@bp.route('/git/<int:server_id>/', methods=['GET'])
-@bp.route('/git/<int:server_id>/<action>/', methods=['POST'])
+@bp.route('/agent/<service>/<int:server_id>/<action>/', methods=['POST'])
 @login_required
-def route_git(server_id, action=None):
+def route_agent_service(service, server_id, action=None):
     server = DockerServer.query.get(int(server_id))
 
-    if request.method == 'GET':
-        try:
-            result = server.get('git', 'status', params=request.args)
+    try:
+        if request.method == 'POST':
+            result = server.post(f"action/{service}", action, params=request.form)
             return result
 
-        except requests.exceptions.ConnectionError as e:
-            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
+    except requests.exceptions.ConnectionError as e:
+        return f'Remote agent at {server.name} on port {server.port} is not responding', 400
 
-        except Exception as e:
-            return str(e), 400
+    except Exception as e:
+        return str(e), 400
 
-    if request.method == 'POST':
-        try:
-            result = server.post('git', action, params=request.form)
-            return result
-
-        except requests.exceptions.ConnectionError as e:
-            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
-
-        except Exception as e:
-            return str(e), 400
-
-
-@bp.route('/compose/<int:server_id>/<action>/', methods=['GET', 'POST'])
-@login_required
-def route_compose(server_id, action=None):
-    server = DockerServer.query.get(int(server_id))
-
-    if request.method == 'GET':
-        try:
-            result = server.get('compose', 'ps', params=request.args)
-            return result
-
-        except requests.exceptions.ConnectionError as e:
-            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
-
-        except Exception as e:
-            return str(e), 400
-
-    if request.method == 'POST':
-        try:
-            result = server.post('compose', action, params=request.form)
-            return result
-
-        except requests.exceptions.ConnectionError as e:
-            return f'Remote agent at {server.name} on port {server.port} is not responding', 400
-
-        except Exception as e:
-            return str(e), 400
+    return 'unknown service', 400
 
 
 @bp.route('/volume/<int:server_id>/<verb>/', methods=['GET', 'POST'])

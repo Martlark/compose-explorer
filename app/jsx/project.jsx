@@ -4,8 +4,7 @@ import {AppContext} from "./context";
 import {Link} from "react-router-dom";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
-import {GitService} from "./GitService";
-import {ComposeService} from "./ComposeService";
+import {AgentActionService} from "./AgentActionService";
 
 export default function Project(props) {
     const [server_id, setServer_id] = useState(props.server_id);
@@ -68,13 +67,17 @@ export default function Project(props) {
                         </tbody>
                     </table>
                 </TabPanel>
-                <TabPanel><GitService key={server_id}
-                                      working_dir={working_dir}
-                                      server_id={server_id}
+                <TabPanel><AgentActionService key={server_id}
+                                              working_dir={working_dir}
+                                              server_id={server_id}
+                                              service={'git'}
+                                              actions={['status', 'pull', 'fetch', 'log']}
                 /></TabPanel>
-                <TabPanel><ComposeService key={server_id}
-                                      working_dir={working_dir}
-                                      server_id={server_id}
+                <TabPanel><AgentActionService key={server_id}
+                                              working_dir={working_dir}
+                                              server_id={server_id}
+                                              service={'compose'}
+                                              actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
                 /></TabPanel>
             </Tabs>
         </div>)
