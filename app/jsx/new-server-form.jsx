@@ -38,7 +38,7 @@ export function NewServerForm(props) {
     return (<div>
             <form onSubmit={handleSubmit}>
                 <div className={"form-group"}>
-                    <label htmlFor="name">Name</label>
+                    <label htmlFor="name">Agent server</label>
                     <input autoFocus={true}
                            required={true}
                            id="name"
@@ -53,6 +53,15 @@ export function NewServerForm(props) {
                         required={true}
                         id="port"
                         name="port"
+                        className={"form-control"}
+                    />
+                </div>
+                <div className={"form-group"}>
+                    <label htmlFor="port">Credentials</label>
+                    <input
+                        required={true}
+                        id="credentials"
+                        name="credentials"
                         className={"form-control"}
                     />
                 </div>

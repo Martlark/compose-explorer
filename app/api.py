@@ -81,8 +81,8 @@ def api_server_summary(server_id):
 @bp.route('/server_test_connection/', methods=['GET'])
 @request_arg('name')
 @request_arg('port')
-@request_arg('protocol', arg_default='http')
 @request_arg('credentials', arg_default='')
+@request_arg('protocol', arg_default='http')
 @login_required
-def api_server_test_connection(name, port, protocol, credentials):
-    return DockerServer.test_connection(name, port, protocol, credentials)
+def api_server_test_connection(name, port, credentials, protocol):
+    return DockerServer.test_connection(name, port, credentials, protocol)

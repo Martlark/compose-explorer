@@ -137,15 +137,16 @@ export class ServerService {
         });
     }
 
-    testConnection(name, port) {
-        return this.api.json('/server_test_connection/', {name, port});
+    testConnection(name, port, credentials) {
+        return this.api.json('/server_test_connection/', {name, port, credentials});
     }
 
-    create(evt, name, port) {
+    create(evt, name, port, credentials) {
         const formData = new FormData(evt?.target);
         evt?.preventDefault();
 
         return this.api.post('/server/', {
+            credentials: credentials ?? formData.get('credentials'),
             name: name ?? formData.get('name'),
             port: port ?? formData.get('port')
         }).then(result => this.item = result
