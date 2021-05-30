@@ -1,8 +1,10 @@
 # views.py
 import os
 import random
+from functools import wraps
+from typing import Any, Callable
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory, flash
+from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, abort, Response
 from flask_login import logout_user, login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
@@ -10,6 +12,51 @@ from app.models import User, Setting, DockerServer, Command
 from config import STATIC_DIR
 
 bp = Blueprint('main', __name__)
+
+
+def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callable:
+    """
+    decorator to auto convert arg or form fields to
+    named method parameters with the correct type
+    conversion
+
+        @route('/something/<greeting>/')
+        @request_arg('repeat', int, 1)
+        def route_something(greeting='', repeat):
+            return greeting * repeat
+
+        # /something/yo/?repeat=10
+
+        # yoyoyoyoyoyoyoyoyoyo
+
+    :param arg_name: name of the form field or arg
+    :param arg_type: (optional) the type to convert to
+    :param arg_default: (optional) a default value.  Use '' or 0 when allowing optional fields
+    :return: a decorator
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            form_value = request.form.get(arg_name)
+            arg_value = request.args.get(arg_name)
+            if form_value:
+                arg_value = form_value
+            if not arg_value:
+                arg_value = arg_default
+            if arg_value is not None:
+                try:
+                    arg_value = arg_type(arg_value)
+                except Exception as e:
+                    abort(Response(f"""Required argument failed type conversion: {arg_name}, {str(e)}""", status=400))
+
+                kwargs[arg_name] = arg_value
+                return f(*args, **kwargs)
+            abort(Response(f"""Required argument missing: {arg_name}""", status=400))
+
+        return decorated
+
+    return decorator
 
 
 def admin_views(admin, db):
@@ -99,6 +146,8 @@ def last_static_update():
 
 @bp.route('/command/<int:item_id>/', methods=['GET', 'PUT', 'DELETE'])
 @bp.route('/command/', methods=['GET', 'POST'])
+@request_arg('container_name', arg_default='')
 @login_required
-def route_command(item_id=None):
-    return Command.get_delete_put_post(item_id, user=current_user)
+def route_command(item_id=None, container_name=None):
+    return Command.get_delete_put_post(item_id, user=current_user,
+                                       prop_filters={'container_name': container_name})

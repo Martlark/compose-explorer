@@ -39,7 +39,7 @@ function ExecEntry(props) {
 export default function Execute(props)
 {
     const id = props.id;
-    const name = props.name;
+    const name = props.name;  // container name
     const [executing, setExecuting] = useState(false);
     const [command, setCommand] = useState('');
     const [commandEntries, setCommandEntries] = useState([]);
@@ -48,10 +48,10 @@ export default function Execute(props)
 
     useEffect(() => {
         getCommandEntries();
-    }, [props]);
+    }, [props.id]);
 
     function getCommandEntries() {
-        context.api.command(
+        context.api.command('GET', {container_name: props.name}
         ).then(result =>
             setCommandEntries(result)
         ).fail((xhr, textStatus, errorThrown) =>
@@ -71,6 +71,7 @@ export default function Execute(props)
                 return context.api.command('POST', {
                     result: cmd_result,
                     cmd: cmd,
+                    container_name: name,
                 }).then(result => {
                     commandEntries.unshift(result);
                     setCommandEntries(commandEntries.slice(0));

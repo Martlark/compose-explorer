@@ -59,7 +59,7 @@ export default function LogContent(props) {
             }
         }, 10000);
         getLogs();
-    }, [props]);
+    }, [props.id]);
 
     function clickRefresh(evt) {
         getLogs();

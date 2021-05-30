@@ -73,7 +73,7 @@ class Command(db.Model, FlaskSerializeMixin):
 
     # fs fields
 
-    create_fields = ['cmd', 'result']
+    create_fields = ['cmd', 'result', 'container_name']
     order_by_field_desc = 'created'
 
     def verify(self, create=False):

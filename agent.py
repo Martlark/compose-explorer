@@ -46,9 +46,9 @@ def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callabl
 
         # yoyoyoyoyoyoyoyoyoyo
 
-    :param arg_name str: name of the form field or arg
-    :param arg_type str: (optional) the type to convert to
-    :param arg_default any: (optional) a default value.  Use '' or 0 when allowing optional fields
+    :param arg_name: name of the form field or arg
+    :param arg_type: (optional) the type to convert to
+    :param arg_default: (optional) a default value.  Use '' or 0 when allowing optional fields
     :return: a decorator
     """
 
