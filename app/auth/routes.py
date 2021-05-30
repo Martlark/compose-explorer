@@ -58,4 +58,4 @@ def logout():
 def is_logged_in():
     if current_user and current_user.is_authenticated:
         return 'ok'
-    return url_for('logoutb')
+    return url_for('logout')

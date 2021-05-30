@@ -7,15 +7,26 @@ function ExecEntry(props) {
         props.setCommand(props.entry.cmd);
     }
 
+    function renderActions() {
+        const actionRemove = <a href={'javascript:'} title={'Remove from history'}
+               onClick={evt => props.clickExecDelete(evt, props.entry.id)}><span
+                className="material-icons">delete_forever</span></a>;
+
+        if (props.status !== 'running'){
+            return actionRemove;
+        }
+
+        return <><a href={'javascript:'} title={'Re-run command'}
+                    onClick={evt => props.clickExec(evt, props.entry.cmd)}><span
+            className="material-icons">directions_run</span></a>
+            {actionRemove}
+            </>
+    }
+
     return (
         <tr key={props.id}>
             <td className={"w-25"}>
-                <a href={'javascript:'} title={'Re-run command'}
-                   onClick={evt => props.clickExec(evt, props.entry.cmd)}><span
-                    className="material-icons">directions_run</span></a>
-                <a href={'javascript:'} title={'Remove from history'}
-                   onClick={evt => props.clickExecDelete(evt, props.entry.id)}><span
-                    className="material-icons">delete_forever</span></a>
+                {renderActions()}
             </td>
             <td className={"w-25"}><a href={'javascript:'} title={'Edit command string'}
                                       onClick={evt => clickCmd(evt)}>{props.entry.cmd}</a></td>
@@ -25,7 +36,8 @@ function ExecEntry(props) {
         </tr>)
 }
 
-export default function Execute(props) {
+export default function Execute(props)
+{
     const id = props.id;
     const name = props.name;
     const [executing, setExecuting] = useState(false);
@@ -51,7 +63,7 @@ export default function Execute(props) {
         const cmd = p_command || command;
         setExecuting(true);
         setCommand(cmd);
-        return context.api.proxyPost(`/container/${id}/exec_run`, {
+        return context.api.proxyPost(`/container/${id}/exec_run/`, {
                 name: name,
                 cmd: cmd,
             }
@@ -93,9 +105,14 @@ export default function Execute(props) {
         }
     }
 
-    function renderExecuting() {
+    function renderExecutingHeader() {
         if (executing) {
-            return (<div>running {command} <progress /></div>)
+            return (<div>running {command}
+                <progress/>
+            </div>)
+        }
+        if (props.status !== 'running') {
+            return (<h4>Container is not running</h4>)
         }
         return (<div><input
                 defaultValue={command}
@@ -109,12 +126,13 @@ export default function Execute(props) {
     }
 
     return <div>
+        {renderExecutingHeader()}
         <table className={"table"}>
             <tbody>
-            {renderExecuting()}
             {commandEntries.map(result => <ExecEntry keycmd={result.cmd} clickExec={clickExec}
                                                      clickExecDelete={clickExecDelete}
                                                      setCommand={setCommand}
+                                                     status={props.status}
                                                      entry={result}/>)}
             </tbody>
         </table>

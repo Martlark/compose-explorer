@@ -199,7 +199,7 @@ def route_action(service, action, working_dir):
     return f'unknown operation', 400
 
 
-@app.route('/container/<action>', methods=['GET', 'POST'])
+@app.route('/container/<action>/', methods=['GET', 'POST'])
 @auth.login_required
 @request_arg('name', str, '')
 @request_arg('sleep_seconds', int, 10)
@@ -344,7 +344,7 @@ def cleanup_tmp():
             current_app.logger.exception(e)
 
 
-@app.route('/volume/<param>')
+@app.route('/volume/<param>/')
 @auth.login_required
 def route_volume(param):
     if param == 'list':

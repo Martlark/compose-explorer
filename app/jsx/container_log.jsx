@@ -29,7 +29,7 @@ export default function LogContent(props) {
     const context = useContext(AppContext);
 
     function getLogs() {
-        return context.api.proxyGet(`/container/${id}/logs`, {name,tail}
+        return context.api.proxyGet(`/container/${id}/logs/`, {name,tail}
         ).then(result => {
                 if (previousLogHash !== result.hash) {
                     const items = [];

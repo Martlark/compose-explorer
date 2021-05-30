@@ -75,7 +75,7 @@ export default function Directory(props) {
 
         const selected = directoryEntries.filter(dir => dir.selected);
 
-        return context.api.proxyPost(`/container/${id}/exec_run`, {
+        return context.api.proxyPost(`/container/${id}/exec_run/`, {
                 name: name,
                 cmd: `(cd ${directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
             }
@@ -97,7 +97,7 @@ export default function Directory(props) {
         const selected = directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
         selected.forEach(dir => {
             const filename = join(directoryPath, dir.linked_file_name || dir.file_name)
-            return context.api.proxyPost(`/container/${id}/download`, {
+            return context.api.proxyPost(`/container/${id}/download/`, {
                     name: name,
                     filename,
                 }
@@ -133,7 +133,7 @@ export default function Directory(props) {
 
     function getDirectory(pwd) {
         setDirectoryGetting(true);
-        return context.api.proxyGet(`/container/${id}/ls`, {name: name, pwd: pwd}
+        return context.api.proxyGet(`/container/${id}/ls/`, {name: name, pwd: pwd}
         ).then(result => {
                 setPwd(result.pwd);
                 setDirectoryPath(result.path);

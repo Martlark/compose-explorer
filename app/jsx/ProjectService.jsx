@@ -39,7 +39,7 @@ export function ProjectService(props) {
     const clickAction = (evt, action) => {
         evt.preventDefault();
         setActioning(action.action);
-        return context.api.proxyPost(`/container/${props.server_id}/${action.action}`, {
+        return context.api.proxyPost(`/container/${props.server_id}/${action.action}/`, {
                 name: props.name,
             }
         ).then(result => {

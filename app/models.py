@@ -66,6 +66,7 @@ class Command(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)
     cmd = db.Column(db.String(4000))
     result = db.Column(db.String(4000))
+    container_name = db.Column(db.String(4000))
     created = db.Column(db.DateTime, default=datetime.utcnow)
     updated = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('app_user.id'))
@@ -220,11 +221,12 @@ class Setting(db.Model, FlaskSerializeMixin):
 
 
 # Create a user to test with
-def create_admin_user(app, admin_password=None):
+def create_admin_user(app, admin_password:str=None):
     """
     Create or fix the ADMIN_USER
 
     :param app:
+    :param admin_password:
     :return:
     """
     admin_email = os.environ.get('ADMIN_USER', 'admin@admin.com')

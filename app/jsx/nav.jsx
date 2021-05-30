@@ -13,7 +13,7 @@ export const Nav = (props) => {
         const current_id = match && match.params && match.params.id || 0;
         if (server_id !== current_id) {
             setServer_id(current_id)
-            context.api.json(`/server/${current_id}`).then(result => {
+            context.api.json(`/server/${current_id}/`).then(result => {
                 if (result) {
                     context.setServerName(result.name);
                     context.setServerId(current_id);

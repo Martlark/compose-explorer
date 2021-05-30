@@ -37,10 +37,6 @@ export default function ManageContainer(props) {
         );
     }
 
-    function renderMessage() {
-        return <TempMessage message={message}/>
-    }
-
     function clickAction(evt, action) {
         evt.preventDefault();
         setActioning(action);
@@ -60,7 +56,7 @@ export default function ManageContainer(props) {
     function clickDownloadLogs() {
         const filename = 'logs.txt';
 
-        return context.api.proxyPost(`/proxy/container/${id}/logs`, {
+        return context.api.proxyPost(`/proxy/container/${id}/logs/`, {
                 name: name,
                 filename,
             }
@@ -109,7 +105,7 @@ export default function ManageContainer(props) {
 
     function renderExecute() {
         return <Collapsible trigger="Execute">
-            <Execute id={id} name={name}/>
+            <Execute id={id} name={name} status={status}/>
         </Collapsible>
     }
 
@@ -146,7 +142,7 @@ export default function ManageContainer(props) {
     return (
         <div>
             {renderStatus()}
-            {renderMessage()}
+            <TempMessage message={message}/>
             {renderActions()}
             {renderExecute()}
             {renderDirectory()}

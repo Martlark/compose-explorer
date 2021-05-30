@@ -11,7 +11,7 @@ export default function Home(props) {
     const context = useContext(AppContext);
 
     const getItems = () => {
-        return context.api.json('/servers', {_: new Date().getTime()}).then(items => {
+        return context.api.json('/servers/', {_: new Date().getTime()}).then(items => {
                 if (!items || items.length < 1) {
                     setServers([]);
                     setNewServer(true);

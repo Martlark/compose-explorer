@@ -17,7 +17,7 @@ export default function Project(props) {
     function getServices() {
         setServer_id(props.match.params.id);
         setProject(props.match.params.project);
-        context.api.proxyGet(`/project/${props.match.params.id}/${props.match.params.project}`
+        context.api.proxyGet(`/project/${props.match.params.id}/${props.match.params.project}/`
         ).then(result => {
                 setServices(result);
                 if (result.length > 0) {

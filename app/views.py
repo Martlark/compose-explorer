@@ -31,8 +31,8 @@ def page_index():
     return render_template('index.html', page_title='Docker Explorer')
 
 
-@bp.route('/server/<int:server_id>')
-@bp.route('/server/<int:server_id>/<path:path>')
+@bp.route('/server/<int:server_id>/')
+@bp.route('/server/<int:server_id>/<path:path>/')
 @login_required
 def page_server(server_id, path=None):
     return render_template('index.html', server_id=server_id)
@@ -97,8 +97,8 @@ def last_static_update():
     return dict(max_age=max_age, rand_check_number=rand_check_number)
 
 
-@bp.route('/command/<int:item_id>', methods=['GET', 'PUT', 'DELETE'])
-@bp.route('/command', methods=['GET', 'POST'])
+@bp.route('/command/<int:item_id>/', methods=['GET', 'PUT', 'DELETE'])
+@bp.route('/command/', methods=['GET', 'POST'])
 @login_required
 def route_command(item_id=None):
     return Command.get_delete_put_post(item_id, user=current_user)

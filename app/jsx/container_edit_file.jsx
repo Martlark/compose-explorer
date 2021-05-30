@@ -34,7 +34,7 @@ export default function FileEdit(props) {
     }, [props]);
 
     function getContent() {
-        return context.api.proxyPost(`/container/${id}/download`, {
+        return context.api.proxyPost(`/container/${id}/download/`, {
                 name: name,
                 filename: file_name,
             }
@@ -59,7 +59,7 @@ export default function FileEdit(props) {
     }
 
     function clickSave(evt) {
-        return context.api.proxyPost(`/container/${id}/upload`, {
+        return context.api.proxyPost(`/container/${id}/upload/`, {
                 name: name,
                 filename: file_name,
                 content: editorState.getCurrentContent().getPlainText(),

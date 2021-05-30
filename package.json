@@ -13,6 +13,7 @@
     "informed": "^2.11.9",
     "lodash": "^4.17.20",
     "material-table": "^1.51.0",
+    "proper-url-join": "^2.1.1",
     "react": "^16.13.1",
     "react-collapsible": "^2.8.0",
     "react-confirm-alert": "^2.7.0",
