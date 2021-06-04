@@ -1,42 +1,41 @@
 # routes.py
+import os
 
-from flask import render_template, redirect, url_for, flash, current_app
+from flask import redirect, url_for, flash, current_app, Response, g
 from flask_login import login_user, current_user, logout_user
 
 from app.auth import bp
-from app.auth.forms import LoginForm
 from app.models import User, create_admin_user
+from app.request_arg.request_arg import request_arg
 
 
-@bp.route('/login', methods=['GET', 'POST'])
-def login():
+@bp.post('/login/')
+@request_arg('email', arg_default=None)
+@request_arg('password', arg_default=None)
+def login(email=None, password=None):
+    """
+    api to login
+
+    """
     if current_user.is_authenticated:
-        return redirect(url_for('main.public_index'))
-    form = LoginForm()
-    if form.validate_on_submit():
-        create_admin_user(current_app, admin_password=form.password.data)
-        message = 'Invalid email or password'
-        user = User.query.filter_by(email=form.email.data).first()
-        if user is None:
-            flash(message, category='danger')
-            return redirect(url_for('auth.login'))
-        else:
-            if user.check_password(form.password.data):
-                message = None
+        return Response(g.d, 200)
 
-            if message:
-                flash(message, category='danger')
-                return redirect(url_for('auth.login'))
+    admin_password = password
+    if email ==  os.getenv('ADMIN_USER', 'admin@admin.com'):
+        create_admin_user(current_app, admin_password=admin_password)
+    message = 'Invalid email or password'
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return Response(message, 403)
+    else:
+        if user.check_password(password):
+            message = None
 
-        login_user(user, remember=True)
-        flash('Welcome!')
-        next_page = url_for('main.page_index')
-        return redirect(next_page)
+        if message:
+            return Response(message, 403)
 
-    if form.errors:
-        flash(''.join([f'{form[f].label.text}: {"".join(e)} ' for f, e in form.errors.items()]), category='danger')
-
-    return render_template('auth/login.html', title='Sign In', form=form)
+    login_user(user, remember=True)
+    return Response(g.d, 200)
 
 
 @bp.route('/signup')
@@ -44,18 +43,17 @@ def signup():
     return 'not implemented'
 
 
-@bp.route('/logout')
+@bp.post('/logout/')
 def logout():
     if current_user.is_anonymous:
-        flash('Not logged in')
+        return Response('not logged in', 400)
     else:
-        flash('Logged out')
         logout_user()
-    return redirect(url_for('main.page_index'))
+    return Response(g.d, 200)
 
 
 @bp.route('/is_logged_in/')
 def is_logged_in():
     if current_user and current_user.is_authenticated:
         return 'ok'
-    return url_for('logout')
+    return 'no'

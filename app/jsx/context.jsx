@@ -25,36 +25,51 @@ export const ContextMessage = ({message}) => {
     return (message && <h3 className={"alert alert-info"}>{message}</h3>)
 }
 
-class ApiBase{
 
-    urlJoin(base, url) {
-        let fullPath = `${base}/${url}/`;
-        fullPath = fullPath.replaceAll('//', '/');
-        fullPath = fullPath.replaceAll(/[ps]:\//g, '://');
-        return fullPath;
+class ApiBase {
+    constructor() {
+
+        this.api = new ApiService();
+
     }
+
+    /**
+     * join all urls given as parameters with a / so that
+     * it ends up with a leading and trailing slash
+     * @type {string}
+     */
+
 
 }
 
-export class ApiService extends ApiBase{
+function urlJoin(...urls) {
+    let fullPath = `/${urls.join('/')}/`;
+    fullPath = fullPath.replaceAll('//', '/');
+    fullPath = fullPath.replace(/[ps]:\//, '://');
+    return fullPath;
+}
+
+export class ApiService {
     constructor(props) {
-        super();
         this.csrf_token = $("input[name=base-csrf_token]").val();
         this.prefix_api = `/api`;
-        this.prefix_command = `/command`;
+    }
+
+    setPrefix(newPrefix) {
+        this.prefix_api = newPrefix;
     }
 
     container(id, name) {
-        return this.proxyGet(`/container/${id}/get/`, {name})
+        return this.proxyGet(urlJoin(`container`, id, 'get'), {name})
     }
 
     json(url, params) {
-        return $.getJSON(this.urlJoin(this.prefix_api, url), params)
+        return $.getJSON(urlJoin(this.prefix_api, url), params)
     }
 
     put(url, data) {
         data.csrf_token = this.csrf_token;
-        const urlPath = this.urlJoin(this.prefix_api, url);
+        const urlPath = urlJoin(this.prefix_api, url);
         return $.ajax({
             url: urlPath,
             type: 'PUT',
@@ -62,13 +77,13 @@ export class ApiService extends ApiBase{
         });
     }
 
-    post(url, data) {
+    post(url, data={}) {
         data.csrf_token = this.csrf_token;
-        return $.post(this.urlJoin(this.prefix_api, url), data);
+        return $.post(urlJoin(this.prefix_api, url), data);
     }
 
     delete(url) {
-        const urlPath = this.urlJoin(this.prefix_api, url);
+        const urlPath = urlJoin(this.prefix_api, url);
         return $.ajax({
             url: urlPath,
             type: 'DELETE',
@@ -87,25 +102,26 @@ export class ApiService extends ApiBase{
                 return $.put(url, data);
             case "DELETE":
                 return $.ajax({
-                    url: this.urlJoin(url, data),
+                    url: urlJoin(url, data),
                     type: 'DELETE',
                     data: {csrf_token: this.csrf_token}
                 });
         }
+        // default is get
         return $.getJSON(url, data);
     }
 
     proxyGet(url, params) {
-        return $.getJSON(this.urlJoin(`/proxy`, url), params)
+        return $.getJSON(urlJoin(`proxy`, url), params)
     }
 
     proxyPost(url, data) {
         data.csrf_token = this.csrf_token;
-        return $.post(this.urlJoin('/proxy', url), data);
+        return $.post(urlJoin('proxy', url), data);
     }
 
     projects(server_id) {
-        return this.proxyGet(this.urlJoin(`/projects/`, server_id)
+        return this.proxyGet(urlJoin(`projects`, server_id)
         ).then(result => {
                 return result.map(data => {
                     data.server_id = server_id;
@@ -116,19 +132,18 @@ export class ApiService extends ApiBase{
     }
 }
 
-export class ServerService extends ApiBase{
+export class ServerService extends ApiBase {
     constructor(props) {
         super();
         this.item = props;
-        this.api = new ApiService();
     }
 
     delete() {
-        return this.api.delete(this.urlJoin(`/server/`,this.item.id));
+        return this.api.delete(urlJoin(`server`, this.item.id));
     }
 
     getSummary(setItem) {
-        return this.api.json(`/server_summary/${this.item.id}/`).then(response => {
+        return this.api.json(urlJoin('server_summary', this.item.id)).then(response => {
                 setItem({...this.item, summary: response});
             }
         )
@@ -138,7 +153,7 @@ export class ServerService extends ApiBase{
         evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.api.put(this.urlJoin(`/server/`, this.item.id), data).then(result => {
+        return this.api.put(urlJoin(`server`, this.item.id), data).then(result => {
             this.item = result.item;
             setItem(result.item);
         });
@@ -156,6 +171,53 @@ export class ServerService extends ApiBase{
             credentials: credentials ?? formData.get('credentials'),
             name: name ?? formData.get('name'),
             port: port ?? formData.get('port')
+        }).then(result => this.item = result
+        );
+    };
+}
+
+
+export class AuthService extends ApiBase {
+    constructor(props) {
+        super();
+        this.item = props;
+        this.api.setPrefix('auth')
+    }
+
+    login(evt) {
+        evt.preventDefault();
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.api.post(urlJoin('login'), data).then(result => {
+            {
+                console.log('login', result);
+                window.g = result;
+                return result;
+            }
+        });
+    }
+
+    logout() {
+        return this.api.post(urlJoin('logout'), {});
+    }
+
+    update(evt, setItem) {
+        evt.preventDefault();
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.api.put(urlJoin('user', this.item.id), data).then(result => {
+            this.item = result.item;
+            setItem(result.item);
+        });
+    }
+
+    create(evt, name, port, credentials) {
+        const formData = new FormData(evt?.target);
+        evt?.preventDefault();
+
+        return this.api.post(urlJoin('user'), {
+            email: email ?? formData.get('email'),
+            password: password ?? formData.get('password')
         }).then(result => this.item = result
         );
     };

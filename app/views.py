@@ -1,62 +1,16 @@
 # views.py
 import os
 import random
-from functools import wraps
-from typing import Any, Callable
 
-from flask import render_template, request, current_app, Blueprint, send_from_directory, flash, abort, Response
-from flask_login import logout_user, login_required, current_user
+from flask import render_template, request, current_app, Blueprint, send_from_directory
+from flask_login import login_required, current_user
 
 from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
 from app.models import User, Setting, DockerServer, Command
+from app.request_arg.request_arg import request_arg
 from config import STATIC_DIR
 
 bp = Blueprint('main', __name__)
-
-
-def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callable:
-    """
-    decorator to auto convert arg or form fields to
-    named method parameters with the correct type
-    conversion
-
-        @route('/something/<greeting>/')
-        @request_arg('repeat', int, 1)
-        def route_something(greeting='', repeat):
-            return greeting * repeat
-
-        # /something/yo/?repeat=10
-
-        # yoyoyoyoyoyoyoyoyoyo
-
-    :param arg_name: name of the form field or arg
-    :param arg_type: (optional) the type to convert to
-    :param arg_default: (optional) a default value.  Use '' or 0 when allowing optional fields
-    :return: a decorator
-    """
-
-    def decorator(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            form_value = request.form.get(arg_name)
-            arg_value = request.args.get(arg_name)
-            if form_value:
-                arg_value = form_value
-            if not arg_value:
-                arg_value = arg_default
-            if arg_value is not None:
-                try:
-                    arg_value = arg_type(arg_value)
-                except Exception as e:
-                    abort(Response(f"""Required argument failed type conversion: {arg_name}, {str(e)}""", status=400))
-
-                kwargs[arg_name] = arg_value
-                return f(*args, **kwargs)
-            abort(Response(f"""Required argument missing: {arg_name}""", status=400))
-
-        return decorated
-
-    return decorator
 
 
 def admin_views(admin, db):
@@ -73,8 +27,7 @@ def exception_handler(error):
 
 
 @bp.route('/')
-@login_required
-def page_index():
+def public_page_index():
     return render_template('index.html', page_title='Docker Explorer')
 
 
@@ -88,18 +41,6 @@ def page_server(server_id, path=None):
 @bp.route('/page/<page>')
 def page_page(page, title=''):
     return render_template(page, page_title=title)
-
-
-@bp.route('/login')
-def public_page_login():
-    return render_template("auth/login.html")
-
-
-@bp.route('/logout')
-def public_page_logout():
-    logout_user()
-    flash('You have been logged out')
-    return render_template("auth/logout.html")
 
 
 @bp.route('/favicon.ico')

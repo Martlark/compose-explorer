@@ -3,6 +3,7 @@ import {AppContext} from './context';
 import {NewServerForm} from './new-server-form'
 import * as PropTypes from "prop-types";
 import {ServerConfig} from "./ServerConfig";
+import {NavLink} from "react-router-dom";
 
 ServerConfig.propTypes = {item: PropTypes.any};
 export default function Home(props) {
@@ -11,6 +12,10 @@ export default function Home(props) {
     const context = useContext(AppContext);
 
     const getItems = () => {
+        if (window.g.anon) {
+            setServers([]);
+            return;
+        }
         return context.api.json('/servers/', {_: new Date().getTime()}).then(items => {
                 if (!items || items.length < 1) {
                     setServers([]);
@@ -41,6 +46,15 @@ export default function Home(props) {
         } else {
             return (<button className={"btn-primary btn-sm"} onClick={evt => clickAddServer()}>Add Server</button>)
         }
+    }
+
+    if (g.anon) {
+        return (
+            <div>
+                <h1>Authorization is required</h1>
+                <NavLink to={`/login/`}>Login</NavLink>
+
+            </div>)
     }
 
     return (<div>

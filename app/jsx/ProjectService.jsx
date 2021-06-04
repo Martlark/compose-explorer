@@ -20,7 +20,6 @@ export function ServiceStatus(props) {
             badgeClass = 'warning';
             break;
         default:
-            text = 'unknown'
             break;
     }
     return (<span className={`badge badge-${badgeClass}`}>{text}</span>)

@@ -68,6 +68,13 @@ def create_app():
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
+    @app.errorhandler(404)
+    def handle_404(e):
+        logging.warning(404, request.path)
+        if 'api' not in request.path:
+            return redirect('/')
+        return e
+
     from .models import User
 
     @login_manager.user_loader

@@ -221,7 +221,7 @@ class Setting(db.Model, FlaskSerializeMixin):
 
 
 # Create a user to test with
-def create_admin_user(app, admin_password:str=None):
+def create_admin_user(app, admin_password: str = None):
     """
     Create or fix the ADMIN_USER
 

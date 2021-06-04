@@ -6,13 +6,13 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from functools import wraps
 from io import BytesIO
-from typing import Any, Callable
 
 import docker
-from flask import Flask, jsonify, request, current_app, send_file, abort
+from flask import Flask, jsonify, request, current_app, send_file
 from flask_httpauth import HTTPTokenAuth
+
+from app.request_arg.request_arg import request_arg
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
@@ -29,51 +29,6 @@ def verify_token(token):
     logging.info(f"""verify_token({token})""")
     if token in tokens:
         return tokens.get(token)
-
-
-def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callable:
-    """
-    decorator to auto convert arg or form fields to
-    named method parameters with the correct type
-    conversion
-
-        @route('/something/<greeting>/')
-        @request_arg('repeat', int, 1)
-        def route_something(greeting='', repeat):
-            return greeting * repeat
-
-        # /something/yo/?repeat=10
-
-        # yoyoyoyoyoyoyoyoyoyo
-
-    :param arg_name: name of the form field or arg
-    :param arg_type: (optional) the type to convert to
-    :param arg_default: (optional) a default value.  Use '' or 0 when allowing optional fields
-    :return: a decorator
-    """
-
-    def decorator(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            form_value = request.form.get(arg_name)
-            arg_value = request.args.get(arg_name)
-            if form_value:
-                arg_value = form_value
-            if not arg_value:
-                arg_value = arg_default
-            if arg_value is not None:
-                try:
-                    arg_value = arg_type(arg_value)
-                except Exception as e:
-                    abort(400, f"""Required argument failed type conversion: {arg_name}, {str(e)}""")
-
-                kwargs[arg_name] = arg_value
-                return f(*args, **kwargs)
-            abort(400, f"""Required argument missing: {arg_name}""")
-
-        return decorated
-
-    return decorator
 
 
 def d_serialize(item, attributes=None):

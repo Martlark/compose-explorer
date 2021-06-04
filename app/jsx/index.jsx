@@ -4,12 +4,13 @@ import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {ApiService, AppContext, ContextErrorMessage, ContextMessage} from './context'
 
 import ManageServer from "./ManageServer"
-import ManageContainer from "./manageContainer"
+import ManageContainer from "./ManageContainer"
 import FileEdit from "./container_edit_file";
 import LogContent from "./container_log";
 import Home from "./home";
 import Project from "./project";
-import {Nav} from "./nav";
+import {Nav} from "./Nav";
+import {Login, Logout} from "./Login";
 
 
 export function AppProvider() {
@@ -47,6 +48,8 @@ export function AppProvider() {
                     <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
                     <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
                     <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
+                    <Route exact path="/login/" component={Login}/>
+                    <Route exact path="/logout/" component={Logout}/>
                 </Switch>
             </div>
         </Router>

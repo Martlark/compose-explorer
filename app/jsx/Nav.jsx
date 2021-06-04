@@ -11,7 +11,7 @@ export const Nav = (props) => {
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
-        if (server_id !== current_id) {
+        if (server_id !== current_id && !window.g.anon) {
             setServer_id(current_id)
             context.api.json(`/server/${current_id}/`).then(result => {
                 if (result) {
@@ -31,9 +31,9 @@ export const Nav = (props) => {
             <a id="dropdown1" className="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                aria-expanded="false" href="#">Admin</a>
             <div className="dropdown-menu" aria-labelledby="dropdown1">
-                {g.admin && <a className="dropdown-item" href="/admin">Flask Admin</a>}
-                {g.anon && <a className="dropdown-item" href="/login">Login</a>}
-                {!g.anon && <a className="dropdown-item" href="/logout">Logout</a>}
+                {window.g.admin && <a className="dropdown-item" href="/admin">Flask Admin</a>}
+                {window.g.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
+                {!window.g.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
             </div>
         </li>;
 
