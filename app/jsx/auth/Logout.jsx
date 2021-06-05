@@ -2,12 +2,12 @@ import React, {useContext, useState} from "react";
 import {useHistory} from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import {AppContext, AuthService} from "../context";
+import {AppContext, AuthService, ProfileService} from "../context";
 
 export function Logout(props) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const api = new AuthService(props);
+    const api = new ProfileService();
 
     const context = useContext(AppContext)
     const history = useHistory();

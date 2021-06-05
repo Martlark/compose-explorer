@@ -1,11 +1,13 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, AuthService} from '../context';
+import {AppContext, AuthService, urlJoin} from '../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 
 function User(props) {
     const context = useContext(AppContext);
     const [mode, setMode] = useState('view');
+    const [userType, setUserType] = useState(props.user.user_type);
+    const user_types = ['admin', 'read'];
 
     function clickEdit() {
         setMode('edit');
@@ -93,9 +95,30 @@ function User(props) {
                        onClick={() => setMode('delete')}>delete</Button>
     }
 
+    function updateUserType(newType) {
+        props.authService.put(urlJoin('user', props.user.id), {user_type: newType}
+        ).then(result => {
+                setUserType(newType);
+                context.setMessage(`${result.message} ${result.item.email} type: ${result.item.user_type}`);
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error update: ${xhr.responseText} - ${errorThrown}`)
+        )
+    }
+
+    function renderUserTypes() {
+        return <Form.Control as="select" value={userType} onChange={(e) => updateUserType(e.target.value)}>
+            {user_types.map(opt => (<option>{opt}</option>))}
+        </Form.Control>
+    }
+
     return <tr>
         <td>{mode === 'edit' ? renderEdit() :
-            <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{props.user.email}</span>}</td>
+            <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{props.user.email}</span>}
+        </td>
+        <td>
+            {renderUserTypes()}
+        </td>
         <td>
             {mode === 'password' ? renderPassword() : renderPasswordButton()}
             {' '}
@@ -188,11 +211,12 @@ export default function UserAdmin(props) {
     }
 
     return (<div>
-        <Button onClick={clickAddUser}>Add</Button>
+        <Button style={{marginTop:'0.2em', marginBottom:'0.2em'}} size="sm" onClick={clickAddUser}>Add</Button>
         <table className={"table"}>
             <thead>
             <tr>
                 <th className={"w-30"}>email</th>
+                <th>User Type</th>
                 <th className={"w-70"}>Actions</th>
             </tr>
             </thead>

@@ -32,8 +32,15 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     password = db.Column(db.String(255))
     user_type = db.Column(db.String(255), default='user')
     active = db.Column(db.Boolean(), default=True)
+    USER_TYPES = ['admin', 'read']
     # relationships
     commands = db.relationship('Command', backref='user', lazy='dynamic', foreign_keys='Command.user_id')
+
+    def fs_private_field(self, field_name):
+        # only allow profile fields when not admin
+        if getattr(current_user, 'is_admin', False):
+            return False
+        return field_name.upper() not in ['EMAIL', 'FIRST_NAME', 'LAST_NAME']
 
     @classmethod
     def email_is_used(cls, email):

@@ -1,9 +1,10 @@
+import logging
 import mimetypes
 import os
-import logging
+from functools import wraps
 from urllib.parse import quote_plus
 
-from flask import Flask, request, flash, redirect, session, g
+from flask import Flask, request, redirect, g, abort
 from flask_ipban import IpBan
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -93,11 +94,23 @@ def create_app():
 
     from app.auth import bp as bp_auth
     from app.proxy import bp as bp_proxy
+    from app.profile import bp as bp_profile
 
     app.register_blueprint(bp_auth, url_prefix='/auth')
     app.register_blueprint(bp_proxy, url_prefix='/proxy')
     app.register_blueprint(bp_api, url_prefix='/api')
+    app.register_blueprint(bp_profile, url_prefix='/profile')
     app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
 
     return app
+
+
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if getattr(current_user, 'is_admin', False):
+            return f(*args, **kwargs)
+        abort(403)
+
+    return decorated

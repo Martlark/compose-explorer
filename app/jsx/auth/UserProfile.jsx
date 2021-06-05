@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, AuthService, urlJoin} from './../context';
+import {AppContext, ProfileService, urlJoin} from './../context';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
@@ -8,10 +8,10 @@ export default function UserProfile() {
     const [user, setUser] = useState({});
     const [first_name, setFirst_name] = useState('');
     const [last_name, setLast_name] = useState('');
-    const authService = new AuthService({});
+    const api = new ProfileService();
 
     function getUser() {
-        authService.json(urlJoin('user', g.id)
+        api.json(urlJoin('user')
         ).then(result => {
                 setUser(result);
                 setFirst_name(result.first_name);
@@ -28,7 +28,7 @@ export default function UserProfile() {
 
     function clickUpdate(evt) {
         evt.preventDefault();
-        authService.update(evt
+        api.update(evt
         ).then(result => {
                 context.setMessage(`${result.message} ${result.item.email}`);
                 getUser();

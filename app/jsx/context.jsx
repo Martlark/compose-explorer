@@ -190,23 +190,6 @@ export class AuthService extends ApiService {
         this.setPrefix('auth')
     }
 
-    login(evt) {
-        evt.preventDefault();
-        const data = Object.fromEntries(new FormData(evt.target));
-
-        return this.api.post(urlJoin('login'), data).then(result => {
-            {
-                console.log('login', result);
-                window.g = result;
-                return result;
-            }
-        });
-    }
-
-    logout() {
-        return this.post(urlJoin('logout'), {});
-    }
-
     update(evt, setItem) {
         const data = Object.fromEntries(new FormData(evt.target));
 
@@ -236,6 +219,36 @@ export class AuthService extends ApiService {
             password: password ?? formData.get('password')
         })
     };
+}
+
+export class ProfileService extends ApiService {
+    constructor() {
+        super();
+        this.setPrefix('profile')
+    }
+
+    login(evt) {
+        evt.preventDefault();
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.api.post(urlJoin('login'), data).then(result => {
+            {
+                console.log('login', result);
+                window.g = result;
+                return result;
+            }
+        });
+    }
+
+    logout() {
+        return this.post(urlJoin('logout'), {});
+    }
+
+    update(evt) {
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.put(urlJoin('user'), data);
+    }
 }
 
 // https://www.robinwieruch.de/react-function-component
