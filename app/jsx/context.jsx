@@ -42,7 +42,7 @@ class ApiBase {
 
 }
 
-function urlJoin(...urls) {
+export function urlJoin(...urls) {
     let fullPath = `/${urls.join('/')}/`;
     fullPath = fullPath.replaceAll('//', '/');
     fullPath = fullPath.replace(/[ps]:\//, '://');
@@ -139,18 +139,18 @@ export class ApiService {
     }
 }
 
-export class ServerService extends ApiBase {
+export class ServerService extends ApiService {
     constructor(props) {
         super();
         this.item = props;
     }
 
-    delete() {
-        return this.api.delete(urlJoin(`server`, this.item.id));
+    remove() {
+        return this.delete(urlJoin(`server`, this.item.id));
     }
 
     getSummary(setItem) {
-        return this.api.json(urlJoin('server_summary', this.item.id)).then(response => {
+        return this.json(urlJoin('server_summary', this.item.id)).then(response => {
                 setItem({...this.item, summary: response});
             }
         )
@@ -159,21 +159,21 @@ export class ServerService extends ApiBase {
     update(evt, setItem) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.api.put(urlJoin(`server`, this.item.id), data).then(result => {
+        return this.put(urlJoin(`server`, this.item.id), data).then(result => {
             this.item = result.item;
             setItem(result.item);
         });
     }
 
     testConnection(name, port, credentials) {
-        return this.api.json('/server_test_connection/', {name, port, credentials});
+        return this.json('/server_test_connection/', {name, port, credentials});
     }
 
     create(evt, name, port, credentials) {
         const formData = new FormData(evt?.target);
         evt?.preventDefault();
 
-        return this.api.post('/server/', {
+        return this.post('/server/', {
             credentials: credentials ?? formData.get('credentials'),
             name: name ?? formData.get('name'),
             port: port ?? formData.get('port')
@@ -183,11 +183,11 @@ export class ServerService extends ApiBase {
 }
 
 
-export class AuthService extends ApiBase {
+export class AuthService extends ApiService {
     constructor(props) {
         super();
         this.item = props;
-        this.api.setPrefix('auth')
+        this.setPrefix('auth')
     }
 
     login(evt) {
@@ -204,19 +204,25 @@ export class AuthService extends ApiBase {
     }
 
     logout() {
-        return this.api.post(urlJoin('logout'), {});
+        return this.post(urlJoin('logout'), {});
     }
 
     update(evt, setItem) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.api.put(urlJoin('user', data.id), data);
+        return this.put(urlJoin('user', data.id), data);
+    }
+
+    remove(evt, setItem) {
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.delete(urlJoin('user', data.id), data);
     }
 
     set_password(evt=null) {
         const formData = new FormData(evt?.target);
 
-        return this.api.post(urlJoin('user_set_password', formData.get('id')), {
+        return this.post(urlJoin('user_set_password', formData.get('id')), {
             id: formData.get('id'),
             password: formData.get('password')
         })
@@ -225,7 +231,7 @@ export class AuthService extends ApiBase {
     create(evt, email=null, password=null) {
         const formData = new FormData(evt?.target);
 
-        return this.api.post(urlJoin('user'), {
+        return this.post(urlJoin('user'), {
             email: email ?? formData.get('email'),
             password: password ?? formData.get('password')
         })

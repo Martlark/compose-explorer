@@ -26,9 +26,13 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     # many-to-many relationship using the roles_users table. Each user may have no role, one role, or multiple roles.
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True)
+    options = db.Column(db.String(2000))
+    first_name = db.Column(db.String(255))
+    last_name = db.Column(db.String(255))
     password = db.Column(db.String(255))
     user_type = db.Column(db.String(255), default='user')
     active = db.Column(db.Boolean(), default=True)
+    # relationships
     commands = db.relationship('Command', backref='user', lazy='dynamic', foreign_keys='Command.user_id')
 
     @classmethod

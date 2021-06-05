@@ -85,6 +85,7 @@ def create_app():
         g.current_user = current_user
         g.anon = current_user.is_anonymous
         g.admin = getattr(current_user, 'is_admin', False)
+        g.id = getattr(current_user, 'id', None)
         g.d = d_serialize(g)
 
     ip_ban.init_app(app)

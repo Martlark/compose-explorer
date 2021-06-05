@@ -34,6 +34,7 @@ export const Nav = (props) => {
                 {window.g.admin && <NavLink className="dropdown-item" to={`/admin/`}>Admin</NavLink>}
                 {window.g.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
                 {!window.g.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
+                {!window.g.anon && <NavLink className="dropdown-item" to={`/profile/`}>Profile</NavLink>}
             </div>
         </li>;
 

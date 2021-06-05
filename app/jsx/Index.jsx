@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import {ApiService, AppContext, ContextErrorMessage, ContextMessage} from './context'
+import {ApiService, AppContext, AuthApiService, ContextErrorMessage, ContextMessage} from './context'
 
 import ManageServer from "./ManageServer"
 import ManageContainer from "./ManageContainer"
@@ -12,7 +12,8 @@ import Project from "./project";
 import {Nav} from "./Nav";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
-import UserAdmin from "./UserAdmin";
+import UserAdmin from "./admin/UserAdmin";
+import UserProfile from "./auth/UserProfile";
 
 
 export function AppProvider() {
@@ -53,6 +54,7 @@ export function AppProvider() {
                     <Route exact path="/login/" component={Login}/>
                     <Route exact path="/logout/" component={Logout}/>
                     <Route exact path="/admin/" component={UserAdmin}/>
+                    <Route exact path="/profile/" component={UserProfile}/>
                 </Switch>
             </div>
         </Router>

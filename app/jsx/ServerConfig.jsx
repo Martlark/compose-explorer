@@ -90,7 +90,7 @@ export function ServerConfig(props) {
 
     const clickDeleteServer = (item) => {
         setWaiting('Deleting');
-        api.delete(
+        api.remove(
 
         ).then(response => {
                 context.setMessage(`Deleted ${response.item.name}`);
