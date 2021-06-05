@@ -4,23 +4,29 @@ import requests
 from flask import request, jsonify
 from flask_login import login_required
 
+from app import admin_required
 from app.models import DockerServer
 from app.proxy import bp
 
 
-@bp.route('/container/<int:server_id>/<verb>/', methods=['GET', 'POST'])
+@bp.get('/container/<int:server_id>/<verb>/')
 @login_required
-def route_container(server_id, verb):
+def route_container_get(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
     try:
+        result = server.get('container', verb, params=request.args)
+        return jsonify(result)
+    except Exception as e:
+        return str(e), 400
 
-        if request.method == 'GET':
-            result = server.get('container', verb, params=request.args)
-            return jsonify(result)
 
-        if request.method == 'POST':
-            result = server.post('container', verb, params=request.form)
-            return result
+@bp.post('/container/<int:server_id>/<verb>/')
+@admin_required
+def route_container_post(server_id, verb):
+    server = DockerServer.query.get_or_404(server_id)
+    try:
+        result = server.post('container', verb, params=request.form)
+        return result
 
     except Exception as e:
         return str(e), 400
@@ -87,15 +93,14 @@ def route_projects(server_id):
             return str(e), 400
 
 
-@bp.route('/agent/<service>/<int:server_id>/<action>/', methods=['POST'])
-@login_required
+@bp.post('/agent/<service>/<int:server_id>/<action>/')
+@admin_required
 def route_agent_service(service, server_id, action=None):
     server = DockerServer.query.get(int(server_id))
 
     try:
-        if request.method == 'POST':
-            result = server.post(f"action/{service}", action, params=request.form)
-            return result
+        result = server.post(f"action/{service}", action, params=request.form)
+        return result
 
     except requests.exceptions.ConnectionError as e:
         return f'Remote agent at {server.name} on port {server.port} is not responding', 400
@@ -103,16 +108,13 @@ def route_agent_service(service, server_id, action=None):
     except Exception as e:
         return str(e), 400
 
-    return 'unknown service', 400
 
-
-@bp.route('/volume/<int:server_id>/<verb>/', methods=['GET', 'POST'])
+@bp.get('/volume/<int:server_id>/<verb>/')
 @login_required
 def route_volume(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
-    if request.method == 'GET':
-        try:
-            result = server.get('volume', verb)
-            return jsonify(result)
-        except Exception as e:
-            return str(e), 400
+    try:
+        result = server.get('volume', verb)
+        return jsonify(result)
+    except Exception as e:
+        return str(e), 400

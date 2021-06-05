@@ -10,7 +10,7 @@ from app.request_arg.request_arg import request_arg
 
 
 @bp.route('/is_logged_in/')
-def is_logged_in():
+def public_route_is_logged_in():
     if current_user and current_user.is_authenticated:
         return 'ok'
     return 'no'
