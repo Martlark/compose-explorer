@@ -63,6 +63,13 @@ export class ApiService {
         return this.proxyGet(urlJoin(`container`, id, 'get'), {name})
     }
 
+    /***
+     * return a json object according to the ur and params
+     *
+     * @param url
+     * @param params
+     * @returns {*|jQuery}
+     */
     json(url, params) {
         return $.getJSON(urlJoin(this.prefix_api, url), params)
     }
@@ -150,7 +157,6 @@ export class ServerService extends ApiBase {
     }
 
     update(evt, setItem) {
-        evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
 
         return this.api.put(urlJoin(`server`, this.item.id), data).then(result => {
@@ -202,24 +208,27 @@ export class AuthService extends ApiBase {
     }
 
     update(evt, setItem) {
-        evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.api.put(urlJoin('user', this.item.id), data).then(result => {
-            this.item = result.item;
-            setItem(result.item);
-        });
+        return this.api.put(urlJoin('user', data.id), data);
     }
 
-    create(evt, name, port, credentials) {
+    set_password(evt=null) {
         const formData = new FormData(evt?.target);
-        evt?.preventDefault();
+
+        return this.api.post(urlJoin('user_set_password', formData.get('id')), {
+            id: formData.get('id'),
+            password: formData.get('password')
+        })
+    };
+
+    create(evt, email=null, password=null) {
+        const formData = new FormData(evt?.target);
 
         return this.api.post(urlJoin('user'), {
             email: email ?? formData.get('email'),
             password: password ?? formData.get('password')
-        }).then(result => this.item = result
-        );
+        })
     };
 }
 

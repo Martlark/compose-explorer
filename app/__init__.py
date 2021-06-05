@@ -1,9 +1,9 @@
 import mimetypes
 import os
 import logging
+from urllib.parse import quote_plus
 
 from flask import Flask, request, flash, redirect, session, g
-from flask_admin import Admin
 from flask_ipban import IpBan
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -12,10 +12,9 @@ from flask_wtf.csrf import CSRFProtect
 
 from app.custom_tags import ImportJs
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=os.getenv('LOG_LEVL', 'DEBUG'))
+logging.basicConfig(format='%(levelname)s:%(message)s', level=os.getenv('LOG_LEVEL', 'DEBUG'))
 
 db = SQLAlchemy()
-admin = Admin(name='docker-explorer', template_mode='bootstrap3')
 migrate = Migrate()
 login_manager = LoginManager()
 csrf = CSRFProtect()
@@ -44,7 +43,7 @@ def d_serialize(item):
 # Flask and Flask-SQLAlchemy initialization here
 
 def create_app():
-    from app.views import admin_views, bp as bp_main
+    from app.views import bp as bp_main
     from app.api import bp as bp_api
 
     def ensure_folder(folder):
@@ -62,17 +61,16 @@ def create_app():
     ensure_folder(app.config['APP_STATIC'])
     ensure_folder(os.path.join(app.config['BASEDIR'], 'db'))
     db.init_app(app)
-    admin.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'index'
     login_manager.init_app(app)
 
     @app.errorhandler(404)
     def handle_404(e):
         logging.warning(404, request.path)
-        if 'api' not in request.path:
-            return redirect('/')
+        if '/api/' not in request.path and request.method == 'GET':
+            return redirect(f'/?request_path={quote_plus(request.path)}')
         return e
 
     from .models import User
@@ -89,7 +87,6 @@ def create_app():
         g.admin = getattr(current_user, 'is_admin', False)
         g.d = d_serialize(g)
 
-    admin_views(admin, db)
     ip_ban.init_app(app)
     ip_ban.load_nuisances()
 
@@ -101,14 +98,5 @@ def create_app():
     app.register_blueprint(bp_api, url_prefix='/api')
     app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
-
-    @app.errorhandler(404)
-    def page_not_found_404(e):
-        app.logger.info('404 url:' + request.url)
-        app.logger.info(request.remote_addr)
-        app.logger.info(request.headers.get('User-Agent'))
-        flash(f'Page not found: {request.url}')
-        session['REDIRECTED'] = request.path
-        return redirect('/')
 
     return app

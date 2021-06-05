@@ -5,19 +5,11 @@ import random
 from flask import render_template, request, current_app, Blueprint, send_from_directory
 from flask_login import login_required, current_user
 
-from app.admin_views import UserAdmin, SettingAdmin, DockerServerAdmin
-from app.models import User, Setting, DockerServer, Command
+from app.models import Command
 from app.request_arg.request_arg import request_arg
 from config import STATIC_DIR
 
 bp = Blueprint('main', __name__)
-
-
-def admin_views(admin, db):
-    # Add Flask-Admin views for Users and Roles
-    admin.add_view(UserAdmin(User, db.session))
-    admin.add_view(SettingAdmin(Setting, db.session))
-    admin.add_view(DockerServerAdmin(DockerServer, db.session))
 
 
 @bp.errorhandler(Exception)
@@ -27,20 +19,9 @@ def exception_handler(error):
 
 
 @bp.route('/')
-def public_page_index():
-    return render_template('index.html', page_title='Docker Explorer')
-
-
-@bp.route('/server/<int:server_id>/')
-@bp.route('/server/<int:server_id>/<path:path>/')
-@login_required
-def page_server(server_id, path=None):
-    return render_template('index.html', server_id=server_id)
-
-
-@bp.route('/page/<page>')
-def page_page(page, title=''):
-    return render_template(page, page_title=title)
+@request_arg('request_path', arg_default='')
+def public_page_index(request_path=None):
+    return render_template('index.html', page_title='Docker Explorer', request_path=request_path)
 
 
 @bp.route('/favicon.ico')

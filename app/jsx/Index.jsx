@@ -7,10 +7,12 @@ import ManageServer from "./ManageServer"
 import ManageContainer from "./ManageContainer"
 import FileEdit from "./container_edit_file";
 import LogContent from "./container_log";
-import Home from "./home";
+import Home from "./Home";
 import Project from "./project";
 import {Nav} from "./Nav";
-import {Login, Logout} from "./Login";
+import {Login} from "./auth/Login";
+import {Logout} from "./auth/Logout";
+import UserAdmin from "./UserAdmin";
 
 
 export function AppProvider() {
@@ -50,6 +52,7 @@ export function AppProvider() {
                     <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
                     <Route exact path="/login/" component={Login}/>
                     <Route exact path="/logout/" component={Logout}/>
+                    <Route exact path="/admin/" component={UserAdmin}/>
                 </Switch>
             </div>
         </Router>

@@ -11,7 +11,7 @@ function autoReloadOnServerChange() {
                 data: {max_age, rand_check_number}
             }).done((result) => {
                 if (Number(result.max_age) > max_age || result.rand_check_number !== rand_check_number) {
-                    window.location.reload(true);
+                    window.location.reload();
                     //console.log('refresh', Number(result.max_age), max_age, result.rand_check_number, rand_check_number);
                 }
             }).fail((xhr, textStatus, errorThrown) =>

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
+    <input type="hidden" name="request_path" value="{{request_path}}">
     <div id="jsx_content"></div>
     <script src="/static/src/jsx/index.js"></script>
 {% endblock %}

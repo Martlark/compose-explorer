@@ -3,13 +3,14 @@ import {AppContext} from './context';
 import {NewServerForm} from './new-server-form'
 import * as PropTypes from "prop-types";
 import {ServerConfig} from "./ServerConfig";
-import {NavLink} from "react-router-dom";
+import {NavLink, useHistory} from "react-router-dom";
 
 ServerConfig.propTypes = {item: PropTypes.any};
 export default function Home(props) {
     const [servers, setServers] = useState([]);
     const [newServer, setNewServer] = useState(false);
     const context = useContext(AppContext);
+    const history = useHistory();
 
     const getItems = () => {
         if (window.g.anon) {
@@ -32,6 +33,14 @@ export default function Home(props) {
     }
 
     useEffect(() => {
+        // find if server refresh needs history
+        const $request_path = $('input[name=request_path]');
+        const val = $request_path.val();
+        if (val) {
+            $request_path.val("");
+            history.push(val);
+            return;
+        }
         context.setServerId(null);
         getItems();
     }, []);

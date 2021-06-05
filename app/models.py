@@ -32,9 +32,8 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     commands = db.relationship('Command', backref='user', lazy='dynamic', foreign_keys='Command.user_id')
 
     @classmethod
-    def name_is_unused(cls, name):
-        user = cls.query.filter_by(name=name.lower()).first()
-        return user is None
+    def email_is_used(cls, email):
+        return cls.query.filter_by(email=email.lower()).first()
 
     @property
     def is_admin(self):
@@ -51,6 +50,11 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         """
 
         return self.password and check_password_hash(self.password, password)
+
+    def verify(self, create=False):
+        if create:
+            self.set_password(self.password)
+        self.email = self.email.lower()
 
     def add_command(self, cmd, result):
         command = Command(cmd=cmd, result=result, user=self)
