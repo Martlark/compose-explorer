@@ -1,9 +1,10 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, ServerService} from "../context";
+import {AppContext} from "../context";
 import InlineConfirmButton from "react-inline-confirm";
 import {Link} from "react-router-dom";
 import ErrorMessage from "../ErrorMessage";
 import TempMessage from "../TempMessage";
+import ServerService from "../services/ServerService";
 
 function EditShowItem(props) {
     const [item, setItem] = useState(props.item)

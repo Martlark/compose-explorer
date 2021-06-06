@@ -2,7 +2,8 @@ import React, {useContext, useState} from "react";
 import {useHistory} from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import {AppContext, ProfileService} from "../context";
+import {AppContext} from "../context";
+import ProfileService from "../services/ProfileService";
 
 export function Login(props) {
     const [email, setEmail] = useState("");

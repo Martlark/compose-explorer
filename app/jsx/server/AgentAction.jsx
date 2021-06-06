@@ -2,7 +2,17 @@ import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from "../context";
 import TempMessage from "../TempMessage";
 
-export function AgentActionService(props) {
+function ResultLog(props) {
+    let index = 1;
+    return props.resultLog.map(result =>
+        <tr key={`result-${index++}`}>
+            <td><h3>{result.title}</h3>
+                <pre>{result.result}</pre>
+            </td>
+        </tr>)
+}
+
+export function AgentAction(props) {
     const [resultLog, setResultLog] = useState([]);
     const [message, setMessage] = useState('');
     const [actioning, setActioning] = useState('');
@@ -19,7 +29,8 @@ export function AgentActionService(props) {
     }
 
     const clickAction = (evt, action) => {
-        evt && evt.preventDefault();
+
+        evt?.preventDefault();
 
         setActioning(action.action);
         return context.api.proxyPost(`/agent/${props.service}/${props.server_id}/${action.action}/`, {working_dir: working_dir}
@@ -50,16 +61,6 @@ export function AgentActionService(props) {
         </li>
     }
 
-    function renderResultLog() {
-        let index = 1;
-        return resultLog.map(result =>
-            <tr key={`result-${index++}`}>
-                <td><h3>{result.title}</h3>
-                    <pre>{result.result}</pre>
-                </td>
-            </tr>)
-    }
-
     return (<div>
         <table>
             <tr>
@@ -72,7 +73,7 @@ export function AgentActionService(props) {
             </tr>
         </table>
         <table>
-            {renderResultLog()}
+            <ResultLog resultLog={resultLog}/>
         </table>
     </div>)
 }

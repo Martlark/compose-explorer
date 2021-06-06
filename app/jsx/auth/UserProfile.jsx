@@ -1,7 +1,8 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, ProfileService, urlJoin} from './../context';
+import {AppContext, urlJoin} from './../context';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
+import ProfileService from "../services/ProfileService";
 
 export default function UserProfile() {
     const context = useContext(AppContext);
@@ -64,8 +65,9 @@ export default function UserProfile() {
     }
 
     return <div>
-        <h3>Profile</h3>
+        <h1>Profile</h1>
         <h2>{user.email}</h2>
+        <h3>User type: {g.admin && 'admin' || 'read'}</h3>
         {renderEdit()}
     </div>
 }

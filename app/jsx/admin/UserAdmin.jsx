@@ -1,7 +1,8 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, AuthService, urlJoin} from '../context';
+import {AppContext, urlJoin} from '../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import AuthService from "../services/AuthService";
 
 function User(props) {
     const context = useContext(AppContext);

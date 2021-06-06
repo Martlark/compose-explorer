@@ -4,7 +4,7 @@ import {AppContext} from "../context";
 import {Link} from "react-router-dom";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
-import {AgentActionService} from "./AgentActionService";
+import {AgentAction} from "./AgentAction";
 
 export default function Project(props) {
     const [server_id, setServer_id] = useState(props.server_id);
@@ -43,11 +43,11 @@ export default function Project(props) {
             return null;
         }
 
-        return <TabPanel><AgentActionService key={server_id}
-                                             working_dir={working_dir}
-                                             server_id={server_id}
-                                             service={'git'}
-                                             actions={['status', 'pull', 'fetch', 'log']}
+        return <TabPanel><AgentAction key={server_id}
+                                      working_dir={working_dir}
+                                      server_id={server_id}
+                                      service={'git'}
+                                      actions={['status', 'pull', 'fetch', 'log']}
         /></TabPanel>
     }
 
@@ -55,11 +55,11 @@ export default function Project(props) {
         if (!g.admin) {
             return null;
         }
-        return <TabPanel><AgentActionService key={server_id}
-                                             working_dir={working_dir}
-                                             server_id={server_id}
-                                             service={'compose'}
-                                             actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
+        return <TabPanel><AgentAction key={server_id}
+                                      working_dir={working_dir}
+                                      server_id={server_id}
+                                      service={'compose'}
+                                      actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
         /></TabPanel>
     }
 
