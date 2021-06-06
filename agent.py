@@ -53,9 +53,7 @@ def d_serialize(item, attributes=None):
 
 def local_run(cmd):
     logging.info(cmd)
-    result = subprocess.run(
-        [cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
+    result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if result.returncode != 0:
         current_app.logger.warning(result)
     return result.stdout.decode("utf-8")
@@ -187,9 +185,7 @@ def route_container(action, name="", sleep_seconds=10, tail=100):
         if request.method == "GET":
             if action == "list":
                 # get all containers
-                return jsonify(
-                    [d_serialize(d, attrs) for d in dc.containers.list(all=True)]
-                )
+                return jsonify([d_serialize(d, attrs) for d in dc.containers.list(all=True)])
             elif action == "get":
                 # get specified container
                 return d_serialize(container, attrs)
@@ -234,9 +230,7 @@ def route_container(action, name="", sleep_seconds=10, tail=100):
                 return "slept"
             elif action == "logs":
                 # download
-                logs = container.logs(
-                    tail=int(request.form.get("tail", "1000")), timestamps=True
-                )
+                logs = container.logs(tail=int(request.form.get("tail", "1000")), timestamps=True)
                 fd, tmp_filename = tempfile.mkstemp()
                 os.write(fd, logs)
                 os.close(fd)
@@ -274,9 +268,7 @@ def download_container_file(container):
     attachment_filename = os.path.basename(filename)
     tmp_filename = os.path.join(tmp_dir, attachment_filename)
     cleanup[tmp_dir] = tmp_filename
-    return send_file(
-        tmp_filename, attachment_filename=attachment_filename, as_attachment=True
-    )
+    return send_file(tmp_filename, attachment_filename=attachment_filename, as_attachment=True)
 
 
 def upload_container_file(container):

@@ -21,9 +21,7 @@ def exception_handler(error):
 @bp.route("/")
 @request_arg("request_path", arg_default="")
 def public_page_index(request_path=None):
-    return render_template(
-        "index.html", page_title="Docker Explorer", request_path=request_path
-    )
+    return render_template("index.html", page_title="Docker Explorer", request_path=request_path)
 
 
 @bp.route("/favicon.ico")
@@ -58,9 +56,7 @@ def last_static_update():
                         mtime = os.path.getmtime(full_path)
                         if mtime > max_age and initial_max_age != -1:
                             current_app.logger.debug(
-                                "Refresh required because of:{full_path}".format(
-                                    full_path=full_path
-                                )
+                                "Refresh required because of:{full_path}".format(full_path=full_path)
                             )
                         max_age = max(max_age, mtime)
 
@@ -75,6 +71,4 @@ def last_static_update():
 @request_arg("container_name", arg_default="")
 @login_required
 def route_command(item_id=None, container_name=None):
-    return Command.get_delete_put_post(
-        item_id, user=current_user, prop_filters={"container_name": container_name}
-    )
+    return Command.get_delete_put_post(item_id, user=current_user, prop_filters={"container_name": container_name})

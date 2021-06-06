@@ -71,9 +71,7 @@ def route_projects(server_id):
     if request.method == "GET":
         try:
             result = server.get("container", "list", params=request.args)
-            result.sort(
-                key=lambda c: (c["labels"].get("com.docker.compose.project", ""))
-            )
+            result.sort(key=lambda c: (c["labels"].get("com.docker.compose.project", "")))
             prev_project = ""
             services = []
             for c in result:

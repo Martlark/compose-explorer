@@ -38,9 +38,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(op.f("ix_setting_key"), "setting", ["key"], unique=False)
-    op.create_index(
-        op.f("ix_setting_setting_type"), "setting", ["setting_type"], unique=False
-    )
+    op.create_index(op.f("ix_setting_setting_type"), "setting", ["setting_type"], unique=False)
     op.create_table(
         "user",
         sa.Column("id", sa.Integer(), nullable=False),

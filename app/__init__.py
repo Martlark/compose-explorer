@@ -13,9 +13,7 @@ from flask_wtf.csrf import CSRFProtect
 
 from app.custom_tags import ImportJs
 
-logging.basicConfig(
-    format="%(levelname)s:%(message)s", level=os.getenv("LOG_LEVEL", "DEBUG")
-)
+logging.basicConfig(format="%(levelname)s:%(message)s", level=os.getenv("LOG_LEVEL", "DEBUG"))
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -23,9 +21,7 @@ login_manager = LoginManager()
 csrf = CSRFProtect()
 ip_ban = IpBan(
     ip_header="X-TRUE-IP",
-    abuse_IPDB_config=dict(
-        key=os.getenv("ABUSE_IPDB_KEY"), report=os.getenv("DEPLOYMENT") == "Prod"
-    ),
+    abuse_IPDB_config=dict(key=os.getenv("ABUSE_IPDB_KEY"), report=os.getenv("DEPLOYMENT") == "Prod"),
 )
 
 

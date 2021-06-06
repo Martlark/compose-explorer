@@ -92,22 +92,14 @@ class ImportJs(Extension):
         :return: concatenated source code
         """
         source_code = ""
-        source_file_directory = (
-            self.source_dir + os.path.dirname(source_file)[len(self.source_dir) :]
-        )
+        source_file_directory = self.source_dir + os.path.dirname(source_file)[len(self.source_dir) :]
         with open(source_file) as sf:
             for line in sf.readlines():
                 if line.lstrip().startswith("import "):
                     parts = line.split('"')
                     if len(parts) < 2:
-                        raise Exception(
-                            "import statement malformed: file: {}, line: {}".format(
-                                source_file, line
-                            )
-                        )
-                    import_file_name = os.path.normpath(
-                        os.path.join(source_file_directory, parts[1])
-                    )
+                        raise Exception("import statement malformed: file: {}, line: {}".format(source_file, line))
+                    import_file_name = os.path.normpath(os.path.join(source_file_directory, parts[1]))
 
                     if not import_file_name.endswith(".js"):
                         import_file_name += ".js"
@@ -120,11 +112,7 @@ class ImportJs(Extension):
                                 import_file_name=parts[1]
                             )
                             source_code += self.import_file(import_file_name)
-                            source_code += (
-                                "\n/* import_js: import complete from {} */\n".format(
-                                    parts[1]
-                                )
-                            )
+                            source_code += "\n/* import_js: import complete from {} */\n".format(parts[1])
                     else:
                         source_code += "/* import_js: excluding missing file {import_file_name}: {line} */".format(
                             line=line, import_file_name=import_file_name
@@ -143,9 +131,7 @@ class ImportJs(Extension):
         self.imports = {}
         source_file = os.path.join(self.source_dir, import_file)
         base_import_file = import_file.split(".")[0]
-        target_source_directory = os.path.join(
-            self.static_target_dir, os.path.dirname(import_file)
-        )
+        target_source_directory = os.path.join(self.static_target_dir, os.path.dirname(import_file))
         if not os.path.isdir(target_source_directory):
             os.makedirs(target_source_directory, exist_ok=True)
 
@@ -172,10 +158,8 @@ class ImportJs(Extension):
             or (not self.debug and os.path.isfile(min_target_source_file))
         ):
             # built file does not exist
-            source_code = (
-                "/* import_js: original source: {}, generated target: {} */\n".format(
-                    import_file, target_source
-                )
+            source_code = "/* import_js: original source: {}, generated target: {} */\n".format(
+                import_file, target_source
             )
             source_code += self.import_file(source_file)
 
