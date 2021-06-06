@@ -1,8 +1,8 @@
 import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from './context';
-import {NewServerForm} from './new-server-form'
+import {NewServerForm} from './server/NewServerForm'
 import * as PropTypes from "prop-types";
-import {ServerConfig} from "./ServerConfig";
+import {ServerConfig} from "./server/ServerConfig";
 import {NavLink, useHistory} from "react-router-dom";
 
 ServerConfig.propTypes = {item: PropTypes.any};
@@ -50,6 +50,10 @@ export default function Home(props) {
     }
 
     function renderNewServer() {
+        if(!g.admin){
+            return null;
+        }
+
         if (newServer) {
             return <NewServerForm setNewServer={setNewServer} getItems={getItems}/>
         } else {

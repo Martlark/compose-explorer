@@ -15,3 +15,4 @@ email_validator>=1.1.1
 humanize>=2.4.1
 rjsmin
 flask_httpauth
+black

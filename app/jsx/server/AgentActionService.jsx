@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext} from "./context";
-import TempMessage from "./TempMessage";
+import {AppContext} from "../context";
+import TempMessage from "../TempMessage";
 
 export function AgentActionService(props) {
     const [resultLog, setResultLog] = useState([]);

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 
 function LogEntry(props) {
     const parts = props.item.split(' ')[0].split('.')[0].split('T');

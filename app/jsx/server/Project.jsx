@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {ProjectService} from "./ProjectService";
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 import {Link} from "react-router-dom";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
@@ -38,6 +38,31 @@ export default function Project(props) {
         }
     }, [props?.match]);
 
+    function renderGitTab() {
+        if (!g.admin) {
+            return null;
+        }
+
+        return <TabPanel><AgentActionService key={server_id}
+                                             working_dir={working_dir}
+                                             server_id={server_id}
+                                             service={'git'}
+                                             actions={['status', 'pull', 'fetch', 'log']}
+        /></TabPanel>
+    }
+
+    function renderComposeTab() {
+        if (!g.admin) {
+            return null;
+        }
+        return <TabPanel><AgentActionService key={server_id}
+                                             working_dir={working_dir}
+                                             server_id={server_id}
+                                             service={'compose'}
+                                             actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
+        /></TabPanel>
+    }
+
     return (
         <div>
             <h2><Link to={`/server/${server_id}/project/${encodeURIComponent(project)}`}
@@ -45,8 +70,8 @@ export default function Project(props) {
             <Tabs>
                 <TabList>
                     <Tab>Containers</Tab>
-                    <Tab>Git</Tab>
-                    <Tab>Compose</Tab>
+                    {g.admin && <Tab>Git</Tab>}
+                    {g.admin && <Tab>Compose</Tab>}
                 </TabList>
                 <TabPanel>
                     <table className={"table"}>
@@ -67,18 +92,8 @@ export default function Project(props) {
                         </tbody>
                     </table>
                 </TabPanel>
-                <TabPanel><AgentActionService key={server_id}
-                                              working_dir={working_dir}
-                                              server_id={server_id}
-                                              service={'git'}
-                                              actions={['status', 'pull', 'fetch', 'log']}
-                /></TabPanel>
-                <TabPanel><AgentActionService key={server_id}
-                                              working_dir={working_dir}
-                                              server_id={server_id}
-                                              service={'compose'}
-                                              actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
-                /></TabPanel>
+                {renderGitTab()}
+                {renderComposeTab()}
             </Tabs>
         </div>)
 }

@@ -1,9 +1,9 @@
 # routes.py
 
-from flask import Response
+from flask import Response, g
 from flask_login import current_user
 
-from app import db, admin_required
+from app import db, admin_required, set_g
 from app.auth import bp
 from app.models import User
 from app.request_arg.request_arg import request_arg
@@ -14,6 +14,12 @@ def public_route_is_logged_in():
     if current_user and current_user.is_authenticated:
         return 'ok'
     return 'no'
+
+
+@bp.get('/g/')
+def public_g():
+    set_g()
+    return g.d
 
 
 @bp.post('/user_set_password/<int:item_id>/')

@@ -41,6 +41,13 @@ def d_serialize(item):
     return d
 
 
+def set_g():
+    g.current_user = current_user
+    g.anon = current_user.is_anonymous
+    g.admin = getattr(current_user, 'is_admin', False)
+    g.id = getattr(current_user, 'id', None)
+    g.d = d_serialize(g)
+
 # Flask and Flask-SQLAlchemy initialization here
 
 def create_app():
@@ -83,11 +90,7 @@ def create_app():
 
     @app.before_request
     def before_request():
-        g.current_user = current_user
-        g.anon = current_user.is_anonymous
-        g.admin = getattr(current_user, 'is_admin', False)
-        g.id = getattr(current_user, 'id', None)
-        g.d = d_serialize(g)
+        set_g()
 
     ip_ban.init_app(app)
     ip_ban.load_nuisances()

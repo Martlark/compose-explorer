@@ -26,22 +26,6 @@ export const ContextMessage = ({message}) => {
 }
 
 
-class ApiBase {
-    constructor() {
-
-        this.api = new ApiService();
-
-    }
-
-    /**
-     * join all urls given as parameters with a / so that
-     * it ends up with a leading and trailing slash
-     * @type {string}
-     */
-
-
-}
-
 export function urlJoin(...urls) {
     let fullPath = `/${urls.join('/')}/`;
     fullPath = fullPath.replaceAll('//', '/');
@@ -186,7 +170,6 @@ export class ServerService extends ApiService {
 export class AuthService extends ApiService {
     constructor(props) {
         super();
-        this.item = props;
         this.setPrefix('auth')
     }
 
@@ -231,9 +214,8 @@ export class ProfileService extends ApiService {
         evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.api.post(urlJoin('login'), data).then(result => {
+        return this.post(urlJoin('login'), data).then(result => {
             {
-                console.log('login', result);
                 window.g = result;
                 return result;
             }

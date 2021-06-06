@@ -19,7 +19,7 @@ export function Logout(props) {
     function clickLogout(event) {
         event.preventDefault();
         api.logout(event, {}).then(result => {
-                window.g.anon = result;
+                window.g = result;
                 context.setMessage('Farewell');
                 history.push('/');
             }

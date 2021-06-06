@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react'
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 
 function ExecEntry(props) {
     const clickCmd = (evt) => {
@@ -8,11 +8,15 @@ function ExecEntry(props) {
     }
 
     function renderActions() {
-        const actionRemove = <a href={'javascript:'} title={'Remove from history'}
-               onClick={evt => props.clickExecDelete(evt, props.entry.id)}><span
-                className="material-icons">delete_forever</span></a>;
+        if (!g.admin) {
+            return null;
+        }
 
-        if (props.status !== 'running'){
+        const actionRemove = <a href={'javascript:'} title={'Remove from history'}
+                                onClick={evt => props.clickExecDelete(evt, props.entry.id)}><span
+            className="material-icons">delete_forever</span></a>;
+
+        if (props.status !== 'running') {
             return actionRemove;
         }
 
@@ -20,7 +24,7 @@ function ExecEntry(props) {
                     onClick={evt => props.clickExec(evt, props.entry.cmd)}><span
             className="material-icons">directions_run</span></a>
             {actionRemove}
-            </>
+        </>
     }
 
     return (
@@ -36,8 +40,7 @@ function ExecEntry(props) {
         </tr>)
 }
 
-export default function Execute(props)
-{
+export default function Execute(props) {
     const id = props.id;
     const name = props.name;  // container name
     const [executing, setExecuting] = useState(false);
@@ -107,6 +110,10 @@ export default function Execute(props)
     }
 
     function renderExecutingHeader() {
+        if (!g.admin) {
+            return <h3>Admin access required</h3>;
+        }
+
         if (executing) {
             return (<div>running {command}
                 <progress/>
@@ -126,7 +133,7 @@ export default function Execute(props)
         )
     }
 
-    return <div>
+    return (<div>
         {renderExecutingHeader()}
         <table className={"table"}>
             <tbody>
@@ -137,5 +144,5 @@ export default function Execute(props)
                                                      entry={result}/>)}
             </tbody>
         </table>
-    </div>
+    </div>)
 }

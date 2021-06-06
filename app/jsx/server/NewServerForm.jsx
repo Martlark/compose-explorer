@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {AppContext, ServerService} from './context';
+import {AppContext, ServerService} from '../context';
 
 export function NewServerForm(props) {
 

@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import join from 'join-path'
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 
 function DirectoryEntry(props) {
     const [entry, setEntry] = useState(props.entry);
@@ -182,9 +182,9 @@ export default function Directory(props) {
         return (
             <div>
                 {refreshButton}
-                {downloadButton}
-                {editButton}
-                {deleteButton}
+                {g.admin && downloadButton}
+                {g.admin && editButton}
+                {g.admin && deleteButton}
                 {upButton}
                 {directoryLinks.map(d =>
                     <a href={"#"} onClick={(evt) => clickDirectory(evt, d.cwd)}

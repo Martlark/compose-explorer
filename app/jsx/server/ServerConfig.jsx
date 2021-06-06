@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, ServerService} from "./context";
+import {AppContext, ServerService} from "../context";
 import InlineConfirmButton from "react-inline-confirm";
 import {Link} from "react-router-dom";
-import ErrorMessage from "./ErrorMessage";
-import TempMessage from "./TempMessage";
+import ErrorMessage from "../ErrorMessage";
+import TempMessage from "../TempMessage";
 
 function EditShowItem(props) {
     const [item, setItem] = useState(props.item)
@@ -122,7 +122,7 @@ export function ServerConfig(props) {
     }
 
     function renderButtons() {
-        if (waiting) {
+        if (waiting || !g.admin) {
             return null;
         }
         if (!edit) {

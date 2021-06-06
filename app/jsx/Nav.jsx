@@ -11,7 +11,7 @@ export const Nav = (props) => {
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
-        if (server_id !== current_id && !window.g.anon) {
+        if (server_id > 0 && server_id !== current_id && !window.g.anon) {
             setServer_id(current_id)
             context.api.json(`/server/${current_id}/`).then(result => {
                 if (result) {
@@ -26,15 +26,23 @@ export const Nav = (props) => {
         }
     }, [location]);
 
+    const profileLinks =
+        <li className="nav-item dropdown">
+            <a id="dropdown1" className="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+               aria-expanded="false" href="#">Profile</a>
+            <div className="dropdown-menu" aria-labelledby="dropdown1">
+                {window.g.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
+                {!window.g.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
+                {!window.g.anon && <NavLink className="dropdown-item" to={`/profile/`}>Profile</NavLink>}
+            </div>
+        </li>;
+
     const adminLinks =
         <li className="nav-item dropdown">
             <a id="dropdown1" className="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                aria-expanded="false" href="#">Admin</a>
             <div className="dropdown-menu" aria-labelledby="dropdown1">
                 {window.g.admin && <NavLink className="dropdown-item" to={`/admin/`}>User Admin</NavLink>}
-                {window.g.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
-                {!window.g.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
-                {!window.g.anon && <NavLink className="dropdown-item" to={`/profile/`}>Profile</NavLink>}
             </div>
         </li>;
 
@@ -59,7 +67,7 @@ export const Nav = (props) => {
         <nav className="navbar navbar-expand-lg navbar-dark bg-info">
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample08"
                     aria-controls="navbarsExample08" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
+                <span className="navbar-toggler-icon"> </span>
             </button>
 
             <div className="collapse navbar-collapse" id="navbarsExample08">
@@ -78,8 +86,9 @@ export const Nav = (props) => {
                     {/*<li className="nav-item">*/}
                     {/*    <a className="nav-link disabled" href="#">Disabled</a>*/}
                     {/*</li>*/}
-                    {server_id > 0 && projectLinks}
-                    {adminLinks}
+                    {window.g.anon && server_id > 0 && projectLinks}
+                    {profileLinks}
+                    {window.g.admin && adminLinks}
                 </ul>
             </div>
         </nav>

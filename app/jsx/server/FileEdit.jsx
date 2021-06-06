@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {ContentState, Editor, EditorState} from 'draft-js';
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 
 export default function FileEdit(props) {
     const [originalContent, setOriginalContent] = useState(ContentState.createFromText(''));

@@ -1,10 +1,10 @@
 import React, {useContext, useState} from "react";
-import {AppContext} from "./context";
+import {AppContext} from "../context";
 import {Link} from "react-router-dom";
 
 export function ServiceStatus(props) {
-    if(!props && !props.status){
-        return('');
+    if (!props && !props.status) {
+        return ('');
     }
 
     let badgeClass = 'warning';
@@ -53,6 +53,9 @@ export function ProjectService(props) {
     }
 
     function renderActions() {
+        if (!g.admin) {
+            return null;
+        }
         if (actioning) {
             return <p>Action: {actioning}, under way</p>
         }

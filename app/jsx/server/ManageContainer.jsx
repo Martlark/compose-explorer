@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useState} from 'react'
 import Collapsible from 'react-collapsible'
-import Directory from './directory'
-import Execute from './execute'
-import LogContent from './container_log'
-import {AppContext} from "./context";
+import Directory from './Directory'
+import Execute from './Execute'
+import LogContent from './LogContent'
+import {AppContext} from "../context";
 import {ServiceStatus} from "./ProjectService";
-import TempMessage from "./TempMessage";
+import TempMessage from "../TempMessage";
 
 export default function ManageContainer(props) {
     const [message, setMessage] = useState('');
@@ -72,6 +72,10 @@ export default function ManageContainer(props) {
     }
 
     function renderActions() {
+        if (!g.admin) {
+            return null
+        }
+
         if (actioning) {
             return <p>{actioning} under way... <progress/></p>
         }

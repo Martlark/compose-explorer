@@ -1,14 +1,14 @@
 import React, {useState} from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import {ApiService, AppContext, AuthApiService, ContextErrorMessage, ContextMessage} from './context'
+import {ApiService, AppContext, AuthService, ContextErrorMessage, ContextMessage} from './context'
 
-import ManageServer from "./ManageServer"
-import ManageContainer from "./ManageContainer"
-import FileEdit from "./container_edit_file";
-import LogContent from "./container_log";
+import ManageServer from "./server/ManageServer"
+import ManageContainer from "./server/ManageContainer"
+import FileEdit from "./server/FileEdit";
+import LogContent from "./server/LogContent";
 import Home from "./Home";
-import Project from "./project";
+import Project from "./server/Project";
 import {Nav} from "./Nav";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
