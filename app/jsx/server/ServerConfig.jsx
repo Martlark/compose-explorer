@@ -5,6 +5,8 @@ import {Link} from "react-router-dom";
 import ErrorMessage from "../ErrorMessage";
 import TempMessage from "../TempMessage";
 import ServerService from "../services/ServerService";
+import Form from "react-bootstrap/Form";
+import Button from "react-bootstrap/Button";
 
 function EditShowItem(props) {
     const [item, setItem] = useState(props.item)
@@ -46,25 +48,26 @@ function EditShowItem(props) {
     }
 
     if (props.edit) {
-        const testButton = <button className="btn btn-sm btn-warning" title="Test the connection"
+        const testButton = <Button className="btn btn-sm btn-warning" title="Test the connection"
                                    onClick={(evt) => clickTestConnection(evt)}
-        >Test connection</button>
-        const form = <form onSubmit={(evt) => clickSubmit(evt)}>
-            <label> Agent Server:
-                <input name={"name"} defaultValue={item.name}/>
-            </label>
-            <label> Port:
-                <input name={"port"} defaultValue={item.port}/>
-            </label>
-            <br/>
-            <label>Credentials:
-                <input name={"credentials"} defaultValue={item.credentials}/>
-            </label>
-            <br/>
-            {testButton}
-            <br/>
-            <button className={"btn btn-sm btn-success"} type={"submit"} title="Update values">✔</button>
-        </form>
+        >Test connection</Button>
+        const form = <Form onSubmit={(evt) => clickSubmit(evt)}>
+            <Form.Group size="lg" controlId="name">
+                <Form.Label> Agent Server:</Form.Label>
+                <Form.Control autoFocus name="name" defaultValue={item.name}/>
+
+            </Form.Group>
+            <Form.Group size="lg" controlId="port">
+                <Form.Label> Port: </Form.Label>
+                <Form.Control name="port" defaultValue={item.port}/>
+            </Form.Group>
+            <Form.Group size="lg" controlId="credentials">
+                <Form.Label>Credentials:</Form.Label>
+                <Form.Control name={"credentials"} defaultValue={item.credentials}/>
+            </Form.Group>
+            {testButton}{' '}
+            <Button className={"btn btn-sm btn-success"} type={"submit"} title="Update values">✔</Button>
+        </Form>
 
         return (<div>
             {form}
@@ -119,7 +122,7 @@ export function ServerConfig(props) {
             setErrorMessage('');
         }
 
-        return (<button className={"btn btn-sm btn-primary"} onClick={evt => click(evt)}>{text}</button>);
+        return (<Button className={"btn btn-sm btn-primary"} onClick={evt => click(evt)}>{text}</Button>);
     }
 
     function renderButtons() {

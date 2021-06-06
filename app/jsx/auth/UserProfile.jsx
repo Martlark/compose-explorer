@@ -42,7 +42,7 @@ export default function UserProfile() {
     function renderEdit() {
         return <Form onSubmit={clickUpdate}>
             <input type="hidden" name="id" defaultValue={user.id}/>
-            <Form.Group size="lg" controlId="email">
+            <Form.Group size="lg" controlId="first_name">
                 <Form.Label>First Name</Form.Label>
                 <Form.Control
                     autoFocus
@@ -51,7 +51,7 @@ export default function UserProfile() {
                     onChange={(e) => setFirst_name(e.target.value)}
                 />
             </Form.Group>
-            <Form.Group size="lg" controlId="password">
+            <Form.Group size="lg" controlId="last_name">
                 <Form.Label>Last Name</Form.Label>
                 <Form.Control
                     name="last_name"
