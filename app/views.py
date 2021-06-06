@@ -9,7 +9,7 @@ from app.models import Command
 from app.request_arg.request_arg import request_arg
 from config import STATIC_DIR
 
-bp = Blueprint('main', __name__)
+bp = Blueprint("main", __name__)
 
 
 @bp.errorhandler(Exception)
@@ -18,15 +18,17 @@ def exception_handler(error):
     return repr(error), 500
 
 
-@bp.route('/')
-@request_arg('request_path', arg_default='')
+@bp.route("/")
+@request_arg("request_path", arg_default="")
 def public_page_index(request_path=None):
-    return render_template('index.html', page_title='Docker Explorer', request_path=request_path)
+    return render_template(
+        "index.html", page_title="Docker Explorer", request_path=request_path
+    )
 
 
-@bp.route('/favicon.ico')
-@bp.route('/robots.txt')
-@bp.route('/ads.txt')
+@bp.route("/favicon.ico")
+@bp.route("/robots.txt")
+@bp.route("/ads.txt")
 def public_static_file():
     """
     return a file from the templates folder
@@ -41,12 +43,12 @@ def public_static_file():
 rand_check_number = random.randint(0, 9999999999)
 
 
-@bp.route('/last_static_update')
+@bp.route("/last_static_update")
 def last_static_update():
-    include_dirs = ['./app/js', './app/static/src', './app/templates']
-    exclude_dir = ['node_modules', 'venv', 'tmp']
-    notice_exts = ['js', 'html', 'css']
-    initial_max_age = max_age = float(request.args.get('max_age', -1))
+    include_dirs = ["./app/js", "./app/static/src", "./app/templates"]
+    exclude_dir = ["node_modules", "venv", "tmp"]
+    notice_exts = ["js", "html", "css"]
+    initial_max_age = max_age = float(request.args.get("max_age", -1))
     for include_dir in include_dirs:
         for root, dirs, files in os.walk(include_dir):
             if os.path.basename(root) not in exclude_dir:
@@ -56,20 +58,23 @@ def last_static_update():
                         mtime = os.path.getmtime(full_path)
                         if mtime > max_age and initial_max_age != -1:
                             current_app.logger.debug(
-                                'Refresh required because of:{full_path}'.format(full_path=full_path))
+                                "Refresh required because of:{full_path}".format(
+                                    full_path=full_path
+                                )
+                            )
                         max_age = max(max_age, mtime)
 
-    if request.args.get('rand_check_number'):
-        if int(request.args.get('rand_check_number')) != rand_check_number:
-            current_app.logger.debug(
-                'Refresh required because of:rand_check_number')
+    if request.args.get("rand_check_number"):
+        if int(request.args.get("rand_check_number")) != rand_check_number:
+            current_app.logger.debug("Refresh required because of:rand_check_number")
     return dict(max_age=max_age, rand_check_number=rand_check_number)
 
 
-@bp.route('/command/<int:item_id>/', methods=['GET', 'PUT', 'DELETE'])
-@bp.route('/command/', methods=['GET', 'POST'])
-@request_arg('container_name', arg_default='')
+@bp.route("/command/<int:item_id>/", methods=["GET", "PUT", "DELETE"])
+@bp.route("/command/", methods=["GET", "POST"])
+@request_arg("container_name", arg_default="")
 @login_required
 def route_command(item_id=None, container_name=None):
-    return Command.get_delete_put_post(item_id, user=current_user,
-                                       prop_filters={'container_name': container_name})
+    return Command.get_delete_put_post(
+        item_id, user=current_user, prop_filters={"container_name": container_name}
+    )

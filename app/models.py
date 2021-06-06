@@ -21,7 +21,7 @@ FlaskSerializeMixin.db = db
 
 # User class
 class User(db.Model, UserMixin, FlaskSerializeMixin):
-    __tablename__ = 'app_user'
+    __tablename__ = "app_user"
     # Our User has six fields: ID, email, password, active, confirmed_at and roles. The roles field represents a
     # many-to-many relationship using the roles_users table. Each user may have no role, one role, or multiple roles.
     id = db.Column(db.Integer, primary_key=True)
@@ -30,17 +30,19 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     first_name = db.Column(db.String(255))
     last_name = db.Column(db.String(255))
     password = db.Column(db.String(255))
-    user_type = db.Column(db.String(255), default='user')
+    user_type = db.Column(db.String(255), default="user")
     active = db.Column(db.Boolean(), default=True)
-    USER_TYPES = ['admin', 'read']
+    USER_TYPES = ["admin", "read"]
     # relationships
-    commands = db.relationship('Command', backref='user', lazy='dynamic', foreign_keys='Command.user_id')
+    commands = db.relationship(
+        "Command", backref="user", lazy="dynamic", foreign_keys="Command.user_id"
+    )
 
     def fs_private_field(self, field_name):
         # only allow profile fields when not admin
-        if getattr(current_user, 'is_admin', False):
+        if getattr(current_user, "is_admin", False):
             return False
-        return field_name.upper() not in ['EMAIL', 'FIRST_NAME', 'LAST_NAME']
+        return field_name.upper() not in ["EMAIL", "FIRST_NAME", "LAST_NAME"]
 
     @classmethod
     def email_is_used(cls, email):
@@ -48,7 +50,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
     @property
     def is_admin(self):
-        return self.user_type == 'admin'
+        return self.user_type == "admin"
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -74,7 +76,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         return command
 
     def __repr__(self):
-        return f'{self.email}'
+        return f"{self.email}"
 
 
 class Command(db.Model, FlaskSerializeMixin):
@@ -84,12 +86,12 @@ class Command(db.Model, FlaskSerializeMixin):
     container_name = db.Column(db.String(4000))
     created = db.Column(db.DateTime, default=datetime.utcnow)
     updated = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('app_user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey("app_user.id"))
 
     # fs fields
 
-    create_fields = ['cmd', 'result', 'container_name']
-    order_by_field_desc = 'created'
+    create_fields = ["cmd", "result", "container_name"]
+    order_by_field_desc = "created"
 
     def verify(self, create=False):
         if create:
@@ -102,18 +104,18 @@ class Command(db.Model, FlaskSerializeMixin):
 
 # DockerServer class
 class DockerServer(db.Model, FlaskSerializeMixin):
-    __tablename__ = 'docker_server'
+    __tablename__ = "docker_server"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
     credentials = db.Column(db.String(255))
     port = db.Column(db.String(255), default=5550)
     active = db.Column(db.Boolean(), default=True)
-    protocol = 'http'
+    protocol = "http"
 
     # fs fields
 
-    create_fields = ['name', 'credentials', 'port']
-    update_fields = create_fields + ['active']
+    create_fields = ["name", "credentials", "port"]
+    update_fields = create_fields + ["active"]
 
     @classmethod
     def name_is_unused(cls, name):
@@ -136,8 +138,11 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         """
         # call the remote agent
         headers = {"Authorization": f"Bearer {self.credentials}"}
-        r = requests.get(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}',
-                         params=params, headers=headers)
+        r = requests.get(
+            f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}",
+            params=params,
+            headers=headers,
+        )
         if r.ok:
             return r.json()
         raise Exception(r.text)
@@ -153,8 +158,11 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         """
         # call the remote agent
         headers = {"authorization": f"Bearer {self.credentials}"}
-        r = requests.post(f'{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/',
-                          data=params, headers=headers)
+        r = requests.post(
+            f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/",
+            data=params,
+            headers=headers,
+        )
         if r.ok:
             try:
                 return r.json()
@@ -165,74 +173,78 @@ class DockerServer(db.Model, FlaskSerializeMixin):
 
     def get_summary(self):
         # call the remote agent
-        r = self.get('container', 'list')
-        summary = dict(containers=0, volumes=0, error='', date='')
+        r = self.get("container", "list")
+        summary = dict(containers=0, volumes=0, error="", date="")
         for c in r:
-            summary['containers'] += 1
+            summary["containers"] += 1
         # call the remote agent
-        r = self.get('container', 'date')
-        summary['date'] = r.get('date')
+        r = self.get("container", "date")
+        summary["date"] = r.get("date")
         return summary
 
     def verify(self, create=False):
         if not all([self.name, self.port]):
-            raise Exception('Missing values')
+            raise Exception("Missing values")
 
         if create:
             if not self.name_is_unused(self.name):
-                raise Exception('Server name already in use')
+                raise Exception("Server name already in use")
 
         try:
             self.port = str(int(self.port))
         except Exception as e:
-            raise Exception('Port is not numeric')
+            raise Exception("Port is not numeric")
 
     @classmethod
-    def test_connection(cls, name, port, credentials=None, protocol='http'):
+    def test_connection(cls, name, port, credentials=None, protocol="http"):
         headers = {"authorization": f"Bearer {credentials}"}
         try:
-            r = requests.get(f'{protocol}://{name}:{port}/container/list', headers=headers, timeout=1.50)
+            r = requests.get(
+                f"{protocol}://{name}:{port}/container/list",
+                headers=headers,
+                timeout=1.50,
+            )
             if not r.ok:
                 return r.text, 400
         except Exception as e:
-            return f'{e}', 400
-        return {'message': 'connected'}
+            return f"{e}", 400
+        return {"message": "connected"}
 
 
 class Setting(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)
 
-    setting_type = db.Column(db.String(120), index=True, default='misc')
+    setting_type = db.Column(db.String(120), index=True, default="misc")
     key = db.Column(db.String(120), index=True)
-    value = db.Column(db.String(2000), default='')
-    active = db.Column(db.String(1), default='Y')
+    value = db.Column(db.String(2000), default="")
+    active = db.Column(db.String(1), default="Y")
     created = db.Column(db.DateTime)
     updated = db.Column(db.DateTime)
 
-    fields = ['setting_type', 'value', 'key', 'active']
+    fields = ["setting_type", "value", "key", "active"]
 
     def __repr__(self):
-        return '<Setting %r %r %r>' % (self.id, self.setting_type, self.value)
+        return "<Setting %r %r %r>" % (self.id, self.setting_type, self.value)
 
     def verify(self, create=False):
         if not self.key or len(self.key) < 1:
-            raise Exception('Missing key')
+            raise Exception("Missing key")
 
         if not self.setting_type or len(self.setting_type) < 1:
-            raise Exception('Missing setting type')
+            raise Exception("Missing setting type")
 
         if not self.active:
-            self.active = 'N'
+            self.active = "N"
 
-        if self.active not in ['Y', 'N']:
-            raise Exception('Invalid value for active')
+        if self.active not in ["Y", "N"]:
+            raise Exception("Invalid value for active")
 
         existing = Setting.query.filter_by(setting_type=self.setting_type, key=self.key)
         if not self.id:
             if existing.count() >= 1:
-                raise Exception('key and setting type must be unique')
+                raise Exception("key and setting type must be unique")
         elif not existing[0].id == self.id:
-            raise Exception('key and setting type must be unique')
+            raise Exception("key and setting type must be unique")
 
 
 # Create a user to test with
@@ -244,21 +256,31 @@ def create_admin_user(app, admin_password: str = None):
     :param admin_password:
     :return:
     """
-    admin_email = os.environ.get('ADMIN_USER', 'admin@admin.com')
-    new_admin_password = ''.join([random.choice(string.ascii_uppercase + string.digits) for r in range(20)])
-    new_admin_password = os.environ.get('ADMIN_PASSWORD', new_admin_password)
+    admin_email = os.environ.get("ADMIN_USER", "admin@admin.com")
+    new_admin_password = "".join(
+        [random.choice(string.ascii_uppercase + string.digits) for r in range(20)]
+    )
+    new_admin_password = os.environ.get("ADMIN_PASSWORD", new_admin_password)
     user = User.query.filter_by(email=admin_email).first()
 
     if not user:
-        user = User(email=admin_email, user_type='admin')
-        app.logger.warn('Creating default admin {} with password {}'.format(admin_email, admin_password))
+        user = User(email=admin_email, user_type="admin")
+        app.logger.warn(
+            "Creating default admin {} with password {}".format(
+                admin_email, admin_password
+            )
+        )
         user.set_password(new_admin_password)
         db.session.add(user)
         db.session.commit()
         return True
     else:
         if not user.check_password(admin_password):
-            app.logger.warn('Setting admin {} to password {}'.format(admin_email, new_admin_password))
+            app.logger.warn(
+                "Setting admin {} to password {}".format(
+                    admin_email, new_admin_password
+                )
+            )
             user.set_password(new_admin_password)
             db.session.add(user)
             db.session.commit()

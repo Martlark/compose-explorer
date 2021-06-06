@@ -38,7 +38,12 @@ def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callabl
                 try:
                     arg_value = arg_type(arg_value)
                 except Exception as e:
-                    abort(Response(f"""Required argument failed type conversion: {arg_name}, {str(e)}""", status=400))
+                    abort(
+                        Response(
+                            f"""Required argument failed type conversion: {arg_name}, {str(e)}""",
+                            status=400,
+                        )
+                    )
 
                 kwargs[arg_name] = arg_value
                 return f(*args, **kwargs)
@@ -47,4 +52,3 @@ def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callabl
         return decorated
 
     return decorator
-

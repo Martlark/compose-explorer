@@ -1,5 +1,5 @@
 from flask import Blueprint
 
-bp = Blueprint('profile', __name__)
+bp = Blueprint("profile", __name__)
 
 from app.profile import routes

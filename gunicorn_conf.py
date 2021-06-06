@@ -42,6 +42,6 @@ log_data = {
 }
 
 # timeout in seconds  - 1 hour should be enough
-timeout = 60 * int(os.getenv('REQUEST_TIMEOUT_MINUTES', 60 * 1))
+timeout = 60 * int(os.getenv("REQUEST_TIMEOUT_MINUTES", 60 * 1))
 
 print(json.dumps(log_data))

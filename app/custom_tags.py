@@ -25,16 +25,22 @@ class ImportJs(Extension):
 
 
     """
-    tags = {'import_js'}
+
+    tags = {"import_js"}
 
     def __init__(self, environment):
         super(ImportJs, self).__init__(environment)
         self.imports = {}
-        self.static_folder = os.getenv('STATIC_JS', 'static/js')
-        self.source_dir = os.path.join(BASEDIR, 'app', 'js')
-        self.exclude_starts_with = ['export default ', 'export ']
-        self.debug = os.getenv('DEPLOY_ENV') == 'Debug' or os.getenv('FLASK_DEBUG') == '1'  or os.getenv('DEBUG') == '1' or os.getenv('DEBUG') == 'True'
-        self.static_target_dir = os.path.join(BASEDIR, 'app', self.static_folder)
+        self.static_folder = os.getenv("STATIC_JS", "static/js")
+        self.source_dir = os.path.join(BASEDIR, "app", "js")
+        self.exclude_starts_with = ["export default ", "export "]
+        self.debug = (
+            os.getenv("DEPLOY_ENV") == "Debug"
+            or os.getenv("FLASK_DEBUG") == "1"
+            or os.getenv("DEBUG") == "1"
+            or os.getenv("DEBUG") == "True"
+        )
+        self.static_target_dir = os.path.join(BASEDIR, "app", self.static_folder)
         if not os.path.isdir(self.static_target_dir):
             os.makedirs(self.static_target_dir, exist_ok=True)
 
@@ -49,13 +55,13 @@ class ImportJs(Extension):
     @staticmethod
     def minimize_js(source_in, file_out):
         minified = jsmin(source_in)
-        with open(file_out, 'w') as f:
+        with open(file_out, "w") as f:
             f.write(minified)
 
     def generate_256_sri(self, file):
         if self.debug:
-            return ''
-        with open(file, 'rb') as f:
+            return ""
+        with open(file, "rb") as f:
             body = f.read()
             hash256 = sha256(body).digest()
             sha = base64.b64encode(hash256).decode()
@@ -85,35 +91,49 @@ class ImportJs(Extension):
         :param source_file:
         :return: concatenated source code
         """
-        source_code = ''
-        source_file_directory = self.source_dir + os.path.dirname(source_file)[len(self.source_dir):]
+        source_code = ""
+        source_file_directory = (
+            self.source_dir + os.path.dirname(source_file)[len(self.source_dir) :]
+        )
         with open(source_file) as sf:
             for line in sf.readlines():
-                if line.lstrip().startswith('import '):
+                if line.lstrip().startswith("import "):
                     parts = line.split('"')
                     if len(parts) < 2:
-                        raise Exception('import statement malformed: file: {}, line: {}'.format(source_file, line))
-                    import_file_name = os.path.normpath(os.path.join(source_file_directory, parts[1]))
+                        raise Exception(
+                            "import statement malformed: file: {}, line: {}".format(
+                                source_file, line
+                            )
+                        )
+                    import_file_name = os.path.normpath(
+                        os.path.join(source_file_directory, parts[1])
+                    )
 
-                    if not import_file_name.endswith('.js'):
-                        import_file_name += '.js'
+                    if not import_file_name.endswith(".js"):
+                        import_file_name += ".js"
 
                     if os.path.isfile(import_file_name):
                         if import_file_name not in self.imports:
                             self.imports[import_file_name] = True
 
-                            source_code += '/* import_js: importing from {import_file_name} */\n'.format(
-                                import_file_name=parts[1])
+                            source_code += "/* import_js: importing from {import_file_name} */\n".format(
+                                import_file_name=parts[1]
+                            )
                             source_code += self.import_file(import_file_name)
-                            source_code += '\n/* import_js: import complete from {} */\n'.format(parts[1])
+                            source_code += (
+                                "\n/* import_js: import complete from {} */\n".format(
+                                    parts[1]
+                                )
+                            )
                     else:
-                        source_code += '/* import_js: excluding missing file {import_file_name}: {line} */'.format(
-                            line=line, import_file_name=import_file_name)
-                    line = ''
+                        source_code += "/* import_js: excluding missing file {import_file_name}: {line} */".format(
+                            line=line, import_file_name=import_file_name
+                        )
+                    line = ""
                 else:
                     for exclude_token in self.exclude_starts_with:
                         if line.startswith(exclude_token):
-                            line = line[len(exclude_token):]
+                            line = line[len(exclude_token) :]
                             break
                 source_code += line
         return source_code
@@ -122,19 +142,21 @@ class ImportJs(Extension):
         # debug = False
         self.imports = {}
         source_file = os.path.join(self.source_dir, import_file)
-        base_import_file = import_file.split('.')[0]
-        target_source_directory = os.path.join(self.static_target_dir, os.path.dirname(import_file))
+        base_import_file = import_file.split(".")[0]
+        target_source_directory = os.path.join(
+            self.static_target_dir, os.path.dirname(import_file)
+        )
         if not os.path.isdir(target_source_directory):
             os.makedirs(target_source_directory, exist_ok=True)
 
-        cache_buster = ''
+        cache_buster = ""
         if self.debug:
-            age = 'debug'
+            age = "debug"
             # cache_buster = f'?cache_buster={self.get_file_age_in_seconds(source_file)}'
         else:
             age = self.get_file_age_in_seconds(source_file)
-        target_source = '{base}-{age}.js'.format(age=age, base=base_import_file)
-        min_target_source = '{base}-{age}.min.js'.format(age=age, base=base_import_file)
+        target_source = "{base}-{age}.js".format(age=age, base=base_import_file)
+        min_target_source = "{base}-{age}.min.js".format(age=age, base=base_import_file)
 
         target_source_file = os.path.join(self.static_target_dir, target_source)
         min_target_source_file = os.path.join(self.static_target_dir, min_target_source)
@@ -144,14 +166,20 @@ class ImportJs(Extension):
             if os.path.isfile(target_source_file):
                 self.safe_delete(target_source_file)
 
-        if not (self.debug and os.path.isfile(target_source_file) or (
-                not self.debug and os.path.isfile(min_target_source_file))):
+        if not (
+            self.debug
+            and os.path.isfile(target_source_file)
+            or (not self.debug and os.path.isfile(min_target_source_file))
+        ):
             # built file does not exist
-            source_code = '/* import_js: original source: {}, generated target: {} */\n'.format(import_file,
-                                                                                                target_source)
+            source_code = (
+                "/* import_js: original source: {}, generated target: {} */\n".format(
+                    import_file, target_source
+                )
+            )
             source_code += self.import_file(source_file)
 
-            with open(target_source_file, 'w') as f:
+            with open(target_source_file, "w") as f:
                 f.write(source_code)
 
             if not self.debug:
@@ -161,7 +189,7 @@ class ImportJs(Extension):
                     self.safe_delete(target_source_file)
                     target_source_file = min_target_source_file
                 except Exception as e:
-                    print('minimize failed', e)
+                    print("minimize failed", e)
                     min_target_source = target_source
 
         if not self.debug:
@@ -169,13 +197,19 @@ class ImportJs(Extension):
             target_source_file = min_target_source_file
 
         sri_256 = self.generate_256_sri(target_source_file)
-        template = u'''<script src="/{static_folder}/{target_source}{cache_buster}" defer=defer {sri}></script>'''
+        template = u"""<script src="/{static_folder}/{target_source}{cache_buster}" defer=defer {sri}></script>"""
 
-        return Markup(template.format(target_source=target_source, static_folder=self.static_folder, sri=sri_256,
-                                      cache_buster=cache_buster))
+        return Markup(
+            template.format(
+                target_source=target_source,
+                static_folder=self.static_folder,
+                sri=sri_256,
+                cache_buster=cache_buster,
+            )
+        )
 
     def parse(self, parser):
         lineno = next(parser.stream).lineno
         args = [parser.parse_expression()]
-        node = self.call_method('_render_tag', args)
+        node = self.call_method("_render_tag", args)
         return nodes.CallBlock(node, [], [], [], lineno=lineno)

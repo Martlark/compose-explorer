@@ -9,9 +9,9 @@ from app.profile import bp
 from app.request_arg.request_arg import request_arg
 
 
-@bp.post('/login/')
-@request_arg('email', arg_default=None)
-@request_arg('password', arg_default=None)
+@bp.post("/login/")
+@request_arg("email", arg_default=None)
+@request_arg("password", arg_default=None)
 def route_login(email=None, password=None):
     """
     api to login
@@ -21,9 +21,9 @@ def route_login(email=None, password=None):
         return Response(g.d, 200)
 
     admin_password = password
-    if email == os.getenv('ADMIN_USER', 'admin@admin.com'):
+    if email == os.getenv("ADMIN_USER", "admin@admin.com"):
         create_admin_user(current_app, admin_password=admin_password)
-    message = 'Invalid email or password'
+    message = "Invalid email or password"
     user = User.query.filter_by(email=email).first()
     if user is None:
         return Response(message, 403)
@@ -38,16 +38,16 @@ def route_login(email=None, password=None):
     return Response(g.d, 200)
 
 
-@bp.post('/logout/')
+@bp.post("/logout/")
 def route_logout():
     if current_user.is_anonymous:
-        return Response('not logged in', 400)
+        return Response("not logged in", 400)
     else:
         logout_user()
     return Response(g.d, 200)
 
 
-@bp.route('/user/', methods=['GET', 'PUT'])
+@bp.route("/user/", methods=["GET", "PUT"])
 @login_required
 def route_user():
     return User.get_delete_put_post(item_id=current_user.id)
