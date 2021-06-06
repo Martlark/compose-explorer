@@ -97,7 +97,7 @@ function User(props) {
     }
 
     function updateUserType(newType) {
-        props.authService.put(urlJoin('user', props.user.id), {user_type: newType}
+        props.authService.put(this.urlJoin('user', props.user.id), {user_type: newType}
         ).then(result => {
                 setUserType(newType);
                 context.setMessage(`${result.message} ${result.item.email} type: ${result.item.user_type}`);

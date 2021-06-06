@@ -1,5 +1,4 @@
-import {ApiService, urlJoin} from "../context";
-
+import ApiService from  "./ApiService"
 export default class ServerService extends ApiService {
     constructor(props) {
         super();
@@ -7,11 +6,11 @@ export default class ServerService extends ApiService {
     }
 
     remove() {
-        return this.delete(urlJoin(`server`, this.item.id));
+        return this.delete(this.urlJoin(`server`, this.item.id));
     }
 
     getSummary(setItem) {
-        return this.json(urlJoin('server_summary', this.item.id)).then(response => {
+        return this.json(this.urlJoin('server_summary', this.item.id)).then(response => {
                 setItem({...this.item, summary: response});
             }
         )
@@ -20,7 +19,7 @@ export default class ServerService extends ApiService {
     update(evt, setItem) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.put(urlJoin(`server`, this.item.id), data).then(result => {
+        return this.put(this.urlJoin(`server`, this.item.id), data).then(result => {
             this.item = result.item;
             setItem(result.item);
         });

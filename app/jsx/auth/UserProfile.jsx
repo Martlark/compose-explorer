@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, urlJoin} from './../context';
+import {AppContext} from './../context';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import ProfileService from "../services/ProfileService";
@@ -12,7 +12,7 @@ export default function UserProfile() {
     const api = new ProfileService();
 
     function getUser() {
-        api.json(urlJoin('user')
+        api.json('user'
         ).then(result => {
                 setUser(result);
                 setFirst_name(result.first_name);

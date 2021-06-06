@@ -1,4 +1,4 @@
-import {ApiService, urlJoin} from "../context";
+import ApiService from "./ApiService";
 
 
 export default class ProfileService extends ApiService {
@@ -11,7 +11,7 @@ export default class ProfileService extends ApiService {
         evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(urlJoin('login'), data).then(result => {
+        return this.post(this.urlJoin('login'), data).then(result => {
             {
                 window.g = result;
                 return result;
@@ -20,12 +20,12 @@ export default class ProfileService extends ApiService {
     }
 
     logout() {
-        return this.post(urlJoin('logout'), {});
+        return this.post(this.urlJoin('logout'), {});
     }
 
     update(evt) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.put(urlJoin('user'), data);
+        return this.put(this.urlJoin('user'), data);
     }
 }
