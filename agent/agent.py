@@ -12,7 +12,7 @@ import docker
 from flask import Flask, jsonify, request, current_app, send_file
 from flask_httpauth import HTTPTokenAuth
 
-from app.request_arg.request_arg import request_arg
+from request_arg.request_arg import request_arg
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 

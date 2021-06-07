@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # start the remote docker agent
 # keep the agent running, even if it errors
+export AUTH_TOKEN=debug
+. ../venv3/bin/activate
 while : ; do
     date
-    venv3/bin/python agent.py
+    gunicorn -w 4 --bind 0.0.0.0:5550 --reload wsgi:app
     sleep 10
 done

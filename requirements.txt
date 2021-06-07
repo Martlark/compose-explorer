@@ -1,4 +1,5 @@
 requests>=2.24.0
+MarkupSafe>=2.0
 Flask>=2.0.0
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
@@ -16,3 +17,4 @@ humanize>=2.4.1
 rjsmin
 flask_httpauth
 black
+gunicorn
