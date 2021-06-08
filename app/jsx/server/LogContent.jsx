@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "../context";
+import useInterval from "../useInterval"
 
 function LogEntry(props) {
     const parts = props.item.split(' ')[0].split('.')[0].split('T');
@@ -24,12 +25,11 @@ export default function LogContent(props) {
     const [autoUpdate, setAutoUpdate] = useState(false);
     const id = props.id || props.match.params.id;
     const name = props.name || props.match.params.name;
-    let refreshLogsInterval = null
 
     const context = useContext(AppContext);
 
     function getLogs() {
-        return context.api.proxyGet(`/container/${id}/logs/`, {name,tail}
+        return context.api.proxyGet(`/container/${id}/logs/`, {name, tail}
         ).then(result => {
                 if (previousLogHash !== result.hash) {
                     const items = [];
@@ -46,18 +46,18 @@ export default function LogContent(props) {
         );
     }
 
+    useInterval(() => {
+        if (autoUpdate) {
+            getLogs();
+        }
+    }, 10000);
+
     useEffect(() => {
         context.api.container(id, name).then(result => {
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
-
-        refreshLogsInterval = setInterval(() => {
-            if (autoUpdate) {
-                getLogs();
-            }
-        }, 10000);
         getLogs();
     }, [props.id]);
 
