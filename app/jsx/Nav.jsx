@@ -4,14 +4,14 @@ import {AppContext} from "./context";
 
 export const Nav = (props) => {
     const location = useLocation();
-    const [server_id, setServer_id] = useState();
+    const [server_id, setServer_id] = useState(0);
     const [projects, setProjects] = useState([]);
     const context = useContext(AppContext);
 
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
-        if (server_id > 0 && server_id !== current_id && !window.g.anon) {
+        if (server_id !== current_id && !window.g.anon) {
             setServer_id(current_id)
             context.api.json(`/server/${current_id}/`).then(result => {
                 if (result) {
@@ -20,7 +20,7 @@ export const Nav = (props) => {
                 }
             });
             context.api.projects(current_id
-            ).then(projects => setProjects(projects)
+            ).then(result => setProjects(result)
             ).fail((xhr, textStatus, errorThrown) =>
                 context.setErrorMessage(`Error getting projects: ${xhr.responseText} - ${errorThrown}`))
         }
@@ -86,7 +86,7 @@ export const Nav = (props) => {
                     {/*<li className="nav-item">*/}
                     {/*    <a className="nav-link disabled" href="#">Disabled</a>*/}
                     {/*</li>*/}
-                    {window.g.anon && server_id > 0 && projectLinks}
+                    {!window.g.anon && server_id > 0 && projectLinks}
                     {profileLinks}
                     {window.g.admin && adminLinks}
                 </ul>

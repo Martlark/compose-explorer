@@ -7,17 +7,19 @@ import 'react-tabs/style/react-tabs.css';
 import {AgentAction} from "./AgentAction";
 
 export default function Project(props) {
-    const [server_id, setServer_id] = useState(props.server_id);
+    const [server_id, setServer_id] = useState(props?.match?.params?.id || props.server_id);
     const [working_dir, setWorking_dir] = useState('');
     const [services, setServices] = useState(props.services ?? []);
-    const [project, setProject] = useState(props.project);
+    const [project, setProject] = useState(props?.match?.params?.project || props.project);
     const [gitStatus, setGitStatus] = useState();
     const context = useContext(AppContext)
 
+    useEffect(() => {
+        getServices();
+    }, [props]);
+
     function getServices() {
-        setServer_id(props.match.params.id);
-        setProject(props.match.params.project);
-        context.api.proxyGet(`/project/${props.match.params.id}/${props.match.params.project}/`
+        context.api.proxyGet(`/project/${server_id}/${project}/`
         ).then(result => {
                 setServices(result);
                 if (result.length > 0) {
@@ -29,14 +31,6 @@ export default function Project(props) {
         );
     }
 
-
-    useEffect(() => {
-        if (props?.match) {
-            if (props.match.params.id !== server_id || props.match.params.project !== project) {
-                getServices();
-            }
-        }
-    }, [props?.match]);
 
     function renderGitTab() {
         if (!g.admin) {

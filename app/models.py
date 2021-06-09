@@ -246,32 +246,22 @@ class Setting(db.Model, FlaskSerializeMixin):
 
 
 # Create a user to test with
-def create_admin_user(app, admin_password: str = None):
+def create_admin_user(app):
     """
     Create or fix the ADMIN_USER
 
     :param app:
-    :param admin_password:
     :return:
     """
     admin_email = os.environ.get("ADMIN_USER", "admin@admin.com")
+    user = User.query.filter_by(email=admin_email).first()
     new_admin_password = "".join([random.choice(string.ascii_uppercase + string.digits) for r in range(20)])
     new_admin_password = os.environ.get("ADMIN_PASSWORD", new_admin_password)
-    user = User.query.filter_by(email=admin_email).first()
 
     if not user:
+
         user = User(email=admin_email, user_type="admin")
-        app.logger.warn("Creating default admin {} with password {}".format(admin_email, admin_password))
+        app.logger.warn("Creating default admin {} with password {}".format(admin_email, new_admin_password))
         user.set_password(new_admin_password)
         db.session.add(user)
         db.session.commit()
-        return True
-    else:
-        if not user.check_password(admin_password):
-            app.logger.warn("Setting admin {} to password {}".format(admin_email, new_admin_password))
-            user.set_password(new_admin_password)
-            db.session.add(user)
-            db.session.commit()
-            return True
-
-    return False

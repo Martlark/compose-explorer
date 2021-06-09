@@ -9,7 +9,7 @@ export default function ManageServer(props) {
     const server_id = props.match.params.id;
     const context = useContext(AppContext);
 
-    function getItems() {
+    function getProjects() {
         context.api.projects(server_id
         ).then(projects => {
                 setProjects(projects);
@@ -32,7 +32,7 @@ export default function ManageServer(props) {
     useEffect(() => {
         context.setErrorMessage('');
         getServer();
-        getItems();
+        getProjects();
     }, [server_id]);
 
     return (<div>

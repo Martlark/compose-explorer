@@ -20,9 +20,7 @@ def route_login(email=None, password=None):
     if current_user.is_authenticated:
         return Response(g.d, 200)
 
-    admin_password = password
-    if email == os.getenv("ADMIN_USER", "admin@admin.com"):
-        create_admin_user(current_app, admin_password=admin_password)
+    create_admin_user(current_app)
     message = "Invalid email or password"
     user = User.query.filter_by(email=email).first()
     if user is None:
