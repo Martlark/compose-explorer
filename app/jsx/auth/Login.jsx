@@ -20,7 +20,8 @@ export function Login(props) {
     function handleSubmit(event) {
         event.preventDefault();
         api.login(event).then(result => {
-                window.g = result;
+                context.setAnon(result.anon);
+                context.setAdmin(result.admin);
                 context.setMessage('Welcome');
                 history.push('/');
             }

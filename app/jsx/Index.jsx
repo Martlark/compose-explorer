@@ -14,6 +14,7 @@ import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
 import UserAdmin from "./admin/UserAdmin";
 import UserProfile from "./auth/UserProfile";
+
 import ApiService from "./services/ApiService";
 
 
@@ -23,6 +24,9 @@ export function AppProvider() {
     const [serverName, setServerName] = useState('');
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [anon, setAnon] = useState(window.g?.anon);
+    const [admin, setAdmin] = useState(window.g?.admin);
+
     const state = {
         api: new ApiService(),
         projects,
@@ -34,7 +38,11 @@ export function AppProvider() {
         message,
         setMessage,
         errorMessage,
-        setErrorMessage
+        setErrorMessage,
+        anon,
+        setAnon,
+        admin,
+        setAdmin
     }
 
     return (<AppContext.Provider value={state}>

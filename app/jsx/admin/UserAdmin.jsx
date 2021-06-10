@@ -187,7 +187,7 @@ export default function UserAdmin(props) {
     const [addUser, setAddUser] = useState(false);
     const authService = new AuthService({})
 
-    if (!window.g.admin) {
+    if (!context.admin) {
         return <h3>Forbidden</h3>;
     }
 

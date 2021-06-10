@@ -13,7 +13,7 @@ export default function Home(props) {
     const history = useHistory();
 
     const getItems = () => {
-        if (window.g.anon) {
+        if (context.anon) {
             setServers([]);
             return;
         }

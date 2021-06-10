@@ -3,7 +3,7 @@ import useTimeout from "use-timeout";
 
 export default function TempMessage(props) {
     const [styleCloseButton, setStyleCloseButton] = useState({position: 'inherit'});
-    const timeout = props.timeout || 3000;
+    const timeout = props.timeout || 5000;
     const message = props.message;
     const setMessage = props.setMessage;
     const ref = useRef();

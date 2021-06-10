@@ -13,7 +13,9 @@ export default class ProfileService extends ApiService {
 
         return this.post(this.urlJoin('login'), data).then(result => {
             {
-                window.g = result;
+                context.setAnon(result.anon);
+                context.setAdmin(result.admin);
+
                 return result;
             }
         });

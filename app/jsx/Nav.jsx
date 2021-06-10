@@ -11,7 +11,7 @@ export const Nav = (props) => {
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match && match.params && match.params.id || 0;
-        if (server_id !== current_id && !window.g.anon) {
+        if (server_id !== current_id && !context.anon) {
             setServer_id(current_id)
             context.api.json(`/server/${current_id}/`).then(result => {
                 if (result) {
@@ -31,9 +31,9 @@ export const Nav = (props) => {
             <a id="dropdown1" className="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                aria-expanded="false" href="#">Profile</a>
             <div className="dropdown-menu" aria-labelledby="dropdown1">
-                {window.g.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
-                {!window.g.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
-                {!window.g.anon && <NavLink className="dropdown-item" to={`/profile/`}>Profile</NavLink>}
+                {context.anon && <NavLink className="dropdown-item" to={`/login/`}>Login</NavLink>}
+                {!context.anon && <NavLink className="dropdown-item" to={`/logout/`}>Logout</NavLink>}
+                {!context.anon && <NavLink className="dropdown-item" to={`/profile/`}>Profile</NavLink>}
             </div>
         </li>;
 
@@ -42,7 +42,7 @@ export const Nav = (props) => {
             <a id="dropdown1" className="nav-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                aria-expanded="false" href="#">Admin</a>
             <div className="dropdown-menu" aria-labelledby="dropdown1">
-                {window.g.admin && <NavLink className="dropdown-item" to={`/admin/`}>User Admin</NavLink>}
+                {context.admin && <NavLink className="dropdown-item" to={`/admin/`}>User Admin</NavLink>}
             </div>
         </li>;
 
@@ -80,15 +80,15 @@ export const Nav = (props) => {
                         <NavLink
                             className="nav-link"
                             to={`/server/${server_id}`}>
-                            {context.server_name}
+                            {context.serverName}
                         </NavLink>
                     </li>}
                     {/*<li className="nav-item">*/}
                     {/*    <a className="nav-link disabled" href="#">Disabled</a>*/}
                     {/*</li>*/}
-                    {!window.g.anon && server_id > 0 && projectLinks}
+                    {!context.anon && server_id > 0 && projectLinks}
                     {profileLinks}
-                    {window.g.admin && adminLinks}
+                    {context.admin && adminLinks}
                 </ul>
             </div>
         </nav>

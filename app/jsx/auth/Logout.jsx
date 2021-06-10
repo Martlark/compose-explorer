@@ -19,7 +19,8 @@ export function Logout(props) {
     function clickLogout(event) {
         event.preventDefault();
         api.logout(event, {}).then(result => {
-                window.g = result;
+                context.setAnon(result.anon);
+                context.setAdmin(result.admin);
                 context.setMessage('Farewell');
                 history.push('/');
             }

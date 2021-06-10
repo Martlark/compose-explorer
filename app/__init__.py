@@ -80,6 +80,12 @@ def create_app():
 
     @app.errorhandler(404)
     def handle_404(e):
+        """
+        make react routes work by redirecting through /
+        in index.html there is a request_path hidden input
+        that is read by the react router on init.
+
+        """
         logging.warning(404, request.path)
         if "/api/" not in request.path and request.method == "GET":
             return redirect(f"/?request_path={quote_plus(request.path)}")
