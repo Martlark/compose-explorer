@@ -41,7 +41,7 @@ export default function Project(props) {
                                       working_dir={working_dir}
                                       server_id={server_id}
                                       service={'git'}
-                                      actions={['status', 'pull', 'fetch', 'log']}
+                                      actions={['status', 'pull', 'fetch', 'log', 'clear']}
         /></TabPanel>
     }
 
@@ -53,7 +53,7 @@ export default function Project(props) {
                                       working_dir={working_dir}
                                       server_id={server_id}
                                       service={'compose'}
-                                      actions={['ps', 'up', 'build', 'stop', 'logs', 'restart']}
+                                      actions={['ps', 'up', 'build', 'stop', 'logs', 'restart', 'clear']}
         /></TabPanel>
     }
 

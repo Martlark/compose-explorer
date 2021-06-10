@@ -20,7 +20,8 @@
     "react-dom": "^16.13.1",
     "react-inline-confirm": "^3.0.0",
     "react-tabs": "^3.2.2",
-    "serialize-javascript": "^3.1.0"
+    "serialize-javascript": "^3.1.0",
+    "use-timeout": "^1.1.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.16",

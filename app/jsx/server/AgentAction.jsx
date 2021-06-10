@@ -3,15 +3,21 @@ import {AppContext} from "../context";
 import TempMessage from "../TempMessage";
 
 function ResultLog(props) {
-    let index = 1;
-    return props.resultLog.map(result =>
-        <tr key={`result-${index++}`}>
+    return props.resultLog.map((result,index) =>
+        <tr key={`result-${index}`}>
             <td><h3>{result.title}</h3>
                 <pre>{result.result}</pre>
             </td>
         </tr>)
 }
 
+/***
+ * component to show the results of and to send actions to the agent
+ * first action of props.action is initiated on component load
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export function AgentAction(props) {
     const [resultLog, setResultLog] = useState([]);
     const [message, setMessage] = useState('');
@@ -31,7 +37,10 @@ export function AgentAction(props) {
     const clickAction = (evt, action) => {
 
         evt?.preventDefault();
-
+        if(action.action==='clear'){
+            setResultLog([]);
+            return;
+        }
         setActioning(action.action);
         return context.api.proxyPost(`/agent/${props.service}/${props.server_id}/${action.action}/`, {working_dir: working_dir}
         ).then(result => {
