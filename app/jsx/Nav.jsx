@@ -49,7 +49,7 @@ export const Nav = (props) => {
 
     const projectLinks = <li className="dropdown">
         <li className="dropdown">
-            <a className="nav-link dropdown-toggle" href="http://example.com" id="dropdown08" data-toggle="dropdown"
+            <a className="nav-link dropdown-toggle" href={"#"} data-toggle="dropdown"
                aria-haspopup="true" aria-expanded="false">Projects</a>
             <div className="dropdown-menu" aria-labelledby="dropdown08">
                 {projects.map(project =>

@@ -15,8 +15,15 @@ export default function Project(props) {
     const context = useContext(AppContext)
 
     useEffect(() => {
+        if (props.match) {
+            setServer_id(props.match?.params.id);
+            setProject(props.match?.params.project);
+        }
+    }, [props.match?.params]);
+
+    useEffect(() => {
         getServices();
-    }, [props]);
+    }, [server_id, project]);
 
     function getServices() {
         context.api.proxyGet(`/project/${server_id}/${project}/`
@@ -91,8 +98,3 @@ export default function Project(props) {
             </Tabs>
         </div>)
 }
-
-/*
-see:
-https://www.robinwieruch.de/react-hooks-fetch-data
- */
