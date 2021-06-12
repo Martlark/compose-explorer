@@ -20,7 +20,7 @@ import ApiService from "./services/ApiService";
 
 export function AppProvider() {
     const [projects, setProjects] = useState([]);
-    const [serverId, setServerId] = useState(-1);
+    const [serverId, setServerId] = useState(0);
     const [serverName, setServerName] = useState('');
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');

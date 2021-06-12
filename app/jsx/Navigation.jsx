@@ -5,20 +5,18 @@ import {Nav, Navbar, NavDropdown} from "react-bootstrap";
 
 export const Navigation = (props) => {
     const location = useLocation();
-    const [server_id, setServer_id] = useState(0);
     const [projects, setProjects] = useState([]);
     const context = useContext(AppContext);
 
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
-        const current_id = match?.params?.id || 0;
-        if (server_id !== current_id && !context.anon) {
-            setServer_id(current_id);
+        const current_id = match?.params?.id || context.serverId;
+        if (context.serverId !== current_id && !context.anon) {
             if (current_id) {
+                context.setServerId(current_id);
                 context.api.json(`/server/${current_id}/`).then(result => {
                     if (result) {
                         context.setServerName(result.name);
-                        context.setServerId(current_id);
                     }
                 });
                 context.api.projects(current_id
@@ -46,7 +44,7 @@ export const Navigation = (props) => {
         <NavDropdown title="Projects" id="projects-dropdown">
             {projects.map(project => {
                 return <NavDropdown.Item
-                    href={`/server/${server_id}/project/${project.name}`}>{project.name}</NavDropdown.Item>;
+                    href={`/server/${context.serverId}/project/${project.name}`}>{project.name}</NavDropdown.Item>;
             })
             }
         </NavDropdown>;
@@ -59,10 +57,10 @@ export const Navigation = (props) => {
             <Navbar.Collapse id="navbar">
                 <Nav className="mr-auto">
                     <Nav.Link
-                        href={`/server/${server_id}`}>
+                        href={`/server/${context.serverId}`}>
                         {context.serverName}
                     </Nav.Link>
-                    {!context.anon && server_id > 0 && projectLinks}
+                    {!context.anon && context.serverId > 0 && projectLinks}
                     {profileLinks}
                     {context.admin && adminLinks}
                 </Nav>
