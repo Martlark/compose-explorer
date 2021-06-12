@@ -9,7 +9,7 @@ import FileEdit from "./server/FileEdit";
 import LogContent from "./server/LogContent";
 import Home from "./Home";
 import Project from "./server/Project";
-import {Nav} from "./Nav";
+import {Navigation} from "./Navigation";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
 import UserAdmin from "./admin/UserAdmin";
@@ -47,7 +47,7 @@ export function AppProvider() {
 
     return (<AppContext.Provider value={state}>
         <Router>
-            <Nav/>
+            <Navigation/>
             <ContextMessage message={message}/>
             <ContextErrorMessage message={errorMessage}/>
             <div className={"container"}>
