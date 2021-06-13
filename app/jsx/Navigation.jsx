@@ -4,14 +4,15 @@ import {AppContext} from "./context";
 import {Nav, Navbar, NavDropdown} from "react-bootstrap";
 
 export const Navigation = (props) => {
-    const location = useLocation();
+    const [servers, setServers] = useState([]);
     const [projects, setProjects] = useState([]);
+    const location = useLocation();
     const context = useContext(AppContext);
 
     useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match?.params?.id || context.serverId;
-        if (context.serverId !== current_id && !context.anon) {
+        if (!context.anon && context.serverId !== current_id) {
             if (current_id) {
                 context.setServerId(current_id);
                 context.api.json(`/server/${current_id}/`).then(result => {
@@ -27,6 +28,17 @@ export const Navigation = (props) => {
         }
     }, [location]);
 
+    useEffect(() => {
+        context.api.json('/servers/', {_: new Date().getTime()}).then(items => setServers(items))
+    }, [context.anon]);
+
+    const serverLinks =
+        <NavDropdown title="Servers" id="server-dropdown">
+            {servers.map(item => <NavDropdown.Item
+                href={`/server/${item.id}`}>{item.name}</NavDropdown.Item>
+            )}
+        </NavDropdown>;
+
     const profileLinks =
         <NavDropdown title="Profile" id="profile-dropdown">
             {context.anon && <NavDropdown.Item href={`/login/`}>Login</NavDropdown.Item>}
@@ -37,6 +49,7 @@ export const Navigation = (props) => {
     const adminLinks =
         <NavDropdown title="Admin" id="admin-dropdown">
             <NavDropdown.Item href={`/admin/`}>User Admin</NavDropdown.Item>
+            <NavDropdown.Item href={`/groups/`}>Group Admin</NavDropdown.Item>
         </NavDropdown>;
 
 
@@ -58,11 +71,12 @@ export const Navigation = (props) => {
                 <Nav className="mr-auto">
                     <Nav.Link
                         href={`/server/${context.serverId}`}>
-                        {context.serverName}
+                        <span title="Active server">{context.serverName}</span>
                     </Nav.Link>
+                    {!context.anon && serverLinks}
                     {!context.anon && context.serverId > 0 && projectLinks}
-                    {profileLinks}
                     {context.admin && adminLinks}
+                    {profileLinks}
                 </Nav>
             </Navbar.Collapse>
         </Navbar>

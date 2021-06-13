@@ -250,6 +250,14 @@ body.is-loading #banner .content {
     width: 20%
 }
 
+.w-30 {
+    width: 30%
+}
+
+.w-40 {
+    width: 40%
+}
+
 .w-70 {
     width: 70%
 }

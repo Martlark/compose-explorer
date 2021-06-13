@@ -44,7 +44,7 @@ export default class ApiService {
 
     post(url, data = {}) {
         data.csrf_token = this.csrf_token;
-        return $.post(urlJoin(this.prefix_api, url), data);
+        return $.post(this.urlJoin(this.prefix_api, url), data);
     }
 
     delete(url) {

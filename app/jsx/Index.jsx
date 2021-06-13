@@ -16,6 +16,8 @@ import UserAdmin from "./admin/UserAdmin";
 import UserProfile from "./auth/UserProfile";
 
 import ApiService from "./services/ApiService";
+import GroupAdmin from "./admin/GroupAdmin";
+import GroupEdit from "./admin/GroupEdit";
 
 
 export function AppProvider() {
@@ -63,6 +65,8 @@ export function AppProvider() {
                     <Route exact path="/login/" component={Login}/>
                     <Route exact path="/logout/" component={Logout}/>
                     <Route exact path="/admin/" component={UserAdmin}/>
+                    <Route exact path="/groups/" component={GroupAdmin}/>
+                    <Route exact path="/group/:id" component={GroupEdit}/>
                     <Route exact path="/profile/" component={UserProfile}/>
                 </Switch>
             </div>

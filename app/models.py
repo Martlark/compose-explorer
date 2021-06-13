@@ -18,6 +18,29 @@ to_zone = tz.tzlocal()
 
 FlaskSerializeMixin.db = db
 
+server_group_user = db.Table('server_group_user',
+                             db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
+                             db.Column('user_id', db.Integer, db.ForeignKey('app_user.id'))
+                             )
+
+
+server_group_server = db.Table('server_group_server',
+                             db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
+                             db.Column('server_id', db.Integer, db.ForeignKey('docker_server.id'))
+                             )
+
+
+class ServerGroup(db.Model, FlaskSerializeMixin):
+    __tablename__ = "server_group"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), unique=True)
+    options = db.Column(db.String(2000))
+    description = db.Column(db.String(255))
+    # relationships
+    users = db.relationship("User", secondary=server_group_user)
+    servers = db.relationship("DockerServer", secondary=server_group_server)
+    relationship_fields = ['users', 'servers']
+
 
 # User class
 class User(db.Model, UserMixin, FlaskSerializeMixin):
@@ -35,6 +58,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     USER_TYPES = ["admin", "read"]
     # relationships
     commands = db.relationship("Command", backref="user", lazy="dynamic", foreign_keys="Command.user_id")
+    group_id = db.Column(db.Integer, db.ForeignKey("server_group.id"))
 
     def fs_private_field(self, field_name):
         # only allow profile fields when not admin
@@ -109,6 +133,8 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     port = db.Column(db.String(255), default=5550)
     active = db.Column(db.Boolean(), default=True)
     protocol = "http"
+    # relationships
+    group_id = db.Column(db.Integer, db.ForeignKey("server_group.id"))
 
     # fs fields
 
@@ -259,7 +285,6 @@ def create_admin_user(app):
     new_admin_password = os.environ.get("ADMIN_PASSWORD", new_admin_password)
 
     if not user:
-
         user = User(email=admin_email, user_type="admin")
         app.logger.warn("Creating default admin {} with password {}".format(admin_email, new_admin_password))
         user.set_password(new_admin_password)
