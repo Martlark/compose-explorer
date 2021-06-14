@@ -236,6 +236,7 @@ export default function GroupEdit(props) {
 
     return (<div>
         <h2>Group: {group.name} - {group.description}</h2>
+        <h3>{group.access_type}</h3>
         {renderActions()}
         {mode === 'add-user' && renderAddUser()}
         {mode === 'add-server' && renderAddServer()}

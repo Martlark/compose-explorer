@@ -8,7 +8,7 @@ function ExecEntry(props) {
     }
 
     function renderActions() {
-        if (!context.admin) {
+        if (!props.server.write) {
             return null;
         }
 
@@ -110,8 +110,8 @@ export default function Execute(props) {
     }
 
     function renderExecutingHeader() {
-        if (!context.admin) {
-            return <h3>Admin access required</h3>;
+        if (!props.server.write) {
+            return <h3>Server write access required</h3>;
         }
 
         if (executing) {

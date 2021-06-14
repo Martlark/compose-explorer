@@ -13,6 +13,7 @@ export default function Project(props) {
     const [services, setServices] = useState(props.services ?? []);
     const [project, setProject] = useState(props?.match?.params?.project || props.project);
     const [gitStatus, setGitStatus] = useState();
+    const [server, setServer] = useState({});
     const context = useContext(AppContext)
 
     useEffect(() => {
@@ -27,6 +28,7 @@ export default function Project(props) {
     }, [server_id, project]);
 
     function getServices() {
+        context.api.json(`/server/${server_id}/`).then(result=>setServer(result));
         context.api.proxyGet(`/project/${server_id}/${project}/`
         ).then(result => {
                 setServices(result);
@@ -48,6 +50,7 @@ export default function Project(props) {
         return <TabPanel><AgentAction key={server_id}
                                       working_dir={working_dir}
                                       server_id={server_id}
+                                      server={server}
                                       service={'git'}
                                       actions={['status', 'pull', 'fetch', 'log', 'clear']}
         /></TabPanel>
@@ -60,6 +63,7 @@ export default function Project(props) {
         return <TabPanel><AgentAction key={server_id}
                                       working_dir={working_dir}
                                       server_id={server_id}
+                                      server={server}
                                       service={'compose'}
                                       actions={['ps', 'up', 'build', 'stop', 'logs', 'restart', 'clear']}
         /></TabPanel>
@@ -92,6 +96,7 @@ export default function Project(props) {
 
                         {services.map(service => <ProjectService key={service.id}
                                                                  server_id={server_id}
+                                                                 server={server}
                                                                  name={service.name}
                                                                  details={service}
                                                                  status={service.status}/>)}

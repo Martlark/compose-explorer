@@ -49,6 +49,7 @@ def set_g():
     g.admin = getattr(current_user, "is_admin", False)
     g.id = getattr(current_user, "id", None)
     g.d = d_serialize(g)
+    return g.d
 
 
 # Flask and Flask-SQLAlchemy initialization here
@@ -75,7 +76,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
-    login_manager.login_view = "index"
+    login_manager.login_view = "main.public_page_index"
+    login_manager.login_message = None
     login_manager.init_app(app)
 
     @app.errorhandler(404)

@@ -6,6 +6,7 @@ import LoginRequired from "../LoginRequired";
 export default function FileEdit(props) {
     const [originalContent, setOriginalContent] = useState(ContentState.createFromText(''));
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
+    const [server, setServer] = useState({});
 
     let editor = null;
     const u = new URLSearchParams(props.location.search)
@@ -26,6 +27,7 @@ export default function FileEdit(props) {
     }
 
     useEffect(() => {
+        context.api.json(context.api.urlJoin('server', id)).then(result => setServer(result));
         context.api.container(id, name).then(result => {
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -85,6 +87,10 @@ export default function FileEdit(props) {
 
     if (context.anon) {
         return <LoginRequired/>;
+    }
+
+    if(!server.write) {
+        return <h3>Server write access required</h3>;
     }
 
     return (<div>

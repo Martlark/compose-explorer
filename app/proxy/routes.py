@@ -21,7 +21,7 @@ def route_container_get(server_id, verb):
 
 
 @bp.post("/container/<int:server_id>/<verb>/")
-@admin_required
+@login_required
 def route_container_post(server_id, verb):
     server = DockerServer.query.get_or_404(server_id)
     try:
@@ -97,7 +97,7 @@ def route_projects(server_id):
 
 
 @bp.post("/agent/<service>/<int:server_id>/<action>/")
-@admin_required
+@login_required
 def route_agent_service(service, server_id, action=None):
     server = DockerServer.query.get(int(server_id))
 

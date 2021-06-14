@@ -16,10 +16,11 @@ export default function Home(props) {
             return;
         }
         return context.api.json('/servers/', {_: new Date().getTime()}).then(items => {
+                items = items.filter(item => item.read);
                 if (!items || items.length < 1) {
                     setServers([]);
-                    setNewServer(true);
-                    context.setErrorMessage('No active servers found.  Add a server.');
+                    setNewServer(context.admin && true);
+                    context.setErrorMessage('No active servers found.');
                 } else {
                     setServers(items);
                     context.setErrorMessage('');
@@ -48,7 +49,7 @@ export default function Home(props) {
     }
 
     function renderNewServer() {
-        if(!context.admin){
+        if (!context.admin) {
             return null;
         }
 

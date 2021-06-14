@@ -69,5 +69,20 @@ export default function UserProfile() {
         <h2>{user.email}</h2>
         <h3>User type: {context.admin && 'admin' || 'read'}</h3>
         {renderEdit()}
+        <h3>Group Membership</h3>
+        <table>
+            <thead>
+            <tr>
+                <th className={"w-40"}>Access type</th>
+                <th className={"w-60"}>Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {user.group_membership?.map(group => <tr>
+                <td>{group.access_type}</td>
+                <td>{group.name}</td>
+            </tr>)}
+            </tbody>
+        </table>
     </div>
 }

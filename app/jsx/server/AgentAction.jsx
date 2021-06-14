@@ -3,7 +3,7 @@ import {AppContext} from "../context";
 import TempMessage from "../TempMessage";
 
 function ResultLog(props) {
-    return props.resultLog.map((result,index) =>
+    return props.resultLog.map((result, index) =>
         <tr key={`result-${index}`}>
             <td><h3>{result.title}</h3>
                 <pre>{result.result}</pre>
@@ -35,9 +35,9 @@ export function AgentAction(props) {
     }
 
     const clickAction = (evt, action) => {
-
         evt?.preventDefault();
-        if(action.action==='clear'){
+
+        if (action.action === 'clear') {
             setResultLog([]);
             return;
         }
@@ -55,6 +55,9 @@ export function AgentAction(props) {
     }
 
     function renderActions() {
+        if (!props.server.write) {
+            return <p>Server group write required</p>
+        }
         if (actioning) {
             return <p>Action: {actioning}, under way</p>
         }

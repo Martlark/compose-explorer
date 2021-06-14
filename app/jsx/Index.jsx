@@ -18,6 +18,7 @@ import UserProfile from "./auth/UserProfile";
 import ApiService from "./services/ApiService";
 import GroupAdmin from "./admin/GroupAdmin";
 import GroupEdit from "./admin/GroupEdit";
+import NotFound from "./NotFound";
 
 
 export function AppProvider() {
@@ -58,7 +59,7 @@ export function AppProvider() {
                         <Home/>
                     </Route>
                     <Route exact path="/server/:id" component={ManageServer}/>
-                    <Route path="/server/:id/project/:project" component={Project}/>
+                    <Route exact path="/server/:id/project/:project" component={Project}/>
                     <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
                     <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
                     <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
@@ -68,6 +69,7 @@ export function AppProvider() {
                     <Route exact path="/groups/" component={GroupAdmin}/>
                     <Route exact path="/group/:id" component={GroupEdit}/>
                     <Route exact path="/profile/" component={UserProfile}/>
+                    <Route component={NotFound}/>
                 </Switch>
             </div>
         </Router>

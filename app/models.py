@@ -8,6 +8,7 @@ import requests
 from dateutil import tz
 from flask_login import UserMixin, current_user
 from flask_serialize import FlaskSerializeMixin
+from werkzeug.exceptions import abort
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app import db
@@ -57,7 +58,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     password = db.Column(db.String(255))
     user_type = db.Column(db.String(255), default="user")
     active = db.Column(db.Boolean(), default=True)
-    USER_TYPES = ["admin", "read"]
+    USER_TYPES = ["admin", "user"]
     # relationships
     commands = db.relationship("Command", backref="user", lazy="dynamic", foreign_keys="Command.user_id")
 
@@ -65,11 +66,16 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         # only allow profile fields when not admin
         if getattr(current_user, "is_admin", False):
             return False
-        return field_name.upper() not in ["EMAIL", "FIRST_NAME", "LAST_NAME"]
+        return field_name.upper() not in ["EMAIL", "FIRST_NAME", "LAST_NAME", "GROUP_MEMBERSHIP"]
 
     @classmethod
     def email_is_used(cls, email):
         return cls.query.filter_by(email=email.lower()).first()
+
+    @property
+    def group_membership(self):
+        return [dict(name=group.name,access_type=group.access_type) for group in self.groups]
+
 
     @property
     def is_admin(self):
@@ -91,6 +97,8 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         if create:
             self.set_password(self.password)
         self.email = self.email.lower()
+        if self.user_type not in self.USER_TYPES:
+            raise Exception('user_type not allowed')
 
     def add_command(self, cmd, result):
         command = Command(cmd=cmd, result=result, user=self)
@@ -151,6 +159,14 @@ class DockerServer(db.Model, FlaskSerializeMixin):
             found = cls.query.filter_by(name=name.lower()).first()
             return found is None
 
+    @property
+    def read(self):
+        return self.has_group_read()
+
+    @property
+    def write(self):
+        return self.has_group_write()
+
     def get(self, d_type, verb, params=None):
         """
         return some information from the proxy
@@ -161,6 +177,8 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         :return:
         """
         # call the remote agent
+        if not self.has_group_read():
+            abort(403)
         headers = {"Authorization": f"Bearer {self.credentials}"}
         r = requests.get(
             f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}",
@@ -181,6 +199,9 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         :return:
         """
         # call the remote agent
+        if not self.has_group_write():
+            abort(403)
+
         headers = {"authorization": f"Bearer {self.credentials}"}
         r = requests.post(
             f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/",
@@ -235,13 +256,19 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         return {"message": "connected"}
 
     def has_group_read(self, user=current_user):
-        for group in self.groups:
+        if self.has_group_write(user):
+            return True
+
+        for group in filter(lambda g: g.access_type == 'read', self.groups):
             if group in user.groups:
                 return True
         return False
 
     def has_group_write(self, user=current_user):
-        for group in self.groups:
+        if getattr(current_user, "is_admin", False):
+            return True
+
+        for group in filter(lambda g: g.access_type == 'write', self.groups):
             if group in user.groups:
                 return True
         return False

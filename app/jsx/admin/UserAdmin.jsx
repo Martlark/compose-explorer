@@ -8,7 +8,7 @@ function User(props) {
     const context = useContext(AppContext);
     const [mode, setMode] = useState('view');
     const [userType, setUserType] = useState(props.user.user_type);
-    const user_types = ['admin', 'read'];
+    const user_types = ['admin', 'user'];
 
     function clickEdit() {
         setMode('edit');
@@ -97,7 +97,7 @@ function User(props) {
     }
 
     function updateUserType(newType) {
-        props.authService.put(this.urlJoin('user', props.user.id), {user_type: newType}
+        props.authService.put(props.authService.urlJoin('user', props.user.id), {user_type: newType}
         ).then(result => {
                 setUserType(newType);
                 context.setMessage(`${result.message} ${result.item.email} type: ${result.item.user_type}`);

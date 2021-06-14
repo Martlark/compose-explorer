@@ -9,6 +9,7 @@ import TempMessage from "../TempMessage";
 
 export default function ManageContainer(props) {
     const [message, setMessage] = useState('');
+    const [server, setServer] = useState({});
     const id = props.match.params.id;
     const name = props.match.params.name;
     const [status, setStatus] = useState('');
@@ -24,7 +25,21 @@ export default function ManageContainer(props) {
     }];
     const context = useContext(AppContext)
 
+    function getServer() {
+        if(context.anon){
+            return;
+        }
+        return context.api.json(`/server/${id}/`
+        ).then(item => {
+                setServer(item);
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`${xhr.responseText}`)
+        )
+    }
+
     useEffect(() => {
+        getServer();
         getContainerProps();
     }, [props]);
 
@@ -72,7 +87,7 @@ export default function ManageContainer(props) {
     }
 
     function renderActions() {
-        if (!context.admin) {
+        if (!server.write) {
             return null
         }
 
@@ -109,7 +124,7 @@ export default function ManageContainer(props) {
 
     function renderExecute() {
         return <Collapsible trigger="Execute">
-            <Execute id={id} name={name} status={status}/>
+            <Execute id={id} server={server} name={name} status={status}/>
         </Collapsible>
     }
 
@@ -125,6 +140,7 @@ export default function ManageContainer(props) {
             <Collapsible trigger="Directory">
 
                 <Directory
+                    server={server}
                     id={id}
                     pwd={'.'}
                     name={name}
@@ -138,6 +154,7 @@ export default function ManageContainer(props) {
             <Collapsible trigger="Logs">
 
                 <LogContent id={id}
+                            server={server}
                             name={name}/>
             </Collapsible>
         </div>

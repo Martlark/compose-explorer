@@ -99,7 +99,7 @@ function Group(props) {
                     <option>read</option>
                     <option>write</option>
                 </Form.Control>
-                : props.group.access}
+                : props.group.access_type}
         </td>
         <td>
             {mode === 'delete' ? renderConfirmDelete() : renderDeleteButton()}
