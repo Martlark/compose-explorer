@@ -93,14 +93,22 @@ function Group(props) {
                        defaultValue={props.group.description}/> : props.group.description}
         </td>
         <td>
+            {mode === 'edit' ?
+                <Form.Control defaultValue={"props.group.access"}
+                              as="select" form={formId} name="access_type">
+                    <option>read</option>
+                    <option>write</option>
+                </Form.Control>
+                : props.group.access}
+        </td>
+        <td>
             {mode === 'delete' ? renderConfirmDelete() : renderDeleteButton()}
             {renderEdit()}
         </td>
     </tr>
 }
 
-function AddGroup(props)
-{
+function AddGroup(props) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
 
@@ -143,6 +151,15 @@ function AddGroup(props)
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </Form.Group>
+            <Form.Group size="log" controlId="access_type">
+                <Form.Label>Access Type</Form.Label>
+                <Form.Control defaultValue="write"
+                              as="select" name="access_type">
+                    <option>read</option>
+                    <option>write</option>
+                </Form.Control>
+
+            </Form.Group>
             <Button block size="lg" type="submit" disabled={!validateForm()}>
                 Create Group
             </Button>
@@ -151,8 +168,7 @@ function AddGroup(props)
 
 }
 
-export default function GroupAdmin(props)
-{
+export default function GroupAdmin(props) {
     const context = useContext(AppContext);
     const [groups, setGroups] = useState([]);
     const [addGroup, setAddGroup] = useState(false);
@@ -188,7 +204,8 @@ export default function GroupAdmin(props)
             <thead>
             <tr>
                 <th className={"w-30"}>Name</th>
-                <th className={"w-40"}>Description</th>
+                <th className={"w-30"}>Description</th>
+                <th className={"w-10"}>Access</th>
                 <th className={"w-30"}>Actions</th>
             </tr>
             </thead>

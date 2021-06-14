@@ -8,7 +8,7 @@ function ExecEntry(props) {
     }
 
     function renderActions() {
-        if (!g.admin) {
+        if (!context.admin) {
             return null;
         }
 
@@ -110,7 +110,7 @@ export default function Execute(props) {
     }
 
     function renderExecutingHeader() {
-        if (!g.admin) {
+        if (!context.admin) {
             return <h3>Admin access required</h3>;
         }
 

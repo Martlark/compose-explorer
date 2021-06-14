@@ -53,7 +53,7 @@ export function ProjectService(props) {
     }
 
     function renderActions() {
-        if (!g.admin) {
+        if (!context.admin) {
             return null;
         }
         if (actioning) {

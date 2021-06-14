@@ -29,6 +29,7 @@ export default class AuthService extends ApiService {
 
     create(evt, email=null, password=null) {
         const formData = new FormData(evt?.target);
+        const data = Object.fromEntries(new FormData(evt.target));
 
         return this.post(this.urlJoin('user'), {
             email: email ?? formData.get('email'),

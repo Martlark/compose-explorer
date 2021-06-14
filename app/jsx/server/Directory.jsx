@@ -182,9 +182,9 @@ export default function Directory(props) {
         return (
             <div>
                 {refreshButton}
-                {g.admin && downloadButton}
-                {g.admin && editButton}
-                {g.admin && deleteButton}
+                {context.admin && downloadButton}
+                {context.admin && editButton}
+                {context.admin && deleteButton}
                 {upButton}
                 {directoryLinks.map(d =>
                     <a href={"#"} onClick={(evt) => clickDirectory(evt, d.cwd)}

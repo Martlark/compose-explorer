@@ -19,10 +19,10 @@ export function Logout(props) {
     function clickLogout(event) {
         event.preventDefault();
         api.logout(event, {}).then(result => {
-                context.setAnon(result.anon);
-                context.setAdmin(result.admin);
-                context.setMessage('Farewell');
-                history.push('/');
+                context.setAnon(true);
+                context.setAdmin(false);
+                context.setMessage(result);
+                history.push('/login');
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error login: ${xhr.responseText} - ${errorThrown}`))

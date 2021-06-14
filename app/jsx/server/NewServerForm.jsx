@@ -1,6 +1,7 @@
 import React, {useContext} from "react";
 import {AppContext} from '../context';
 import ServerService from "../services/ServerService";
+import LoginRequired from "../LoginRequired";
 
 export function NewServerForm(props) {
 
@@ -11,7 +12,7 @@ export function NewServerForm(props) {
     const context = useContext(AppContext);
 
     const handleSubmit = (e) => {
-        return api.create(e, setNewServer).then(item => {
+        return api.create(e).then(item => {
                 setNewServer(false);
                 context.setMessage(`Added ${item.name}`);
                 getItems();
@@ -25,7 +26,7 @@ export function NewServerForm(props) {
         e.preventDefault();
         context.setErrorMessage('');
         return api.testConnection($('input[name=name]').val(),
-            $('input[name=port]').val()
+            $('input[name=port]').val(),$('input[name=credentials]').val()
         ).then(result => context.setMessage(`${result.message}`)
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`${xhr.responseText} - ${errorThrown}`)
@@ -34,6 +35,10 @@ export function NewServerForm(props) {
 
     const clickCancel = (evt) => {
         setNewServer(false);
+    }
+
+    if (context.anon) {
+        return <LoginRequired/>;
     }
 
     return (<div>

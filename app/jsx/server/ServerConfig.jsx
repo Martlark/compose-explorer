@@ -126,7 +126,7 @@ export function ServerConfig(props) {
     }
 
     function renderButtons() {
-        if (waiting || !g.admin) {
+        if (waiting || !context.admin) {
             return null;
         }
         if (!edit) {

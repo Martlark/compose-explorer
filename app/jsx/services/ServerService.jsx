@@ -26,18 +26,14 @@ export default class ServerService extends ApiService {
     }
 
     testConnection(name, port, credentials) {
-        return this.json('/server_test_connection/', {name, port, credentials});
+        return this.json('server_test_connection', {name, port, credentials});
     }
 
-    create(evt, name, port, credentials) {
-        const formData = new FormData(evt?.target);
+    create(evt) {
         evt?.preventDefault();
 
-        return this.post('/server/', {
-            credentials: credentials ?? formData.get('credentials'),
-            name: name ?? formData.get('name'),
-            port: port ?? formData.get('port')
-        }).then(result => this.item = result
-        );
+        const data = Object.fromEntries(new FormData(evt.target));
+
+        return this.post('server', data).then(result => this.item = result);
     };
 }

@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {AppContext} from "../context";
 import Project from "./Project";
+import LoginRequired from "../LoginRequired";
 
 export default function ManageServer(props) {
     const [projects, setProjects] = useState([]);
@@ -10,6 +11,9 @@ export default function ManageServer(props) {
     const context = useContext(AppContext);
 
     function getProjects() {
+        if(context.anon){
+            return;
+        }
         context.api.projects(server_id
         ).then(projects => {
                 setProjects(projects);
@@ -20,6 +24,9 @@ export default function ManageServer(props) {
     }
 
     function getServer() {
+        if(context.anon){
+            return;
+        }
         return context.api.json(`/server/${server_id}/`
         ).then(item => {
                 setServer(item);
@@ -34,6 +41,10 @@ export default function ManageServer(props) {
         getServer();
         getProjects();
     }, [server_id]);
+
+    if (context.anon) {
+        return <LoginRequired/>;
+    }
 
     return (<div>
             <h1>{server.name} - {projects.length} projects</h1>

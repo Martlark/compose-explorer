@@ -1,11 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
+import {NavLink, useHistory} from "react-router-dom";
 import {AppContext} from './context';
 import {NewServerForm} from './server/NewServerForm'
-import * as PropTypes from "prop-types";
 import {ServerConfig} from "./server/ServerConfig";
-import {NavLink, useHistory} from "react-router-dom";
 
-ServerConfig.propTypes = {item: PropTypes.any};
 export default function Home(props) {
     const [servers, setServers] = useState([]);
     const [newServer, setNewServer] = useState(false);
@@ -50,7 +48,7 @@ export default function Home(props) {
     }
 
     function renderNewServer() {
-        if(!g.admin){
+        if(!context.admin){
             return null;
         }
 
@@ -61,7 +59,7 @@ export default function Home(props) {
         }
     }
 
-    if (g.anon) {
+    if (g.anon || context.anon) {
         return (
             <div>
                 <h1>Authorization is required</h1>

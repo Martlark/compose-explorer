@@ -7,7 +7,7 @@ export default class GroupService extends ApiService {
         this.endPoint = 'group';
     }
 
-    get(id){
+    get(id) {
         return this.json(this.urlJoin(this.endPoint, id));
     }
 
@@ -24,39 +24,27 @@ export default class GroupService extends ApiService {
     }
 
     add_server(evt = null) {
-        const formData = new FormData(evt?.target);
+        const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('group_add_server'), {
-            group_id: formData.get('group_id'),
-            server_id: formData.get('server_id'),
-        })
+        return this.post(this.urlJoin('group_add_server'), data);
     };
 
     remove_server(evt = null) {
-        const formData = new FormData(evt?.target);
+        const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('group_remove_server'), {
-            group_id: formData.get('group_id'),
-            server_id: formData.get('server_id'),
-        })
+        return this.post(this.urlJoin('group_remove_server'), data);
     };
 
     add_user(evt = null) {
-        const formData = new FormData(evt?.target);
+        const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('group_add_user'), {
-            group_id: formData.get('group_id'),
-            user_id: formData.get('user_id'),
-        })
+        return this.post(this.urlJoin('group_add_user'), data);
     };
 
     remove_user(evt = null) {
-        const formData = new FormData(evt?.target);
+        const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('group_remove_user'), {
-            group_id: formData.get('group_id'),
-            user_id: formData.get('user_id'),
-        })
+        return this.post(this.urlJoin('group_remove_user'), data );
     };
 
     create(evt, name = null, description = null) {

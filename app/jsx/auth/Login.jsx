@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import {AppContext} from "../context";
 import ProfileService from "../services/ProfileService";
+import AuthService from "../services/AuthService";
 
 export function Login(props) {
     const [email, setEmail] = useState("");
@@ -20,9 +21,7 @@ export function Login(props) {
     function handleSubmit(event) {
         event.preventDefault();
         api.login(event).then(result => {
-                context.setAnon(result.anon);
-                context.setAdmin(result.admin);
-                context.setMessage('Welcome');
+                context.setMessage(result);
                 history.push('/');
             }
         ).fail((xhr, textStatus, errorThrown) =>

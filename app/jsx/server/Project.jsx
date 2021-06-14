@@ -1,10 +1,11 @@
 import React, {useContext, useEffect, useState} from "react";
-import {ProjectService} from "./ProjectService";
-import {AppContext} from "../context";
-import {Link} from "react-router-dom";
 import {Tab, TabList, TabPanel, Tabs} from "react-tabs";
 import 'react-tabs/style/react-tabs.css';
+import {Link} from "react-router-dom";
+import {ProjectService} from "./ProjectService";
+import {AppContext} from "../context";
 import {AgentAction} from "./AgentAction";
+import LoginRequired from "../LoginRequired";
 
 export default function Project(props) {
     const [server_id, setServer_id] = useState(props?.match?.params?.id || props.server_id);
@@ -40,7 +41,7 @@ export default function Project(props) {
 
 
     function renderGitTab() {
-        if (!g.admin) {
+        if (!context.admin) {
             return null;
         }
 
@@ -53,7 +54,7 @@ export default function Project(props) {
     }
 
     function renderComposeTab() {
-        if (!g.admin) {
+        if (!context.admin) {
             return null;
         }
         return <TabPanel><AgentAction key={server_id}
@@ -64,6 +65,10 @@ export default function Project(props) {
         /></TabPanel>
     }
 
+    if (context.anon) {
+        return <LoginRequired/>;
+    }
+
     return (
         <div>
             <h2><Link to={`/server/${server_id}/project/${encodeURIComponent(project)}`}
@@ -71,8 +76,8 @@ export default function Project(props) {
             <Tabs>
                 <TabList>
                     <Tab>Containers</Tab>
-                    {g.admin && <Tab>Git</Tab>}
-                    {g.admin && <Tab>Compose</Tab>}
+                    {context.admin && <Tab>Git</Tab>}
+                    {context.admin && <Tab>Compose</Tab>}
                 </TabList>
                 <TabPanel>
                     <table className={"table"}>

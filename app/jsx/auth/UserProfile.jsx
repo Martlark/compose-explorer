@@ -67,7 +67,7 @@ export default function UserProfile() {
     return <div>
         <h1>Profile</h1>
         <h2>{user.email}</h2>
-        <h3>User type: {g.admin && 'admin' || 'read'}</h3>
+        <h3>User type: {context.admin && 'admin' || 'read'}</h3>
         {renderEdit()}
     </div>
 }

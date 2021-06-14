@@ -1,7 +1,7 @@
 # user management, group management
 # routes.py
 
-from flask import Response, g
+from flask import Response, g, abort
 from flask_login import current_user
 
 from app import db, admin_required, set_g
@@ -23,9 +23,24 @@ def public_g():
     return g.d
 
 
+@bp.get('/server/read/<int:server_id>/')
+def public_route_server_has_read(server_id):
+    server = DockerServer.query.get_or_404(server_id)
+    if server.has_group_read(current_user):
+        return Response('read access', 200)
+    abort(403)
+
+@bp.get('/server/write/<int:server_id>/')
+def public_route_server_has_write(server_id):
+    server = DockerServer.query.get_or_404(server_id)
+    if server.has_group_write(current_user):
+        return Response('write access', 200)
+    abort(403)
+
+
 @bp.post('/group_add_server/')
-@request_arg("server_id")
-@request_arg("group_id")
+@request_arg("server_id", arg_type=int)
+@request_arg("group_id", arg_type=int)
 @admin_required
 def route_group_add_server(server_id, group_id):
     group = ServerGroup.query.get_or_404(group_id)
@@ -36,8 +51,8 @@ def route_group_add_server(server_id, group_id):
 
 
 @bp.post('/group_remove_server/')
-@request_arg("server_id")
-@request_arg("group_id")
+@request_arg("server_id", arg_type=int)
+@request_arg("group_id", arg_type=int)
 @admin_required
 def route_group_remove_server(server_id, group_id):
     group = ServerGroup.query.get_or_404(group_id)
@@ -48,8 +63,8 @@ def route_group_remove_server(server_id, group_id):
 
 
 @bp.post('/group_add_user/')
-@request_arg("user_id")
-@request_arg("group_id")
+@request_arg("user_id", arg_type=int)
+@request_arg("group_id", arg_type=int)
 @admin_required
 def route_group_add_user(user_id, group_id):
     group = ServerGroup.query.get_or_404(group_id)
@@ -60,8 +75,8 @@ def route_group_add_user(user_id, group_id):
 
 
 @bp.post('/group_remove_user/')
-@request_arg("user_id")
-@request_arg("group_id")
+@request_arg("user_id", arg_type=int)
+@request_arg("group_id", arg_type=int)
 @admin_required
 def route_group_remove_user(user_id, group_id):
     group = ServerGroup.query.get_or_404(group_id)

@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import {AppContext} from "../context";
+import LoginRequired from "../LoginRequired";
 
 export default function FileEdit(props) {
     const [originalContent, setOriginalContent] = useState(ContentState.createFromText(''));
@@ -81,6 +82,10 @@ export default function FileEdit(props) {
         padding: '5px',
         minHeight: '20em'
     };
+
+    if (context.anon) {
+        return <LoginRequired/>;
+    }
 
     return (<div>
             {renderTitle()}

@@ -72,7 +72,7 @@ export default function ManageContainer(props) {
     }
 
     function renderActions() {
-        if (!g.admin) {
+        if (!context.admin) {
             return null
         }
 

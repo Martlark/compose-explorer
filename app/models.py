@@ -23,11 +23,10 @@ server_group_user = db.Table('server_group_user',
                              db.Column('user_id', db.Integer, db.ForeignKey('app_user.id'))
                              )
 
-
 server_group_server = db.Table('server_group_server',
-                             db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
-                             db.Column('server_id', db.Integer, db.ForeignKey('docker_server.id'))
-                             )
+                               db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
+                               db.Column('server_id', db.Integer, db.ForeignKey('docker_server.id'))
+                               )
 
 
 class ServerGroup(db.Model, FlaskSerializeMixin):
@@ -35,10 +34,13 @@ class ServerGroup(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True)
     options = db.Column(db.String(2000))
+    access_type = db.Column(db.String(5))
     description = db.Column(db.String(255))
     # relationships
-    users = db.relationship("User", secondary=server_group_user)
-    servers = db.relationship("DockerServer", secondary=server_group_server)
+    users = db.relationship("User", secondary=server_group_user, lazy='subquery',
+                            backref=db.backref('groups', lazy=True))
+    servers = db.relationship("DockerServer", secondary=server_group_server, lazy='subquery',
+                              backref=db.backref('groups', lazy=True))
     relationship_fields = ['users', 'servers']
 
 
@@ -58,7 +60,6 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     USER_TYPES = ["admin", "read"]
     # relationships
     commands = db.relationship("Command", backref="user", lazy="dynamic", foreign_keys="Command.user_id")
-    group_id = db.Column(db.Integer, db.ForeignKey("server_group.id"))
 
     def fs_private_field(self, field_name):
         # only allow profile fields when not admin
@@ -134,7 +135,6 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     active = db.Column(db.Boolean(), default=True)
     protocol = "http"
     # relationships
-    group_id = db.Column(db.Integer, db.ForeignKey("server_group.id"))
 
     # fs fields
 
@@ -233,6 +233,18 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         except Exception as e:
             return f"{e}", 400
         return {"message": "connected"}
+
+    def has_group_read(self, user=current_user):
+        for group in self.groups:
+            if group in user.groups:
+                return True
+        return False
+
+    def has_group_write(self, user=current_user):
+        for group in self.groups:
+            if group in user.groups:
+                return True
+        return False
 
 
 class Setting(db.Model, FlaskSerializeMixin):

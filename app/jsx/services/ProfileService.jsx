@@ -1,4 +1,5 @@
 import ApiService from "./ApiService";
+import AuthService from "./AuthService";
 
 
 export default class ProfileService extends ApiService {
@@ -10,12 +11,14 @@ export default class ProfileService extends ApiService {
     login(evt) {
         evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
+        const authService = new AuthService();
 
         return this.post(this.urlJoin('login'), data).then(result => {
             {
-                context.setAnon(result.anon);
-                context.setAdmin(result.admin);
-
+                authService.json('/g/').then(g_result => {
+                    context.setAnon(g_result.anon);
+                    context.setAdmin(g_result.admin);
+                });
                 return result;
             }
         });

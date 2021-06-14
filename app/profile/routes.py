@@ -1,5 +1,4 @@
 # routes.py
-import os
 
 from flask import current_app, Response, g
 from flask_login import login_user, current_user, logout_user, login_required
@@ -33,16 +32,16 @@ def route_login(email=None, password=None):
             return Response(message, 403)
 
     login_user(user, remember=True)
-    return Response(g.d, 200)
+    return Response(f'welcome {user.email}', 200)
 
 
 @bp.post("/logout/")
 def route_logout():
     if current_user.is_anonymous:
         return Response("not logged in", 400)
-    else:
-        logout_user()
-    return Response(g.d, 200)
+
+    logout_user()
+    return Response('goodbye', 200)
 
 
 @bp.route("/user/", methods=["GET", "PUT"])
