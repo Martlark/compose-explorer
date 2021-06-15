@@ -1,4 +1,25 @@
 import ApiService from "./ApiService";
+import {useEffect, useState} from "react";
+
+/**
+ * use hook to return a list of server access groups
+ * @returns {*[groups, refreshFunction]}
+ */
+export function useGroups() {
+    const groupService = new GroupService();
+    const [refreshCount, setRefreshCount] = useState(1);
+    const [groups, setGroups] = useState([]);
+
+    useEffect(() => {
+        groupService.getGroups().then(result => setGroups(result));
+    }, [refreshCount]);
+
+    function refresh() {
+        setRefreshCount(c => c + 1);
+    }
+
+    return [groups, refresh];
+}
 
 export default class GroupService extends ApiService {
     constructor(props) {
@@ -9,6 +30,13 @@ export default class GroupService extends ApiService {
 
     get(id) {
         return this.json(this.urlJoin(this.endPoint, id));
+    }
+
+    getGroups() {
+        return this.json('group'
+        ).fail((xhr, textStatus, errorThrown) =>
+            this.context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
+        );
     }
 
     update(evt, setItem) {
@@ -23,14 +51,14 @@ export default class GroupService extends ApiService {
         return this.delete(this.urlJoin(this.endPoint, data.id), data);
     }
 
-    add_server(evt = null) {
-        const data = Object.fromEntries(new FormData(evt.target));
+    add_server(evt = null, formData) {
+        const data = formData || Object.fromEntries(new FormData(evt.target));
 
         return this.post(this.urlJoin('group_add_server'), data);
     };
 
-    remove_server(evt = null) {
-        const data = Object.fromEntries(new FormData(evt.target));
+    remove_server(evt = null, formData) {
+        const data = formData || Object.fromEntries(new FormData(evt.target));
 
         return this.post(this.urlJoin('group_remove_server'), data);
     };
@@ -44,7 +72,7 @@ export default class GroupService extends ApiService {
     remove_user(evt = null) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('group_remove_user'), data );
+        return this.post(this.urlJoin('group_remove_user'), data);
     };
 
     create(evt, name = null, description = null) {

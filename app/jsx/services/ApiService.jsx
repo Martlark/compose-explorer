@@ -1,9 +1,12 @@
 import $ from "jquery";
+import {useContext} from "react";
+import {AppContext} from "../context";
 
 export default class ApiService {
     constructor(props) {
         this.csrf_token = $("input[name=base-csrf_token]").val();
         this.prefix_api = `/api`;
+        this.context = useContext(AppContext);
     }
 
     urlJoin(...urls) {

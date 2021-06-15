@@ -7,8 +7,58 @@ import TempMessage from "../TempMessage";
 import ServerService from "../services/ServerService";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import GroupService, {useGroups} from "../services/GroupService";
+import {FormCheck} from "react-bootstrap";
 
-function EditShowItem(props) {
+function ServerGroupMembershipItem({group, server, setMessage}) {
+    const [isMember, setIsMember] = useState(server.group_membership.map(g => g.id).includes(group.id));
+    const groupService = new GroupService();
+
+    function updateGroupMembership(evt) {
+        const newValue = evt.target.checked;
+        if (newValue) {
+            groupService.add_server(null, {
+                group_id: group.id,
+                server_id: server.id
+            }).then(result => {
+                setMessage(result);
+                setIsMember(newValue)
+            })
+        } else {
+            groupService.remove_server(null, {
+                group_id: group.id,
+                server_id: server.id
+            }).then(result => {
+                setMessage(result);
+                setIsMember(newValue)
+            })
+
+        }
+
+    }
+
+    return <tr>
+        <td><FormCheck type="checkbox" checked={isMember} onClick={updateGroupMembership}
+        /></td>
+        <td>{group.name}</td>
+        <td>{group.access_type}</td>
+    </tr>;
+}
+
+function ServerGroupMembership({server, setMessage}) {
+    const [groups] = useGroups();
+
+    return <div>
+        <h3>Group Membership</h3>
+        <table className="table">
+            {groups.map((group, index) =>
+                <ServerGroupMembershipItem group={group} server={server} setMessage={setMessage}/>
+            )}
+        </table>
+    </div>;
+}
+
+function ServerEditShowItem(props) {
     const [item, setItem] = useState(props.item)
     const [waiting, setWaiting] = useState('');
     const [message, setMessage] = useState('');
@@ -71,6 +121,7 @@ function EditShowItem(props) {
 
         return (<div>
             {form}
+            <ServerGroupMembership server={item} setMessage={setMessage}/>
             <h3>{waiting}</h3>
             <TempMessage message={message} setMessage={setMessage}/>
         </div>);
@@ -150,7 +201,7 @@ export function ServerConfig(props) {
             {renderButtons()}
         </td>
         <td>
-            <EditShowItem item={item} setItem={setItem} edit={edit} setEdit={setEdit}/>
+            <ServerEditShowItem item={item} setItem={setItem} edit={edit} setEdit={setEdit}/>
             <ErrorMessage errorMessage={errorMessage} setErrorMessage={setErrorMessage}/>
         </td>
         <td>

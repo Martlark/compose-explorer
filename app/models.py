@@ -74,8 +74,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
     @property
     def group_membership(self):
-        return [dict(name=group.name,access_type=group.access_type) for group in self.groups]
-
+        return [dict(name=group.name, access_type=group.access_type, id=group.id) for group in self.groups]
 
     @property
     def is_admin(self):
@@ -158,6 +157,10 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         with db.session.no_autoflush:
             found = cls.query.filter_by(name=name.lower()).first()
             return found is None
+
+    @property
+    def group_membership(self):
+        return [dict(name=group.name, access_type=group.access_type, id=group.id) for group in self.groups]
 
     @property
     def read(self):

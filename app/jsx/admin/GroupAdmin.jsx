@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from '../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import GroupService from "../services/GroupService";
+import GroupService, {useGroups} from "../services/GroupService";
 import {Link} from "react-router-dom";
 
 function Group(props) {
@@ -19,7 +19,7 @@ function Group(props) {
         props.groupService.update(evt
         ).then(result => {
                 context.setMessage(`${result.message} ${result.item.name}`);
-                props.getGroups();
+                props.refreshGroups();
                 setMode('view');
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -36,7 +36,7 @@ function Group(props) {
         ).then(result => {
                 context.setMessage(`${result.message} ${result.item.name}`);
                 setMode('view');
-                props.getGroups();
+                props.refreshGroups();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error delete: ${xhr.responseText} - ${errorThrown}`))
@@ -121,7 +121,7 @@ function AddGroup(props) {
         props.groupService.create(evt
         ).then(result => {
                 props.setAddGroup(false);
-                props.getGroups();
+                props.refreshGroups();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error add group: ${xhr.responseText} - ${errorThrown}`))
@@ -170,32 +170,19 @@ function AddGroup(props) {
 
 export default function GroupAdmin(props) {
     const context = useContext(AppContext);
-    const [groups, setGroups] = useState([]);
+    const [groups, refreshGroups] = useGroups();
     const [addGroup, setAddGroup] = useState(false);
     const groupService = new GroupService({});
 
     if (!context.admin) {
         return <h3>Forbidden</h3>;
     }
-
-    function getGroups() {
-        groupService.json('group'
-        ).then(result => setGroups(result)
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
-        );
-    }
-
-    useEffect(() => {
-        getGroups();
-    }, []);
-
     function clickAddGroup(evt) {
         setAddGroup(true);
     }
 
     if (addGroup) {
-        return <AddGroup setAddGroup={setAddGroup} getGroups={getGroups} groupService={groupService}/>
+        return <AddGroup setAddGroup={setAddGroup} refreshGroups={refreshGroups} groupService={groupService}/>
     }
 
     return (<div>
@@ -210,7 +197,7 @@ export default function GroupAdmin(props) {
             </tr>
             </thead>
             {groups.map(group =>
-                <Group group={group} groupService={groupService} getGroups={getGroups}/>
+                <Group group={group} groupService={groupService} refreshGroups={refreshGroups}/>
             )}
             <tbody>
             </tbody>
