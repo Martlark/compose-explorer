@@ -10,7 +10,7 @@ import Button from "react-bootstrap/Button";
 import GroupService, {useGroups} from "../services/GroupService";
 import {FormCheck} from "react-bootstrap";
 
-function ServerGroupMembershipItem({group, server, setMessage}) {
+function ServerGroupMembershipItem({group, server, setMessage, setMembershipChanged}) {
     const [isMember, setIsMember] = useState(server.group_membership.map(g => g.id).includes(group.id));
     const groupService = new GroupService();
 
@@ -22,7 +22,8 @@ function ServerGroupMembershipItem({group, server, setMessage}) {
                 server_id: server.id
             }).then(result => {
                 setMessage(result);
-                setIsMember(newValue)
+                setIsMember(newValue);
+                setMembershipChanged(n => n + 1);
             })
         } else {
             groupService.remove_server(null, {
@@ -30,7 +31,8 @@ function ServerGroupMembershipItem({group, server, setMessage}) {
                 server_id: server.id
             }).then(result => {
                 setMessage(result);
-                setIsMember(newValue)
+                setIsMember(newValue);
+                setMembershipChanged(n => n + 1);
             })
 
         }
@@ -45,16 +47,44 @@ function ServerGroupMembershipItem({group, server, setMessage}) {
     </tr>;
 }
 
-function ServerGroupMembership({server, setMessage}) {
+function ServerGroupMembership({server_id, setMessage}) {
     const [groups] = useGroups();
+    const [membershipChanged, setMembershipChanged] = useState(1);
+    const [hasMembership, setHasMembership] = useState(false);
+    const [server, setServer] = useState(null);
+    const serverService = new ServerService();
+
+    useEffect(() => {
+        serverService.json(serverService.urlJoin('server', server_id)).then(result => {
+            setServer(result)
+        });
+    }, [server_id, membershipChanged]);
+
+    useEffect(() => {
+        let hasMember = false;
+
+        if (!groups || !server) {
+            return;
+        }
+
+        const ids = server.group_membership?.map(g => g.id);
+        groups.map((group) => {
+            hasMember = hasMember || ids.includes(group.id)
+        })
+        setHasMembership(hasMember);
+    }, [groups, server?.group_membership]);
 
     return <div>
         <h3>Group Membership</h3>
         <table className="table">
-            {groups.map((group, index) =>
-                <ServerGroupMembershipItem group={group} server={server} setMessage={setMessage}/>
+            {server && groups.map((group) => {
+                    return <ServerGroupMembershipItem setMembershipChanged={setMembershipChanged} group={group}
+                                                      server={server}
+                                                      setMessage={setMessage}/>
+                }
             )}
         </table>
+        {!hasMembership && <h4>Group membership is required to allow non admin user access</h4>}
     </div>;
 }
 
@@ -121,7 +151,7 @@ function ServerEditShowItem(props) {
 
         return (<div>
             {form}
-            <ServerGroupMembership server={item} setMessage={setMessage}/>
+            <ServerGroupMembership server_id={item.id} setMessage={setMessage}/>
             <h3>{waiting}</h3>
             <TempMessage message={message} setMessage={setMessage}/>
         </div>);

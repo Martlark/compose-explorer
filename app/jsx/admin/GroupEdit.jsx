@@ -5,17 +5,17 @@ import Button from "react-bootstrap/Button";
 import AuthService from "../services/AuthService";
 import GroupService from "../services/GroupService";
 
-function GroupUser(props) {
+function GroupUser({user,group,groupService,getGroup}) {
     const context = useContext(AppContext);
     const [mode, setMode] = useState('view');
 
     function clickSubmitRemove(evt) {
         evt.preventDefault();
-        props.groupService.remove_user(evt
+        groupService.remove_user(evt
         ).then(result => {
                 context.setMessage(result);
                 setMode('view');
-                props.getGroup();
+                getGroup();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error delete: ${xhr.responseText} - ${errorThrown}`))
@@ -27,8 +27,8 @@ function GroupUser(props) {
 
     function renderConfirmRemove() {
         return <form onSubmit={clickSubmitRemove}>
-            <input type="hidden" name="user_id" defaultValue={props.user.id}/>
-            <input type="hidden" name="group_id" defaultValue={props.group.id}/>
+            <input type="hidden" name="user_id" defaultValue={user.id}/>
+            <input type="hidden" name="group_id" defaultValue={group.id}/>
             <Button style={{marginLeft: '1em'}} variant=
                 "danger" size="sm" type={"submit"}>Confirm Remove</Button>
             <Button style={{marginLeft: '1em'}} size="sm" variant="success" onClick={clickCancel}>Cancel</Button>
@@ -45,7 +45,7 @@ function GroupUser(props) {
 
     return <tr>
         <td>
-            <span>{props.user.email}</span>
+            <span>{user.email}</span>
         </td>
         <td>
             {mode === 'delete' ? renderConfirmRemove() : renderRemoveButton()}

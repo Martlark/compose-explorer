@@ -57,7 +57,10 @@ def route_group_add_server(server_id, group_id):
 def route_group_remove_server(server_id, group_id):
     group = ServerGroup.query.get_or_404(group_id)
     server = DockerServer.query.get_or_404(server_id)
-    group.servers.remove(server)
+    try:
+        group.servers.remove(server)
+    except Exception as e:
+        return Response(f'{e}', 400)
     db.session.commit()
     return Response(f'Server {server.name} removed from {group.name}', 200)
 
