@@ -87,10 +87,10 @@ export default function GroupAdmin(props) {
         <table className={"table"}>
             <thead>
             <tr>
-                <th className={"w-30"}>Name</th>
+                <th className={"w-20"}>Name</th>
                 <th className={"w-30"}>Description</th>
                 <th className={"w-10"}>Access</th>
-                <th className={"w-30"}>Actions</th>
+                <th className={"w-40"}>Actions</th>
             </tr>
             </thead>
             {groups.map(group =>
