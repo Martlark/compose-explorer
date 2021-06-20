@@ -19,7 +19,7 @@ def api_servers():
 @bp.route("/server/<int:server_id>/", methods=["PUT", "DELETE"])
 @bp.route("/server/", methods=["POST"])
 @admin_required
-def api_server_update(server_id=None):
+def admin_api_server_update(server_id=None):
     return DockerServer.get_delete_put_post(item_id=server_id)
 
 
@@ -46,5 +46,5 @@ def api_server_summary(server_id):
 @request_arg("credentials", arg_default="")
 @request_arg("protocol", arg_default="http")
 @admin_required
-def api_server_test_connection(name, port, credentials, protocol):
+def admin_api_server_test_connection(name, port, credentials, protocol):
     return DockerServer.test_connection(name, port, credentials, protocol)

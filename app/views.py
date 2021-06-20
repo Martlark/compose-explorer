@@ -5,6 +5,7 @@ import random
 from flask import render_template, request, current_app, Blueprint, send_from_directory
 from flask_login import login_required, current_user
 
+from app import app_before_request
 from app.models import Command
 from app.request_arg.request_arg import request_arg
 from config import STATIC_DIR
@@ -20,8 +21,10 @@ def exception_handler(error):
 
 @bp.route("/")
 @request_arg("request_path", arg_default="")
-def public_page_index(request_path=None):
-    return render_template("index.html", page_title="Docker Explorer", request_path=request_path)
+@request_arg("message", arg_default="")
+def public_page_index(request_path=None, message=None):
+    return render_template("index.html", page_title="Docker Explorer", request_path=request_path,
+                           message=message)
 
 
 @bp.route("/favicon.ico")
@@ -41,8 +44,13 @@ def public_static_file():
 rand_check_number = random.randint(0, 9999999999)
 
 
+@bp.before_app_request
+def bp_before_request():
+    app_before_request()
+
+
 @bp.route("/last_static_update")
-def last_static_update():
+def public_last_static_update():
     include_dirs = ["./app/js", "./app/static/src", "./app/templates"]
     exclude_dir = ["node_modules", "venv", "tmp"]
     notice_exts = ["js", "html", "css"]

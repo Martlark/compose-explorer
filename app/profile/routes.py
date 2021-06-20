@@ -11,7 +11,7 @@ from app.request_arg.request_arg import request_arg
 @bp.post("/login/")
 @request_arg("email", arg_default=None)
 @request_arg("password", arg_default=None)
-def route_login(email=None, password=None):
+def public_route_login(email=None, password=None):
     """
     api to login
 
@@ -36,7 +36,7 @@ def route_login(email=None, password=None):
 
 
 @bp.post("/logout/")
-def route_logout():
+def public_route_logout():
     if current_user.is_anonymous:
         return Response("not logged in", 400)
 

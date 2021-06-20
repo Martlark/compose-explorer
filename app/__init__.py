@@ -44,15 +44,34 @@ def d_serialize(item):
 
 
 def set_g():
+    """
+    make the shared global g have useful stuff.
+
+    """
     g.current_user = current_user
     g.anon = current_user.is_anonymous
-    g.admin = getattr(current_user, "is_admin", False)
+    g.admin = is_admin()
     g.id = getattr(current_user, "id", None)
     g.d = d_serialize(g)
     return g.d
 
 
 # Flask and Flask-SQLAlchemy initialization here
+
+def is_admin():
+    """
+    return if user is an admin
+
+    """
+    return getattr(current_user, "is_admin", False)
+
+
+def app_before_request():
+    """
+    set the global variable
+
+    """
+    set_g()
 
 
 def create_app():
@@ -99,10 +118,6 @@ def create_app():
     def load_user(user_id):
         # since the user_id is just the primary key of our user table, use it in the query for the user
         return User.query.get(int(user_id))
-
-    @app.before_request
-    def before_request():
-        set_g()
 
     ip_ban.init_app(app)
     ip_ban.load_nuisances()

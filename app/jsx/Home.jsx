@@ -34,12 +34,21 @@ export default function Home(props) {
     useEffect(() => {
         // find if server refresh needs history
         const $request_path = $('input[name=request_path]');
-        const val = $request_path.val();
-        if (val) {
+        const $message = $('input[name=message]');
+        const requestPathValue = $request_path.val();
+
+        if ($message.val()) {
+            console.log($message.val());
+            context.setMessage($message.val());
+            $message.val("");
+        }
+
+        if (requestPathValue) {
             $request_path.val("");
-            history.push(val);
+            history.push(requestPathValue);
             return;
         }
+
         context.setServerId(null);
         getItems();
     }, []);
