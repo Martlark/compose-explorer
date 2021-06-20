@@ -32,7 +32,7 @@ def public_route_login(email=None, password=None):
 
     """
     if current_user.is_authenticated:
-        return Response(g.d, 200)
+        return Response('Already logged in', 200)
 
     create_admin_user(current_app)
     message = "Invalid email or password"

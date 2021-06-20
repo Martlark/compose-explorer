@@ -12,7 +12,7 @@ import Project from "./server/Project";
 import {Navigation} from "./Navigation";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
-import UserAdmin from "./admin/UserAdmin";
+import UserAdmin from "./admin/user/UserAdmin";
 import UserProfile from "./auth/UserProfile";
 
 import ApiService from "./services/ApiService";
@@ -29,6 +29,7 @@ export function AppProvider() {
     const [errorMessage, setErrorMessage] = useState('');
     const [anon, setAnon] = useState(window.g?.anon);
     const [admin, setAdmin] = useState(window.g?.admin);
+    const [userId, setUserId] = useState(window.g?.id);
 
     const state = {
         api: new ApiService(),
@@ -45,7 +46,9 @@ export function AppProvider() {
         anon,
         setAnon,
         admin,
-        setAdmin
+        setAdmin,
+        userId,
+        setUserId,
     }
 
     return (<AppContext.Provider value={state}>

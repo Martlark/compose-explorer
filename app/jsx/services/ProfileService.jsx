@@ -1,5 +1,4 @@
 import ApiService from "./ApiService";
-import AuthService from "./AuthService";
 
 
 export default class ProfileService extends ApiService {
@@ -10,7 +9,6 @@ export default class ProfileService extends ApiService {
 
     login(evt) {
         const data = Object.fromEntries(new FormData(evt.target));
-        const authService = new AuthService();
 
         return this.post(this.urlJoin('login'), data);
     }

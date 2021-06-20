@@ -24,6 +24,7 @@ export function Login(props) {
         api.login(event).then(result => {
                 context.setMessage(result);
                 authService.json('/g/').then(g_result => {
+                    context.setUserId(g_result.id);
                     context.setAnon(g_result.anon);
                     context.setAdmin(g_result.admin);
                 });

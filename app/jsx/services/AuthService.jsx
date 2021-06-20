@@ -1,4 +1,26 @@
 import ApiService from "./ApiService";
+import {AppContext} from "../context";
+import {useContext, useEffect, useState} from "react";
+
+export function useUsers(){
+    const authService = new AuthService();
+    const context = useContext(AppContext);
+    const [users, setUsers] = useState([]);
+
+    function getUsers() {
+        authService.json('user'
+        ).then(result => setUsers(result)
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error getting users: ${xhr.responseText} - ${errorThrown}`)
+        );
+    }
+
+    useEffect(()=>{
+        getUsers()
+    }, [])
+
+    return [users, getUsers];
+}
 
 export default class AuthService extends ApiService {
     constructor(props) {

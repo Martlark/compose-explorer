@@ -21,6 +21,7 @@ export function Logout(props) {
         api.logout(event, {}).then(result => {
                 context.setAnon(true);
                 context.setAdmin(false);
+                context.setUserId(null);
                 context.setMessage(result);
                 history.push('/login');
             }
