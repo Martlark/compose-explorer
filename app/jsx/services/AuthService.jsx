@@ -4,6 +4,7 @@ export default class AuthService extends ApiService {
     constructor(props) {
         super();
         this.setPrefix('auth')
+        this.user_types = ['admin', 'user'];
     }
 
     update(evt, setItem) {
@@ -27,13 +28,9 @@ export default class AuthService extends ApiService {
         })
     };
 
-    create(evt, email=null, password=null) {
-        const formData = new FormData(evt?.target);
+    create(evt) {
         const data = Object.fromEntries(new FormData(evt.target));
 
-        return this.post(this.urlJoin('user'), {
-            email: email ?? formData.get('email'),
-            password: password ?? formData.get('password')
-        })
+        return this.post(this.urlJoin('user'), data);
     };
 }

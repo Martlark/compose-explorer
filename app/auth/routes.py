@@ -18,7 +18,7 @@ def public_route_is_logged_in():
 
 
 @bp.get("/g/")
-def public_g():
+def public_route_g():
     set_g()
     return g.d
 

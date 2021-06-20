@@ -38,7 +38,6 @@ export default function Home(props) {
         const requestPathValue = $request_path.val();
 
         if ($message.val()) {
-            console.log($message.val());
             context.setMessage($message.val());
             $message.val("");
         }
@@ -50,8 +49,12 @@ export default function Home(props) {
         }
 
         context.setServerId(null);
-        getItems();
     }, []);
+
+    useEffect(()=>{
+        getItems();
+
+    }, [context.anon])
 
     const clickAddServer = () => {
         setNewServer(true);
@@ -69,7 +72,7 @@ export default function Home(props) {
         }
     }
 
-    if (g.anon || context.anon) {
+    if (context.anon) {
         return (
             <div>
                 <h1>Authorization is required</h1>

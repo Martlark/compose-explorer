@@ -37,6 +37,8 @@ def d_serialize(item):
     for a in item.__dict__.keys():
         if not a.startswith("_"):
             value = getattr(item, a, "")
+            if value is None:
+                value = ""
             if type(value) not in [list, dict, int, float, str, bool]:
                 value = str(value)
             d[a] = value
@@ -48,9 +50,10 @@ def set_g():
     make the shared global g have useful stuff.
 
     """
-    g.current_user = current_user
+    g._current_user = current_user
     g.anon = current_user.is_anonymous
     g.admin = is_admin()
+    g.email = getattr(current_user, "email", None)
     g.id = getattr(current_user, "id", None)
     g.d = d_serialize(g)
     return g.d
@@ -109,7 +112,7 @@ def create_app():
         """
         logging.warning(404, request.path)
         if "/api/" not in request.path and request.method == "GET":
-            return redirect(f"/?request_path={quote_plus(request.path)}")
+            return redirect(f"/?request_path={quote_plus(request.path)}&message=Redirected+From+{quote_plus(request.path)}")
         return e
 
     from .models import User

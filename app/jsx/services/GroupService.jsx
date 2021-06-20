@@ -1,5 +1,6 @@
 import ApiService from "./ApiService";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
+import {AppContext} from "../context";
 
 /**
  * use hook to return a list of server access groups
@@ -33,6 +34,7 @@ export default class GroupService extends ApiService {
     }
 
     getGroups() {
+        const context = useContext(AppContext);
         return this.json('group'
         ).fail((xhr, textStatus, errorThrown) =>
             this.context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)

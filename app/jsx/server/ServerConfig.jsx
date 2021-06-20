@@ -11,7 +11,7 @@ import GroupService, {useGroups} from "../services/GroupService";
 import {FormCheck} from "react-bootstrap";
 
 function ServerGroupMembershipItem({group, server, setMessage, setMembershipChanged}) {
-    const [isMember, setIsMember] = useState(server.group_membership.map(g => g.id).includes(group.id));
+    const [isMember, setIsMember] = useState(server.group_membership.map(gm => gm.id).includes(group.id));
     const groupService = new GroupService();
 
     function updateGroupMembership(evt) {
@@ -67,7 +67,7 @@ function ServerGroupMembership({server_id, setMessage}) {
             return;
         }
 
-        const ids = server.group_membership?.map(g => g.id);
+        const ids = server.group_membership?.map(gm => gm.id);
         groups.map((group) => {
             hasMember = hasMember || ids.includes(group.id)
         })

@@ -9,19 +9,10 @@ export default class ProfileService extends ApiService {
     }
 
     login(evt) {
-        evt.preventDefault();
         const data = Object.fromEntries(new FormData(evt.target));
         const authService = new AuthService();
 
-        return this.post(this.urlJoin('login'), data).then(result => {
-            {
-                authService.json('/g/').then(g_result => {
-                    context.setAnon(g_result.anon);
-                    context.setAdmin(g_result.admin);
-                });
-                return result;
-            }
-        });
+        return this.post(this.urlJoin('login'), data);
     }
 
     logout() {

@@ -1,10 +1,3 @@
-const gCurrentUser = {
-    id: $("input[name=base-current_user_id]").val(),
-    email: $("input[name=base-current_user_email]").val(),
-    userType: $("input[name=base-current_user_type]").val(),
-    isLoggedIn: $("input[name=base-current_user_logged_in]").val() == "True",
-};
-
 class ViewModel {
     constructor() {
         this.since = 0;

@@ -11,8 +11,12 @@ export default function TempMessage({timeout=5000, message, setMessage}) {
 
     useEffect(() => {
         if (!message) {
-            timeoutCancel()
-            $(ref.current).fadeOut();
+            timeoutCancel();
+            $(ref.current).fadeOut("slow", ()=>{
+                if(setMessage){
+                    setMessage("");
+                }
+            });
         } else {
             timeoutReset();
             $(ref.current).fadeIn();

@@ -10,6 +10,7 @@ export function Login(props) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const api = new ProfileService();
+    const authService = new AuthService();
 
     const context = useContext(AppContext)
     const history = useHistory();
@@ -22,6 +23,10 @@ export function Login(props) {
         event.preventDefault();
         api.login(event).then(result => {
                 context.setMessage(result);
+                authService.json('/g/').then(g_result => {
+                    context.setAnon(g_result.anon);
+                    context.setAdmin(g_result.admin);
+                });
                 history.push('/');
             }
         ).fail((xhr, textStatus, errorThrown) =>

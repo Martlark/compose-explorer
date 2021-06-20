@@ -324,11 +324,15 @@ def create_admin_user(app):
     admin_email = os.environ.get("ADMIN_USER", "admin@admin.com")
     user = User.query.filter_by(email=admin_email).first()
     new_admin_password = "".join([random.choice(string.ascii_uppercase + string.digits) for r in range(20)])
-    new_admin_password = os.environ.get("ADMIN_PASSWORD", new_admin_password)
+    os_new_admin_password = os.environ.get("ADMIN_PASSWORD", "")
 
-    if not user:
-        user = User(email=admin_email, user_type="admin")
-        app.logger.warn("Creating default admin {} with password {}".format(admin_email, new_admin_password))
+    if not user or os_new_admin_password:
+        if not user:
+            user = User(email=admin_email, user_type="admin")
+            app.logger.warn("Creating default admin {} with password {}".format(admin_email, new_admin_password))
+        else:
+            app.logger.warn(f"Setting {admin_email} password to '{os_new_admin_password}'")
+            new_admin_password = os_new_admin_password
         user.set_password(new_admin_password)
         db.session.add(user)
         db.session.commit()

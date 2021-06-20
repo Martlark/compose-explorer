@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext, urlJoin} from '../context';
+import {AppContext} from '../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import AuthService from "../services/AuthService";
@@ -8,7 +8,6 @@ function User(props) {
     const context = useContext(AppContext);
     const [mode, setMode] = useState('view');
     const [userType, setUserType] = useState(props.user.user_type);
-    const user_types = ['admin', 'user'];
 
     function clickEdit() {
         setMode('edit');
@@ -109,7 +108,7 @@ function User(props) {
 
     function renderUserTypes() {
         return <Form.Control as="select" value={userType} onChange={(e) => updateUserType(e.target.value)}>
-            {user_types.map(opt => (<option>{opt}</option>))}
+            {props.authService.user_types.map(opt => (<option>{opt}</option>))}
         </Form.Control>
     }
 
@@ -128,20 +127,23 @@ function User(props) {
     </tr>
 }
 
-function AddUser(props) {
+function AddUser({setAddUser, authService, getUsers}) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [userType, setUserType] = useState("user");
+    const context = useContext(AppContext)
 
     function clickCancelAddUser(evt) {
-        props.setAddUser(false);
+        setAddUser(false);
     }
 
     function handleSubmitAddUser(evt) {
         evt.preventDefault();
-        props.authService.create(evt
+        authService.create(evt
         ).then(result => {
-                props.setAddUser(false);
-                props.getUsers();
+                setAddUser(false);
+                getUsers();
+                context.setMessage(`Added: ${result.email}`);
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error add: ${xhr.responseText} - ${errorThrown}`))
@@ -172,6 +174,13 @@ function AddUser(props) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
+            </Form.Group>
+            <Form.Group>
+                <Form.Label>User Type</Form.Label>
+                <Form.Control as="select" name="user_type" value={userType}
+                              onChange={(e) => setUserType(e.target.value)}>
+                    {authService.user_types.map(opt => (<option>{opt}</option>))}
+                </Form.Control>
             </Form.Group>
             <Button block size="lg" type="submit" disabled={!validateForm()}>
                 Create User
@@ -212,7 +221,7 @@ export default function UserAdmin(props) {
     }
 
     return (<div>
-        <Button style={{marginTop:'0.2em', marginBottom:'0.2em'}} size="sm" onClick={clickAddUser}>Add</Button>
+        <Button style={{marginTop: '0.2em', marginBottom: '0.2em'}} size="sm" onClick={clickAddUser}>Add</Button>
         <table className={"table"}>
             <thead>
             <tr>
