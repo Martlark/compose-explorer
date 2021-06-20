@@ -24,9 +24,15 @@ def public_route_g():
 
 
 @bp.get('/server/read/<int:server_id>/')
-def public_route_server_has_read(server_id):
+@request_arg("user_id", arg_default=None)
+def public_route_server_has_read(server_id, user_id=None):
+    """
+    check if current user has read access to the given server
+
+    """
+    user = user_id and User.query.get_or_404(user_id) or current_user
     server = DockerServer.query.get_or_404(server_id)
-    if server.has_group_read(current_user):
+    if server.has_group_read(user):
         return Response('read access', 200)
     abort(403)
 

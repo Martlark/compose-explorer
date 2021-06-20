@@ -16,11 +16,12 @@ export default function Home(props) {
             return;
         }
         return context.api.json('/servers/', {_: new Date().getTime()}).then(items => {
+                // filter out servers to only those with read
                 items = items.filter(item => item.read);
                 if (!items || items.length < 1) {
                     setServers([]);
                     setNewServer(context.admin && true);
-                    context.setErrorMessage('No active servers found.');
+                    context.setErrorMessage('No active servers found.  Ask your admin to add you to a group');
                 } else {
                     setServers(items);
                     context.setErrorMessage('');
@@ -51,7 +52,7 @@ export default function Home(props) {
         context.setServerId(null);
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         getItems();
 
     }, [context.anon])

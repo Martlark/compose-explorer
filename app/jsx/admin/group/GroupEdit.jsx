@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
-import {AppContext} from '../context';
+import {AppContext} from '../../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import AuthService from "../services/AuthService";
-import GroupService from "../services/GroupService";
+import AuthService from "../../services/AuthService";
+import GroupService from "../../services/GroupService";
 
 function GroupUser({user,group,groupService,getGroup}) {
     const context = useContext(AppContext);

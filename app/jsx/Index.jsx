@@ -16,8 +16,8 @@ import UserAdmin from "./admin/UserAdmin";
 import UserProfile from "./auth/UserProfile";
 
 import ApiService from "./services/ApiService";
-import GroupAdmin from "./admin/GroupAdmin";
-import GroupEdit from "./admin/GroupEdit";
+import GroupAdmin from "./admin/group/GroupAdmin";
+import GroupEdit from "./admin/group/GroupEdit";
 import NotFound from "./NotFound";
 
 

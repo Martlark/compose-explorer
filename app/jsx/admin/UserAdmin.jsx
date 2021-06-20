@@ -133,7 +133,7 @@ function AddUser({setAddUser, authService, getUsers}) {
     const [userType, setUserType] = useState("user");
     const context = useContext(AppContext)
 
-    function clickCancelAddUser(evt) {
+    function clickCancelAddUser() {
         setAddUser(false);
     }
 
@@ -190,7 +190,7 @@ function AddUser({setAddUser, authService, getUsers}) {
 
 }
 
-export default function UserAdmin(props) {
+export default function UserAdmin() {
     const context = useContext(AppContext);
     const [users, setUsers] = useState([]);
     const [addUser, setAddUser] = useState(false);
@@ -212,7 +212,7 @@ export default function UserAdmin(props) {
         getUsers();
     }, []);
 
-    function clickAddUser(evt) {
+    function clickAddUser() {
         setAddUser(true);
     }
 

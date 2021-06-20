@@ -112,7 +112,7 @@ def create_app():
         """
         logging.warning(404, request.path)
         if "/api/" not in request.path and request.method == "GET":
-            return redirect(f"/?request_path={quote_plus(request.path)}&message=Redirected+From+{quote_plus(request.path)}")
+            return redirect(f"/?request_path={quote_plus(request.path)}")
         return e
 
     from .models import User

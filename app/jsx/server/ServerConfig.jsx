@@ -76,6 +76,7 @@ function ServerGroupMembership({server_id, setMessage}) {
 
     return <div>
         <h3>Group Membership</h3>
+        <Link to={'/groups/'}>Edit Groups</Link>
         <table className="table">
             {server && groups.map((group) => {
                     return <ServerGroupMembershipItem setMembershipChanged={setMembershipChanged} group={group}

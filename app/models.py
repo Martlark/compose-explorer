@@ -182,6 +182,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         # call the remote agent
         if not self.has_group_read():
             abort(403)
+
         headers = {"Authorization": f"Bearer {self.credentials}"}
         r = requests.get(
             f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}",
@@ -259,6 +260,10 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         return {"message": "connected"}
 
     def has_group_read(self, user=current_user):
+        """
+        return true if the given user has read access to this DockerServer
+
+        """
         if self.has_group_write(user):
             return True
 
@@ -268,6 +273,10 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         return False
 
     def has_group_write(self, user=current_user):
+        """
+        return true if the given user has write access to this DockerServer
+
+        """
         if getattr(current_user, "is_admin", False):
             return True
 

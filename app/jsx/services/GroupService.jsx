@@ -8,11 +8,16 @@ import {AppContext} from "../context";
  */
 export function useGroups() {
     const groupService = new GroupService();
+    const context = useContext(AppContext);
     const [refreshCount, setRefreshCount] = useState(1);
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
-        groupService.getGroups().then(result => setGroups(result));
+        groupService.getGroups()
+            .then(result => setGroups(result))
+            .fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
+        );
     }, [refreshCount]);
 
     function refresh() {
@@ -20,6 +25,30 @@ export function useGroups() {
     }
 
     return [groups, refresh];
+}
+
+/**
+ * use hook to return a list of server access groups
+ * @returns {*[groups, refreshFunction]}
+ */
+export function useGroup(group_id) {
+    const groupService = new GroupService();
+    const context = useContext(AppContext);
+    const [group, setGroup] = useState(null);
+
+    useEffect(() => {
+        groupService.json(group_id)
+            .then(result => setGroup(result))
+            .fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error getting group: ${xhr.responseText} - ${errorThrown}`)
+        );
+    }, [group_id]);
+
+    function update() {
+        groupService.update(group).then(result=>setGroup(result.item));
+    }
+
+    return [group, setGroup, update];
 }
 
 export default class GroupService extends ApiService {
@@ -34,14 +63,10 @@ export default class GroupService extends ApiService {
     }
 
     getGroups() {
-        const context = useContext(AppContext);
-        return this.json('group'
-        ).fail((xhr, textStatus, errorThrown) =>
-            this.context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
-        );
+        return this.json('group');
     }
 
-    update(evt, setItem) {
+    update(evt) {
         const data = Object.fromEntries(new FormData(evt.target));
 
         return this.put(this.urlJoin(this.endPoint, data.id), data);
