@@ -1,11 +1,26 @@
 # routes.py
 
-from flask import current_app, Response, g
+from flask import current_app, Response, g, abort
 from flask_login import login_user, current_user, logout_user, login_required
 
+from app import db
 from app.models import User, create_admin_user
 from app.profile import bp
 from app.request_arg.request_arg import request_arg
+
+
+@bp.post('/update_password/')
+@request_arg("current_password", arg_default=None)
+@request_arg("new_password", arg_default=None)
+def private_route_update_password(current_password, new_password):
+    if not current_user.check_password(current_password):
+        return Response('incorrect current password', 400)
+
+    current_user.set_password(new_password)
+    db.session.add(current_user)
+    db.session.commit()
+
+    return Response('updated password', 200)
 
 
 @bp.post("/login/")

@@ -9,6 +9,8 @@ export default function UserProfile() {
     const [user, setUser] = useState({});
     const [first_name, setFirst_name] = useState('');
     const [last_name, setLast_name] = useState('');
+    const [new_password, setNew_password] = useState('');
+    const [current_password, setCurrent_password] = useState('');
     const api = new ProfileService();
 
     function getUser() {
@@ -39,6 +41,17 @@ export default function UserProfile() {
         )
     }
 
+    function clickUpdatePassword(evt) {
+        evt.preventDefault();
+        api.updatePassword(evt
+        ).then(result => {
+                context.setMessage(`${result}`);
+            }
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error change password: ${xhr.responseText} - ${errorThrown}`)
+        )
+    }
+
     function renderEdit() {
         return <Form onSubmit={clickUpdate}>
             <input type="hidden" name="id" defaultValue={user.id}/>
@@ -64,11 +77,41 @@ export default function UserProfile() {
         </Form>
     }
 
+    function renderPassword() {
+        return <Form onSubmit={clickUpdatePassword}>
+            <h3>Change Password</h3>
+            <input type="hidden" name="id" defaultValue={user.id}/>
+            <Form.Group size="lg" controlId="first_name">
+                <Form.Label>Current Password</Form.Label>
+                <Form.Control
+                    type="password"
+                    name="current_password"
+                    required
+                    value={current_password}
+                    onChange={(e) => setCurrent_password(e.target.value)}
+                />
+            </Form.Group>
+            <Form.Group size="lg" controlId="last_name">
+                <Form.Label>New Password</Form.Label>
+                <Form.Control
+                    type="password"
+                    name="new_password"
+                    value={new_password}
+                    required
+                    onChange={(e) => setNew_password(e.target.value)}
+                />
+            </Form.Group>
+
+            <Button style={{marginLeft: '1em'}} size="sm" variant={"primary"} type={"submit"}>Change Password</Button>
+        </Form>
+    }
+
     return <div>
         <h1>Profile</h1>
         <h2>{user.email}</h2>
         <h3>User type: {context.admin && 'admin' || 'read'}</h3>
         {renderEdit()}
+        {renderPassword()}
         <h3>Group Membership</h3>
         <table>
             <thead>
