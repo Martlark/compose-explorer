@@ -6,7 +6,7 @@ import User from "./User";
 import AddUser from "./AddUser";
 
 export default function UserAdmin() {
-    const [users, getUsers] = useUsers();
+    const {users, getUsers} = useUsers();
     const [addUser, setAddUser] = useState(false);
     const authService = new AuthService({})
     const context = useContext(AppContext);

@@ -19,7 +19,7 @@ export function useUsers(){
         getUsers()
     }, [])
 
-    return [users, getUsers];
+    return {users, getUsers}
 }
 
 export default class AuthService extends ApiService {

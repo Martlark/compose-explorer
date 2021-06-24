@@ -80,6 +80,10 @@ export default function User(props) {
     }
 
     function renderPasswordButton() {
+        if (context.userId === props.user.id) {
+            return null;
+        }
+
         if (mode !== 'view') {
             return null
         }
@@ -103,7 +107,7 @@ export default function User(props) {
         props.authService.put(props.authService.urlJoin('user', props.user.id), {user_type: newType}
         ).then(result => {
                 setUserType(newType);
-                context.setMessage(`${result.message} ${result.item.email} type: ${result.item.access_type}`);
+                context.setMessage(`${result.message} ${result.item.email} type: ${result.item.user_type}`);
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error update: ${xhr.responseText} - ${errorThrown}`)

@@ -23,10 +23,6 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
             context.setErrorMessage(`Error add group: ${xhr.responseText} - ${errorThrown}`))
     }
 
-    function validateForm() {
-        return name.length > 0 && description.length > 0;
-    }
-
     return <div>
         <Button onClick={clickCancelAddUser}>Cancel</Button>
         <Form onSubmit={handleSubmitAdd}>
@@ -34,6 +30,7 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                     autoFocus
+                    required
                     name="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -43,11 +40,12 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
                 <Form.Label>Description</Form.Label>
                 <Form.Control
                     name="description"
+                    required
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                 />
             </Form.Group>
-            <Form.Group size="log" controlId="access_type">
+            <Form.Group size="lg" controlId="access_type">
                 <Form.Label>Access Type</Form.Label>
                 <Form.Control defaultValue="write"
                               as="select" name="access_type">
@@ -56,7 +54,7 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
                 </Form.Control>
 
             </Form.Group>
-            <Button block size="lg" type="submit" disabled={!validateForm()}>
+            <Button block size="lg" type="submit">
                 Create Group
             </Button>
         </Form>

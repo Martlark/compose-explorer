@@ -70,7 +70,8 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
     @classmethod
     def email_is_used(cls, email):
-        return cls.query.filter_by(email=email.lower()).first()
+        with db.session.no_autoflush:
+            return cls.query.filter_by(email=email.lower()).first()
 
     @property
     def group_membership(self):

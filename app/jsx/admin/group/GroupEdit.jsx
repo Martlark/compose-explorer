@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {AppContext} from '../../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import AuthService from "../../services/AuthService";
+import AuthService, {useUsers} from "../../services/AuthService";
 import GroupService from "../../services/GroupService";
 
 function GroupUser({user,group,groupService,getGroup}) {
@@ -105,7 +105,7 @@ export default function GroupEdit(props) {
     const context = useContext(AppContext);
     const [group_id, setGroup_id] = useState(props?.match?.params?.id);
     const [mode, setMode] = useState('view');
-    const [users, setUsers] = useState([]);
+    const {users} = useUsers();
     const [servers, setServers] = useState([]);
     const [groupUsers, setGroupUsers] = useState([]);
     const [groupServers, setGroupServers] = useState([]);
@@ -128,15 +128,6 @@ export default function GroupEdit(props) {
             context.setErrorMessage(`Error getting servers: ${xhr.responseText}`)
         )
     }
-
-    function getUsers() {
-        authService.json('user'
-        ).then(result => setUsers(result)
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting users: ${xhr.responseText} - ${errorThrown}`)
-        );
-    }
-
     function getGroup() {
         groupService.get(group_id
         ).then(result => {
@@ -152,7 +143,6 @@ export default function GroupEdit(props) {
 
     useEffect(() => {
         getGroup();
-        getUsers();
         getServers();
     }, [group_id]);
 
