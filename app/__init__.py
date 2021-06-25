@@ -24,6 +24,8 @@ ip_ban = IpBan(
     abuse_IPDB_config=dict(key=os.getenv("ABUSE_IPDB_KEY"), report=os.getenv("DEPLOYMENT") == "Prod"),
 )
 
+from .models import User, AuditRecord, ServerGroup, Command, DockerServer, Setting
+
 
 def d_serialize(item):
     """
@@ -110,12 +112,10 @@ def create_app():
         that is read by the react router on init.
 
         """
-        logging.warning(404, request.path)
+        logging.warning(f"""{404}, {request.path}""")
         if "/api/" not in request.path and request.method == "GET":
             return redirect(f"/?request_path={quote_plus(request.path)}")
         return e
-
-    from .models import User
 
     @login_manager.user_loader
     def load_user(user_id):

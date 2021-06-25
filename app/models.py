@@ -75,7 +75,10 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
     @property
     def group_membership(self):
-        return [dict(name=group.name, access_type=group.access_type, id=group.id) for group in self.groups]
+        membership = []
+        for group in self.groups:
+            membership.append(dict(name=group.name, access_type=group.access_type, id=group.id))
+        return membership
 
     @property
     def is_admin(self):
@@ -108,6 +111,15 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
     def __repr__(self):
         return f"{self.email}"
+
+
+class AuditRecord(db.Model, FlaskSerializeMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    action = db.Column(db.String(4000))
+    email = db.Column(db.String(300))
+    server_name = db.Column(db.String(300))
+    container_name = db.Column(db.String(300))
+    created = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Command(db.Model, FlaskSerializeMixin):
