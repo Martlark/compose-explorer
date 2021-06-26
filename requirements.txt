@@ -6,7 +6,7 @@ Flask-Mail==0.9.1
 Flask-SQLAlchemy>=2.4.3
 Flask-WhooshAlchemy==0.56
 Flask-WTF>=0.14.3
-Flask-Serialize>=1.5.0
+Flask-Serialize>=1.5.2
 python-dateutil>=2.8.1
 flask_migrate>=2.7.0
 WTForms>=2.3.1

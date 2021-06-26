@@ -8,7 +8,7 @@ function ExecEntry(props) {
     }
 
     function renderActions() {
-        if (!props.server.write) {
+        if (!props.server?.write) {
             return null;
         }
 
@@ -141,6 +141,7 @@ export default function Execute(props) {
                                                      clickExecDelete={clickExecDelete}
                                                      setCommand={setCommand}
                                                      status={props.status}
+                                                     server={props.server}
                                                      entry={result}/>)}
             </tbody>
         </table>

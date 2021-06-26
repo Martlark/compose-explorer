@@ -2,6 +2,8 @@ import React, {useContext, useEffect, useState} from "react";
 import {matchPath, useLocation} from "react-router-dom";
 import {AppContext} from "./context";
 import {Nav, Navbar, NavDropdown} from "react-bootstrap";
+import {route as userAdminRoute} from "./admin/user/UserAdmin";
+import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 export const Navigation = (props) => {
     const [servers, setServers] = useState([]);
@@ -48,7 +50,8 @@ export const Navigation = (props) => {
 
     const adminLinks =
         <NavDropdown title="Admin" id="admin-dropdown">
-            <NavDropdown.Item href={`/admin/`}>User Admin</NavDropdown.Item>
+            <NavDropdown.Item href={userAdminRoute}>User Admin</NavDropdown.Item>
+            <NavDropdown.Item href={auditAdminRoute}>Audit Admin</NavDropdown.Item>
             <NavDropdown.Item href={`/groups/`}>Group Admin</NavDropdown.Item>
         </NavDropdown>;
 

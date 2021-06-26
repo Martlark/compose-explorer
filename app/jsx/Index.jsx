@@ -12,13 +12,14 @@ import Project from "./server/Project";
 import {Navigation} from "./Navigation";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
-import UserAdmin from "./admin/user/UserAdmin";
+import UserAdmin, {route as userAdminRoute} from "./admin/user/UserAdmin";
 import UserProfile from "./auth/UserProfile";
 
 import ApiService from "./services/ApiService";
 import GroupAdmin from "./admin/group/GroupAdmin";
 import GroupEdit from "./admin/group/GroupEdit";
 import NotFound from "./NotFound";
+import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 
 export function AppProvider() {
@@ -68,7 +69,8 @@ export function AppProvider() {
                     <Route exact path="/server/:id/container_log/:name" component={LogContent}/>
                     <Route exact path="/login/" component={Login}/>
                     <Route exact path="/logout/" component={Logout}/>
-                    <Route exact path="/admin/" component={UserAdmin}/>
+                    <Route exact path={userAdminRoute} component={UserAdmin}/>
+                    <Route exact path={auditAdminRoute} component={AuditAdmin}/>
                     <Route exact path="/groups/" component={GroupAdmin}/>
                     <Route exact path="/group/:id" component={GroupEdit}/>
                     <Route exact path="/profile/" component={UserProfile}/>

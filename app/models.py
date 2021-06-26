@@ -140,6 +140,11 @@ class Command(db.Model, FlaskSerializeMixin):
         if create:
             self.user = current_user
 
+    def fs_after_commit(self, create=False):
+        audit = AuditRecord(email=current_user.email, action=self.cmd, container_name=self.container_name)
+        db.session.add(audit)
+        db.session.commit()
+
     @property
     def naturaldelta(self):
         return humanize.naturaldelta(datetime.utcnow() - self.created)

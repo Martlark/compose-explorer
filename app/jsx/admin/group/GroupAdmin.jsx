@@ -25,6 +25,7 @@ export default function GroupAdmin(props) {
     }
 
     return (<div>
+        <h2>Groups</h2>
         <Button style={{marginTop: '0.2em', marginBottom: '0.2em'}} size="sm" onClick={clickAddGroup}>Add Group</Button>
         <table className={"table"}>
             <thead>

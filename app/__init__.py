@@ -126,9 +126,11 @@ def create_app():
     ip_ban.load_nuisances()
 
     from app.auth import bp as bp_auth
+    from app.audit import bp as bp_audit
     from app.proxy import bp as bp_proxy
     from app.profile import bp as bp_profile
 
+    app.register_blueprint(bp_audit, url_prefix="/audit")
     app.register_blueprint(bp_auth, url_prefix="/auth")
     app.register_blueprint(bp_proxy, url_prefix="/proxy")
     app.register_blueprint(bp_api, url_prefix="/api")
