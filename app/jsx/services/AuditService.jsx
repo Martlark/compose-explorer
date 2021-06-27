@@ -26,11 +26,7 @@ export function useAudit() {
         );
     }
 
-    useEffect(() => {
-        setRecords(results.filter(item => !searchText || filterResult(item)))
-    }, [results, searchText])
-
-    useEffect(() => {
+    function refresh() {
         auditService.json(''
         ).then(result => {
                 setResults(result)
@@ -38,10 +34,19 @@ export function useAudit() {
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error getting audit records: ${xhr.responseText} - ${errorThrown}`)
         );
+
+    }
+
+    useEffect(() => {
+        setRecords(results.filter(item => !searchText || filterResult(item)))
+    }, [results, searchText])
+
+    useEffect(() => {
+        refresh();
     }, []);
 
 
-    return {records, remove, searchText, setSearchText}
+    return {records, remove, refresh, searchText, setSearchText}
 }
 
 export default class AuditService extends ApiService {
@@ -49,4 +54,10 @@ export default class AuditService extends ApiService {
         super();
         this.setPrefix('audit')
     }
+
+    create(evt, formData) {
+        const data = formData || Object.fromEntries(new FormData(evt.target));
+
+        return this.post('/', data);
+    };
 }

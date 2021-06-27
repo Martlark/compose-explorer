@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react'
 import join from 'join-path'
 import {AppContext} from "../context";
 import {Link} from "react-router-dom";
+import AuditService from "../services/AuditService";
 
 function DirectoryEntry(props) {
     const [entry, setEntry] = useState(props.entry);
@@ -17,7 +18,8 @@ function DirectoryEntry(props) {
     function linkToEdit() {
         const fileName = join(props.directoryPath, entry.linked_file_name || entry.file_name);
         const encodedFileName = encodeURIComponent(fileName)
-        return <Link to={`/server/${props.id}/container_file_edit/${props.name}?filename=${encodedFileName}`} target="_blank">
+        return <Link to={`/server/${props.id}/container_file_edit/${props.name}?filename=${encodedFileName}`}
+                     target="_blank">
             <span className="material-icons">edit</span>
         </Link>;
     }
@@ -75,6 +77,7 @@ export default function Directory(props) {
     const [directoryGetting, setDirectoryGetting] = useState(false);
 
     const context = useContext(AppContext);
+    const auditService = new AuditService();
     const id = props.id;
     const name = props.name;
 
@@ -94,13 +97,19 @@ export default function Directory(props) {
         setDirectoryGetting(true);
 
         const selected = directoryEntries.filter(dir => dir.selected);
-
+        const cmd = `(cd ${directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`;
         return context.api.proxyPost(`/container/${id}/exec_run/`, {
-                name: name,
-                cmd: `(cd ${directoryPath} && rm ${selected.map(dir => '"' + dir.file_name + '"').join(' ')})`,
+                name,
+                cmd,
             }
         ).then(result => {
                 context.setMessage(result);
+                auditService.create(evt, {
+                    action_type: 'file-delete',
+                    action: cmd,
+                    container_name: props.container_name
+                });
+
                 return getDirectory(pwd);
             }
         ).fail((xhr, textStatus, errorThrown) =>

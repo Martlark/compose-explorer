@@ -19,15 +19,17 @@ to_zone = tz.tzlocal()
 
 FlaskSerializeMixin.db = db
 
-server_group_user = db.Table('server_group_user',
-                             db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
-                             db.Column('user_id', db.Integer, db.ForeignKey('app_user.id'))
-                             )
+server_group_user = db.Table(
+    "server_group_user",
+    db.Column("server_group_id", db.Integer, db.ForeignKey("server_group.id")),
+    db.Column("user_id", db.Integer, db.ForeignKey("app_user.id")),
+)
 
-server_group_server = db.Table('server_group_server',
-                               db.Column('server_group_id', db.Integer, db.ForeignKey('server_group.id')),
-                               db.Column('server_id', db.Integer, db.ForeignKey('docker_server.id'))
-                               )
+server_group_server = db.Table(
+    "server_group_server",
+    db.Column("server_group_id", db.Integer, db.ForeignKey("server_group.id")),
+    db.Column("server_id", db.Integer, db.ForeignKey("docker_server.id")),
+)
 
 
 class ServerGroup(db.Model, FlaskSerializeMixin):
@@ -38,11 +40,13 @@ class ServerGroup(db.Model, FlaskSerializeMixin):
     access_type = db.Column(db.String(5))
     description = db.Column(db.String(255))
     # relationships
-    users = db.relationship("User", secondary=server_group_user, lazy='subquery',
-                            backref=db.backref('groups', lazy=True))
-    servers = db.relationship("DockerServer", secondary=server_group_server, lazy='subquery',
-                              backref=db.backref('groups', lazy=True))
-    relationship_fields = ['users', 'servers']
+    users = db.relationship(
+        "User", secondary=server_group_user, lazy="subquery", backref=db.backref("groups", lazy=True)
+    )
+    servers = db.relationship(
+        "DockerServer", secondary=server_group_server, lazy="subquery", backref=db.backref("groups", lazy=True)
+    )
+    relationship_fields = ["users", "servers"]
 
 
 # User class
@@ -101,7 +105,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
             self.set_password(self.password)
         self.email = self.email.lower()
         if self.user_type not in self.USER_TYPES:
-            raise Exception('user_type not allowed')
+            raise Exception("user_type not allowed")
 
     def add_command(self, cmd, result):
         command = Command(cmd=cmd, result=result, user=self)
@@ -147,8 +151,9 @@ class Command(db.Model, FlaskSerializeMixin):
 
     def fs_after_commit(self, create=False):
         if create:
-            audit = AuditRecord(action_type='execute', email=current_user.email, action=self.cmd,
-                                container_name=self.container_name)
+            audit = AuditRecord(
+                action_type="execute", email=current_user.email, action=self.cmd, container_name=self.container_name
+            )
             db.session.add(audit)
             db.session.commit()
 
@@ -239,9 +244,13 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         )
         if r.ok:
 
-            audit = AuditRecord(action_type='docker', email=current_user.email,
-                                action=f"""{verb}: {params.get('filename', '')}""",
-                                container_name=d_type, server_name=self.name)
+            audit = AuditRecord(
+                action_type="docker",
+                email=current_user.email,
+                action=f"""{verb}: {params.get('filename', '')}""",
+                container_name=params.get("name", ""),
+                server_name=self.name,
+            )
             db.session.add(audit)
             db.session.commit()
 
@@ -299,7 +308,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         if self.has_group_write(user):
             return True
 
-        for group in filter(lambda g: g.access_type == 'read', self.groups):
+        for group in filter(lambda g: g.access_type == "read", self.groups):
             if group in user.groups:
                 return True
         return False
@@ -312,7 +321,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         if getattr(current_user, "is_admin", False):
             return True
 
-        for group in filter(lambda g: g.access_type == 'write', self.groups):
+        for group in filter(lambda g: g.access_type == "write", self.groups):
             if group in user.groups:
                 return True
         return False

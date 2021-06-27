@@ -17,13 +17,14 @@ function AuditRecord({record, clickSelected}) {
         </td>
         <td>{record.email}</td>
         <td>{record.action_type}</td>
+        <td>{record.container_name}</td>
         <td>{record.action}</td>
     </tr>;
 }
 
 export default function AuditAdmin() {
     const context = useContext(AppContext);
-    const {records, remove, searchText, setSearchText} = useAudit();
+    const {records, remove, refresh, searchText, setSearchText} = useAudit();
     let selected = {};
 
     if (!context.admin) {
@@ -32,6 +33,10 @@ export default function AuditAdmin() {
 
     function clickSelected(value, id) {
         selected[id] = value;
+    }
+
+    function clickRefresh(evt) {
+        refresh();
     }
 
     function clickDeleteSelected(evt) {
@@ -48,15 +53,19 @@ export default function AuditAdmin() {
 
     return (<div>
         <h2>Audit Records</h2>
-        <Button style={{marginRight:'1em'}} onClick={clickDeleteSelected}>Delete selected</Button>
+        <Button style={{marginRight:'1em'}} onClick={clickDeleteSelected}><span
+            className="material-icons">delete</span>Delete selected</Button>
+        <Button style={{marginRight:'1em'}} onClick={clickRefresh}><span
+            className="material-icons">refresh</span>Refresh</Button>
         <label>Search: <input value={searchText} onChange={(evt)=>setSearchText(evt.target.value)}/></label>
         <table className={"table"}>
             <thead>
             <tr>
-                <th className="w-10">Date</th>
+                <th className="w-20">Date</th>
                 <th className="w-20">User</th>
                 <th className="w-10">Type</th>
-                <th className="w-60">Action</th>
+                <th className="w-20">Container</th>
+                <th className="w-30">Action</th>
             </tr>
             </thead>
             <tbody>
