@@ -115,11 +115,16 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
 
 class AuditRecord(db.Model, FlaskSerializeMixin):
     id = db.Column(db.Integer, primary_key=True)
+    action_type = db.Column(db.String(50))
     action = db.Column(db.String(4000))
     email = db.Column(db.String(300))
     server_name = db.Column(db.String(300))
     container_name = db.Column(db.String(300))
     created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def verify(self, create=False):
+        if create:
+            self.email = current_user.email
 
 
 class Command(db.Model, FlaskSerializeMixin):
@@ -141,9 +146,11 @@ class Command(db.Model, FlaskSerializeMixin):
             self.user = current_user
 
     def fs_after_commit(self, create=False):
-        audit = AuditRecord(email=current_user.email, action=self.cmd, container_name=self.container_name)
-        db.session.add(audit)
-        db.session.commit()
+        if create:
+            audit = AuditRecord(action_type='execute', email=current_user.email, action=self.cmd,
+                                container_name=self.container_name)
+            db.session.add(audit)
+            db.session.commit()
 
     @property
     def naturaldelta(self):
@@ -231,6 +238,13 @@ class DockerServer(db.Model, FlaskSerializeMixin):
             headers=headers,
         )
         if r.ok:
+
+            audit = AuditRecord(action_type='docker', email=current_user.email,
+                                action=f"""{verb}: {params.get('filename', '')}""",
+                                container_name=d_type, server_name=self.name)
+            db.session.add(audit)
+            db.session.commit()
+
             try:
                 return r.json()
             except:

@@ -114,7 +114,7 @@ def create_app():
         """
         logging.warning(f"""{404}, {request.path}""")
         if "/api/" not in request.path and request.method == "GET":
-            return redirect(f"/?request_path={quote_plus(request.path)}")
+            return redirect(f"/?request_path={quote_plus(request.full_path)}")
         return e
 
     @login_manager.user_loader

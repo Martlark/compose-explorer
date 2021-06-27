@@ -1,9 +1,26 @@
 import React, {useContext, useEffect, useState} from 'react'
 import join from 'join-path'
 import {AppContext} from "../context";
+import {Link} from "react-router-dom";
 
 function DirectoryEntry(props) {
     const [entry, setEntry] = useState(props.entry);
+
+    const editButton = <a href={"#"} className={"btn"} onClick={evt => clickEditSelected(evt)}
+                          title={"Edit selected files"}><span
+        className="material-icons">edit</span></a>;
+
+    /***
+     * download_container_file any selected that are not directories.  they will download_container_file as tar
+     * @param evt
+     */
+    function linkToEdit() {
+        const fileName = join(props.directoryPath, entry.linked_file_name || entry.file_name);
+        const encodedFileName = encodeURIComponent(fileName)
+        return <Link to={`/server/${props.id}/container_file_edit/${props.name}?filename=${encodedFileName}`} target="_blank">
+            <span className="material-icons">edit</span>
+        </Link>;
+    }
 
     function clickDirectory(evt, fileName) {
         evt.preventDefault();
@@ -25,7 +42,10 @@ function DirectoryEntry(props) {
     function renderSelectionMode() {
         if (entry.dir_type !== 'd') {
             return (<>
-                <td><input type="checkbox" name="selected" onChange={checkboxOnChange}/></td>
+                <td>
+                    <input type="checkbox" name="selected" onChange={checkboxOnChange}/>
+                    {linkToEdit()}
+                </td>
                 <td>{entry.modes}</td>
             </>)
         } else {
@@ -113,19 +133,6 @@ export default function Directory(props) {
         });
     }
 
-    /***
-     * download_container_file any selected that are not directories.  they will download_container_file as tar
-     * @param evt
-     */
-    function clickEditSelected(evt) {
-        const selected = directoryEntries.filter(dir => dir.selected && dir.dir_type !== 'd');
-        selected.forEach(dir => {
-            const fileName = join(directoryPath, dir.linked_file_name || dir.file_name);
-            const encodedFileName = encodeURIComponent(fileName)
-            window.open(`/server/${id}/container_file_edit/${name}?filename=${encodedFileName}`, "_blank")
-        });
-    }
-
     function changeDirectory(directoryName) {
         const pwd = join(directoryPath, directoryName);
         getDirectory(pwd);
@@ -161,9 +168,6 @@ export default function Directory(props) {
         const downloadButton = <a href={"#"} className={"btn"} onClick={evt => clickDownloadSelected(evt)}
                                   title={"Download selected files"}><span
             className="material-icons">arrow_downward</span></a>;
-        const editButton = <a href={"#"} className={"btn"} onClick={evt => clickEditSelected(evt)}
-                              title={"Edit selected files"}><span
-            className="material-icons">edit</span></a>;
         const refreshButton = <a href={"#"} className={"btn"} onClick={evt => clickDirectory(evt, pwd)}
                                  title={"Refresh"}><span
             className="material-icons">cached</span></a>;
@@ -183,7 +187,6 @@ export default function Directory(props) {
             <div>
                 {refreshButton}
                 {props.server.write && downloadButton}
-                {props.server.write && editButton}
                 {props.server.write && deleteButton}
                 {upButton}
                 {directoryLinks.map(d =>
@@ -223,8 +226,11 @@ export default function Directory(props) {
                 </thead>
                 <tbody>
                 {directoryEntries.map(entry => <DirectoryEntry entry={entry}
+                                                               id={id}
+                                                               name={name}
                                                                key={entry.file_name}
                                                                parentChangeDirectory={changeDirectory}
+                                                               directoryPath={directoryPath}
                                                                selectEntry={selectEntry}/>)}
                 </tbody>
             </table>

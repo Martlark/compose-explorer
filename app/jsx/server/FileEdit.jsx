@@ -2,6 +2,7 @@ import React, {useContext, useEffect, useState} from 'react'
 import {ContentState, Editor, EditorState} from 'draft-js';
 import {AppContext} from "../context";
 import LoginRequired from "../LoginRequired";
+import AuditService from "../services/AuditService";
 
 export default function FileEdit(props) {
     const [originalContent, setOriginalContent] = useState(ContentState.createFromText(''));
@@ -14,6 +15,7 @@ export default function FileEdit(props) {
     const name = props.match.params.name;
     const id = props.match.params.id;
     const context = useContext(AppContext);
+    const auditServer = new AuditService();
 
     const onChange = (editorState) => setEditorState(editorState);
     const setEditor = (e) => {
@@ -34,7 +36,7 @@ export default function FileEdit(props) {
             context.setErrorMessage(`Error getting container: ${xhr.responseText} - ${errorThrown}`)
         );
         getContent();
-    }, [props]);
+    }, [id, name, file_name]);
 
     function getContent() {
         return context.api.proxyPost(`/container/${id}/download/`, {
@@ -68,7 +70,13 @@ export default function FileEdit(props) {
                 content: editorState.getCurrentContent().getPlainText(),
             }
         ).then((result, textStatus, request) => {
-                context.setMessage(`Saved: ${result.base_filename}`)
+                context.setMessage(`Saved: ${result.base_filename}`);
+                auditServer.create(evt, {
+                    action_type: 'file-save',
+                    action: `${result.dest_path}/${result.base_filename}`,
+                    container_name: props.container_name,
+                    server_name: server.name
+                });
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error: ${textStatus} - ${errorThrown}`)
@@ -89,7 +97,7 @@ export default function FileEdit(props) {
         return <LoginRequired/>;
     }
 
-    if(!server.write) {
+    if (!server.write) {
         return <h3>Server write access required</h3>;
     }
 

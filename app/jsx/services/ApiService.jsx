@@ -10,7 +10,9 @@ export default class ApiService {
 
     urlJoin(...urls) {
         let fullPath = `/${urls.join('/')}/`;
-        fullPath = fullPath.replaceAll('//', '/');
+        while(fullPath.includes('//')) {
+            fullPath = fullPath.replaceAll('//', '/');
+        }
         fullPath = fullPath.replace(/[ps]:\//, '://');
         return fullPath;
     }
