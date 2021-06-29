@@ -1,9 +1,9 @@
 import React, {useContext, useEffect, useState} from "react";
-import {matchPath, useLocation} from "react-router-dom";
+import {Link, matchPath, useLocation} from "react-router-dom";
 import {AppContext} from "./context";
 import {Nav, Navbar, NavDropdown} from "react-bootstrap";
 import {route as userAdminRoute} from "./admin/user/UserAdmin";
-import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
+import {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 export const Navigation = (props) => {
     const [servers, setServers] = useState([]);
@@ -12,23 +12,30 @@ export const Navigation = (props) => {
     const context = useContext(AppContext);
 
     useEffect(() => {
+        if (context.serverId < 1) {
+            return;
+        }
+        context.api.json(`/server/${context.serverId}/`).then(result => {
+            if (result) {
+                context.setServerName(result.name);
+            }
+        });
+        context.api.projects(context.serverId
+        ).then(result => setProjects(result)
+        ).fail((xhr, textStatus, errorThrown) =>
+            context.setErrorMessage(`Error getting projects: ${xhr.responseText} - ${errorThrown}`))
+    }, [context.serverId]);
+
+    useEffect(() => {
         const match = matchPath(location.pathname, {key: 'id', path: '/server/:id'});
         const current_id = match?.params?.id || context.serverId;
         if (!context.anon && context.serverId !== current_id) {
             if (current_id) {
                 context.setServerId(current_id);
-                context.api.json(`/server/${current_id}/`).then(result => {
-                    if (result) {
-                        context.setServerName(result.name);
-                    }
-                });
-                context.api.projects(current_id
-                ).then(result => setProjects(result)
-                ).fail((xhr, textStatus, errorThrown) =>
-                    context.setErrorMessage(`Error getting projects: ${xhr.responseText} - ${errorThrown}`))
+                localStorage.setItem('serverId', current_id);
             }
         }
-    }, [location]);
+    }, [location.pathname]);
 
     useEffect(() => {
         context.api.json('/servers/', {_: new Date().getTime()}).then(items => setServers(items))
@@ -36,31 +43,31 @@ export const Navigation = (props) => {
 
     const serverLinks =
         <NavDropdown title="Servers" id="server-dropdown">
-            {servers.map(item => <NavDropdown.Item
-                href={`/server/${item.id}`}>{item.name}</NavDropdown.Item>
+            {servers.map(item => <NavDropdown.Item>
+                <Link to={`/server/${item.id}`}>{item.name}</Link></NavDropdown.Item>
             )}
         </NavDropdown>;
 
     const profileLinks =
         <NavDropdown title="Profile" id="profile-dropdown">
-            {context.anon && <NavDropdown.Item href={`/login/`}>Login</NavDropdown.Item>}
-            {!context.anon && <NavDropdown.Item href={`/logout/`}>Logout</NavDropdown.Item>}
-            {!context.anon && <NavDropdown.Item href={`/profile/`}>Profile</NavDropdown.Item>}
+            {context.anon && <NavDropdown.Item><Link to={`/login/`}>Login</Link></NavDropdown.Item>}
+            {!context.anon && <NavDropdown.Item><Link to={`/logout/`}>Logout</Link></NavDropdown.Item>}
+            {!context.anon && <NavDropdown.Item><Link to={`/profile/`}>Profile</Link></NavDropdown.Item>}
         </NavDropdown>;
 
     const adminLinks =
         <NavDropdown title="Admin" id="admin-dropdown">
-            <NavDropdown.Item href={userAdminRoute}>User Admin</NavDropdown.Item>
-            <NavDropdown.Item href={auditAdminRoute}>Audit Admin</NavDropdown.Item>
-            <NavDropdown.Item href={`/groups/`}>Group Admin</NavDropdown.Item>
+            <NavDropdown.Item><Link to={userAdminRoute}>User Admin</Link></NavDropdown.Item>
+            <NavDropdown.Item><Link to={auditAdminRoute}>Audit Admin</Link></NavDropdown.Item>
+            <NavDropdown.Item><Link to={`/groups/`}>Group Admin</Link></NavDropdown.Item>
         </NavDropdown>;
 
 
     const projectLinks =
         <NavDropdown title="Projects" id="projects-dropdown">
             {projects.map(project => {
-                return <NavDropdown.Item
-                    href={`/server/${context.serverId}/project/${project.name}`}>{project.name}</NavDropdown.Item>;
+                return <NavDropdown.Item><Link
+                    to={`/server/${context.serverId}/project/${project.name}`}>{project.name}</Link></NavDropdown.Item>;
             })
             }
         </NavDropdown>;
@@ -68,13 +75,12 @@ export const Navigation = (props) => {
     return (
 
         <Navbar expand="lg">
-            <Navbar.Brand href="/">Compose Explorer</Navbar.Brand>
+            <Navbar.Brand><Link to="/">Compose Explorer</Link></Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav"/>
             <Navbar.Collapse id="navbar">
                 <Nav className="mr-auto">
-                    <Nav.Link
-                        href={`/server/${context.serverId}`}>
-                        <span title="Active server">{context.serverName}</span>
+                    <Nav.Link><Link to={`/server/${context.serverId}`}>
+                        <span title="Active server">{context.serverName}</span></Link>
                     </Nav.Link>
                     {!context.anon && serverLinks}
                     {!context.anon && context.serverId > 0 && projectLinks}

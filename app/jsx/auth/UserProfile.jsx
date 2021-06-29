@@ -81,7 +81,7 @@ export default function UserProfile() {
         return <Form onSubmit={clickUpdatePassword}>
             <h3>Change Password</h3>
             <input type="hidden" name="id" defaultValue={user.id}/>
-            <Form.Group size="lg" controlId="first_name">
+            <Form.Group size="lg" controlId="current_password">
                 <Form.Label>Current Password</Form.Label>
                 <Form.Control
                     type="password"
@@ -91,7 +91,7 @@ export default function UserProfile() {
                     onChange={(e) => setCurrent_password(e.target.value)}
                 />
             </Form.Group>
-            <Form.Group size="lg" controlId="last_name">
+            <Form.Group size="lg" controlId="new_password">
                 <Form.Label>New Password</Form.Label>
                 <Form.Control
                     type="password"

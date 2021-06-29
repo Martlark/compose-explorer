@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React from "react";
 import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
-import {AppContext, ContextErrorMessage, ContextMessage} from './context'
+import {AppContext, ContextErrorMessage, ContextMessage, useContextState} from './context'
 
 import ManageServer from "./server/ManageServer"
 import ManageContainer from "./server/ManageContainer"
@@ -14,49 +14,20 @@ import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
 import UserAdmin, {route as userAdminRoute} from "./admin/user/UserAdmin";
 import UserProfile from "./auth/UserProfile";
-
-import ApiService from "./services/ApiService";
 import GroupAdmin from "./admin/group/GroupAdmin";
 import GroupEdit from "./admin/group/GroupEdit";
 import NotFound from "./NotFound";
 import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 
-export function AppProvider() {
-    const [projects, setProjects] = useState([]);
-    const [serverId, setServerId] = useState(0);
-    const [serverName, setServerName] = useState('');
-    const [message, setMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [anon, setAnon] = useState(window.g?.anon);
-    const [admin, setAdmin] = useState(window.g?.admin);
-    const [userId, setUserId] = useState(window.g?.id);
+export function Index() {
 
-    const state = {
-        api: new ApiService(),
-        projects,
-        setProjects,
-        serverId,
-        setServerId,
-        serverName,
-        setServerName,
-        message,
-        setMessage,
-        errorMessage,
-        setErrorMessage,
-        anon,
-        setAnon,
-        admin,
-        setAdmin,
-        userId,
-        setUserId,
-    }
-
-    return (<AppContext.Provider value={state}>
+    const contextState = useContextState();
+    return (<AppContext.Provider value={contextState}>
         <Router>
             <Navigation/>
-            <ContextMessage message={message}/>
-            <ContextErrorMessage message={errorMessage}/>
+            <ContextMessage message={contextState.message}/>
+            <ContextErrorMessage message={contextState.errorMessage}/>
             <div className={"container-fluid"}>
                 <Switch>
                     <Route exact path="/">
@@ -81,4 +52,4 @@ export function AppProvider() {
     </AppContext.Provider>)
 }
 
-ReactDOM.render(<AppProvider/>, document.getElementById('jsx_content'));
+ReactDOM.render(<Index/>, document.getElementById('jsx_content'));

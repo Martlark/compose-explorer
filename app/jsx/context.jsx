@@ -1,4 +1,5 @@
-import React, {useContext, useEffect} from "react";
+import React, {useContext, useEffect, useState} from "react";
+import ApiService from "./services/ApiService";
 
 export const ContextErrorMessage = ({message}) => {
     const context = useContext(AppContext);
@@ -24,6 +25,36 @@ export const ContextMessage = ({message}) => {
     return (message && <h3 className={"alert alert-info"}>{message}</h3>)
 }
 
+export function useContextState() {
+    const [projects, setProjects] = useState([]);
+    const [serverId, setServerId] = useState(Number(localStorage.getItem('serverId')));
+    const [serverName, setServerName] = useState('');
+    const [message, setMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    const [anon, setAnon] = useState(window.g?.anon);
+    const [admin, setAdmin] = useState(window.g?.admin);
+    const [userId, setUserId] = useState(window.g?.id);
+
+    return {
+        api: new ApiService(),
+        projects,
+        setProjects,
+        serverId,
+        setServerId,
+        serverName,
+        setServerName,
+        message,
+        setMessage,
+        errorMessage,
+        setErrorMessage,
+        anon,
+        setAnon,
+        admin,
+        setAdmin,
+        userId,
+        setUserId,
+    }
+}
 
 // https://www.robinwieruch.de/react-function-component
 // https://www.taniarascia.com/using-context-api-in-react/

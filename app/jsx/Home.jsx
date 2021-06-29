@@ -46,10 +46,7 @@ export default function Home(props) {
         if (requestPathValue) {
             $request_path.val("");
             history.push(requestPathValue);
-            return;
         }
-
-        context.setServerId(null);
     }, []);
 
     useEffect(() => {
