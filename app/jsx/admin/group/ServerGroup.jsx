@@ -2,6 +2,8 @@ import React, {useContext, useState} from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import {AppContext} from "../../context";
+import {Link} from "react-router-dom";
+import {Badge} from "react-bootstrap";
 
 export function ServerGroup({group, groupService, refreshGroups}) {
     const [mode, setMode] = useState('view');
@@ -46,7 +48,7 @@ export function ServerGroup({group, groupService, refreshGroups}) {
             return null;
         }
 
-        return <tr>
+        return <>
             <td>{group.name}</td>
             <td>{group.description}</td>
             <td>{group.access_type}</td>
@@ -60,7 +62,7 @@ export function ServerGroup({group, groupService, refreshGroups}) {
 
                 </form>
             </td>
-        </tr>
+        </>
     }
 
     function renderDeleteButton() {
@@ -73,7 +75,7 @@ export function ServerGroup({group, groupService, refreshGroups}) {
             return null;
         }
 
-        return (<tr>
+        return (<>
             <Form id={formId} onSubmit={clickUpdate}><input type="hidden" name="id" defaultValue={group.id}/></Form>
 
             <td>
@@ -98,7 +100,7 @@ export function ServerGroup({group, groupService, refreshGroups}) {
                             onClick={clickCancelUpdate}>cancel</Button>
                 </div>
             </td>
-        </tr>);
+        </>);
     }
 
     function renderRow() {
@@ -106,12 +108,16 @@ export function ServerGroup({group, groupService, refreshGroups}) {
             return null;
         }
 
-        return <tr>
+        return <>
             <td>
-                {group.name}
+                <Link to={`/group/${group.id}/`}>{group.name}</Link>
             </td>
             <td>
                 {group.description}
+                {' '}
+                <Badge variant={"primary"}>Servers <Badge pill variant="secondary">{group.servers.length}</Badge></Badge>
+                {' '}
+                <Badge variant={"warning"}>Users <Badge pill variant="secondary">{group.users.length}</Badge></Badge>
             </td>
             <td>
                 {group.access_type}
@@ -120,9 +126,9 @@ export function ServerGroup({group, groupService, refreshGroups}) {
                 <Button style={buttonStyle} size="sm" title="Edit" onClick={clickEdit}>Edit </Button>
                 {renderDeleteButton()}
             </td>
-        </tr>
+        </>
 
     }
 
-    return <>{renderEditRow()}{renderRow()}{renderConfirmDeleteRow()}</>
+    return <tr key={`server-group-${group.id}`}>{renderEditRow()}{renderRow()}{renderConfirmDeleteRow()}</tr>
 }

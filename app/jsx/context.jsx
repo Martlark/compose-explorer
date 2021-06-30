@@ -25,10 +25,21 @@ export const ContextMessage = ({message}) => {
     return (message && <h3 className={"alert alert-info"}>{message}</h3>)
 }
 
+function useStorage(key, initialValue = null) {
+    const [value, setValue] = useState(localStorage.getItem(key) === null ? initialValue : localStorage.getItem(key));
+
+    function setter(newValue) {
+        setValue(newValue);
+        localStorage.setItem(key, newValue)
+    }
+
+    return [value, setter]
+}
+
 export function useContextState() {
     const [projects, setProjects] = useState([]);
-    const [serverId, setServerId] = useState(Number(localStorage.getItem('serverId')));
-    const [serverName, setServerName] = useState('');
+    const [serverId, setServerId] = useStorage('serverId', 0);
+    const [serverName, setServerName] = useStorage('serverName', '');
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [anon, setAnon] = useState(window.g?.anon);

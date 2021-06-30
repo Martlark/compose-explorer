@@ -21,7 +21,7 @@ import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 
 export function Index() {
-
+    console.log('Index()');
     const contextState = useContextState();
     return (<AppContext.Provider value={contextState}>
         <Router>
@@ -43,7 +43,7 @@ export function Index() {
                     <Route exact path={userAdminRoute} component={UserAdmin}/>
                     <Route exact path={auditAdminRoute} component={AuditAdmin}/>
                     <Route exact path="/groups/" component={GroupAdmin}/>
-                    <Route exact path="/group/:id" component={GroupEdit}/>
+                    <Route exact path="/group/:id/" component={GroupEdit}/>
                     <Route exact path="/profile/" component={UserProfile}/>
                     <Route component={NotFound}/>
                 </Switch>

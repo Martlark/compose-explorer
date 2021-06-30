@@ -102,12 +102,9 @@ export default class GroupService extends ApiService {
         return this.post(this.urlJoin('group_remove_user'), data);
     };
 
-    create(evt, name = null, description = null) {
-        const formData = new FormData(evt?.target);
+    create(evt) {
+        const formData = Object.fromEntries(new FormData(evt?.target));
 
-        return this.post(this.urlJoin(this.endPoint), {
-            name: name ?? formData.get('name'),
-            description: description ?? formData.get('description')
-        })
+        return this.post(this.urlJoin(this.endPoint), formData)
     };
 }

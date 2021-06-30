@@ -6,6 +6,7 @@ import {AppContext} from "../../context";
 export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [accessType, setAccessType] = useState("read");
     const context = useContext(AppContext);
 
     function clickCancelAddUser(evt) {
@@ -17,6 +18,7 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
         groupService.create(evt
         ).then(result => {
                 setAddGroup(false);
+                context.setMessage(`${result.name} created`);
                 refreshGroups();
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -24,7 +26,7 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
     }
 
     return <div>
-        <Button onClick={clickCancelAddUser}>Cancel</Button>
+        <Button variant={'danger'} onClick={clickCancelAddUser}>Cancel</Button>
         <Form onSubmit={handleSubmitAdd}>
             <Form.Group size="lg" controlId="name">
                 <Form.Label>Name</Form.Label>
@@ -48,7 +50,10 @@ export default function AddGroup({setAddGroup, refreshGroups, groupService}) {
             <Form.Group size="lg" controlId="access_type">
                 <Form.Label>Access Type</Form.Label>
                 <Form.Control defaultValue="write"
-                              as="select" name="access_type">
+                              value={accessType}
+                              onChange={(e) => setAccessType(e.target.value)}
+                              as="select"
+                              name="access_type">
                     <option>read</option>
                     <option>write</option>
                 </Form.Control>

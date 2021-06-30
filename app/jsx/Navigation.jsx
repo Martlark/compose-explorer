@@ -32,7 +32,6 @@ export const Navigation = (props) => {
         if (!context.anon && context.serverId !== current_id) {
             if (current_id) {
                 context.setServerId(current_id);
-                localStorage.setItem('serverId', current_id);
             }
         }
     }, [location.pathname]);
