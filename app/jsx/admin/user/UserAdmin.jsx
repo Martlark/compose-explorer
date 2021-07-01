@@ -4,18 +4,16 @@ import Button from "react-bootstrap/Button";
 import AuthService, {useUsers} from "../../services/AuthService";
 import User from "./User";
 import AddUser from "./AddUser";
+import {useGroups} from "../../services/GroupService";
 
 export const route = '/admin/';
 
 export default function UserAdmin() {
-    const {users, getUsers} = useUsers();
+    const {users, getUsers, isLoadingUsers} = useUsers();
     const [addUser, setAddUser] = useState(false);
+    const [groups, refreshGroups, isLoadingGroups] = useGroups();
     const authService = new AuthService({})
     const context = useContext(AppContext);
-
-    if (!context.admin) {
-        return <h3>Forbidden</h3>;
-    }
 
     function clickAddUser() {
         setAddUser(true);
@@ -23,6 +21,14 @@ export default function UserAdmin() {
 
     if (addUser) {
         return <AddUser setAddUser={setAddUser} getUsers={getUsers} authService={authService}/>
+    }
+
+    if (!context.admin) {
+        return <h2>Forbidden</h2>;
+    }
+
+    if (isLoadingGroups || isLoadingUsers) {
+        return <h2>Loading...</h2>;
     }
 
     return (<div>
@@ -33,12 +39,13 @@ export default function UserAdmin() {
             <tr>
                 <th className="w-30">email</th>
                 <th className="w-20">User Type</th>
-                <th className="w-50">Actions</th>
+                <th className="w-20">Actions</th>
+                <th className="w-30">Groups</th>
             </tr>
             </thead>
             <tbody>
             {users.map(user =>
-                <User user={user} api={context.api} authService={authService} getUsers={getUsers}/>
+                <User user={user} groups={groups} authService={authService} getUsers={getUsers}/>
             )}
             </tbody>
         </table>

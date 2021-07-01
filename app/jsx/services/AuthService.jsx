@@ -6,10 +6,14 @@ export function useUsers(){
     const authService = new AuthService();
     const context = useContext(AppContext);
     const [users, setUsers] = useState([]);
+    const [isLoadingUsers, setIsLoadingUsers] = useState(true);
 
     function getUsers() {
         authService.json('user'
-        ).then(result => setUsers(result)
+        ).then(result => {
+                setUsers(result);
+            setIsLoadingUsers(false);
+            }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error getting users: ${xhr.responseText} - ${errorThrown}`)
         );
@@ -19,7 +23,7 @@ export function useUsers(){
         getUsers()
     }, [])
 
-    return {users, getUsers}
+    return {users, getUsers, isLoadingUsers}
 }
 
 export default class AuthService extends ApiService {

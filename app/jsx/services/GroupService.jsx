@@ -4,51 +4,58 @@ import {AppContext} from "../context";
 
 /**
  * use hook to return a list of server access groups
- * @returns {*[groups, refreshFunction]}
+ * @returns {*[groups, refreshFunction, isLoadingGroups]}
  */
 export function useGroups() {
     const groupService = new GroupService();
     const context = useContext(AppContext);
-    const [refreshCount, setRefreshCount] = useState(1);
     const [groups, setGroups] = useState([]);
+    const [isLoadingGroups, setIsLoadingGroups] = useState(true);
 
     useEffect(() => {
-        groupService.getGroups()
-            .then(result => setGroups(result))
-            .fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
-        );
-    }, [refreshCount]);
+        refresh()
+    }, []);
 
     function refresh() {
-        setRefreshCount(c => c + 1);
+        groupService.getGroups()
+            .then(result => {
+                setGroups(result);
+                setIsLoadingGroups(false);
+            })
+            .fail((xhr, textStatus, errorThrown) =>
+                context.setErrorMessage(`Error getting groups: ${xhr.responseText} - ${errorThrown}`)
+            );
     }
 
-    return [groups, refresh];
+    return [groups, refresh, isLoadingGroups];
 }
 
 /**
- * use hook to return a list of server access groups
- * @returns {*[groups, refreshFunction]}
+ * use hook to return a of server access group
+ * @returns {*[group, setGroup, update]}
  */
 export function useGroup(group_id) {
     const groupService = new GroupService();
     const context = useContext(AppContext);
     const [group, setGroup] = useState(null);
+    const [isLoadingGroup, setIsLoadingGroup] = useState(true);
 
     useEffect(() => {
         groupService.json(group_id)
-            .then(result => setGroup(result))
+            .then(result => {
+                setGroup(result);
+                setLoadingGroup(false);
+            })
             .fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting group: ${xhr.responseText} - ${errorThrown}`)
-        );
+                context.setErrorMessage(`Error getting group: ${xhr.responseText} - ${errorThrown}`)
+            );
     }, [group_id]);
 
     function update() {
-        groupService.update(group).then(result=>setGroup(result.item));
+        groupService.update(group).then(result => setGroup(result.item));
     }
 
-    return [group, setGroup, update];
+    return [group, setGroup, update, isLoadingGroup];
 }
 
 export default class GroupService extends ApiService {
@@ -90,14 +97,14 @@ export default class GroupService extends ApiService {
         return this.post(this.urlJoin('group_remove_server'), data);
     };
 
-    add_user(evt = null) {
-        const data = Object.fromEntries(new FormData(evt.target));
+    add_user(evt = null, formData = null) {
+        const data = formData || Object.fromEntries(new FormData(evt.target));
 
         return this.post(this.urlJoin('group_add_user'), data);
     };
 
-    remove_user(evt = null) {
-        const data = Object.fromEntries(new FormData(evt.target));
+    remove_user(evt = null, formData = null) {
+        const data = formData || Object.fromEntries(new FormData(evt.target));
 
         return this.post(this.urlJoin('group_remove_user'), data);
     };

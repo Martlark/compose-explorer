@@ -2,11 +2,42 @@ import React, {useContext, useState} from "react";
 import {AppContext} from '../../context';
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Select from "react-select";
+import GroupService from "../../services/GroupService";
 
-export default function User(props) {
+function GroupMembership({user, groups, authService, context}) {
+    const userGroupIds = user.group_membership.map(member => member.id);
+    const filteredGroups = groups.filter(group => userGroupIds.includes(group.id));
+    const groupService = new GroupService();
+
+    const [membership, setMembership] = useState(filteredGroups.map(group => {
+        return {value: group.id, label: `${group.name} - ${group.access_type}`}
+    }));
+    const options = groups?.map(group => {
+        return {value: group.id, label: `${group.name} - ${group.access_type}`}
+    });
+
+    function onChange(evt, action) {
+        const group_id = action.option?.value || action.removedValue.value;
+        const user_id = user.id;
+        switch (action.action) {
+            case 'select-option':
+                groupService.add_user(null, {group_id, user_id}).then(result => context.setMessage(result));
+                break;
+            case 'remove-value':
+                groupService.remove_user(null, {group_id, user_id}).then(result => context.setMessage(result));
+                break;
+        }
+    }
+
+    return <Select isMulti name="groups" isClearable={false} defaultValue={membership} options={options}
+                   onChange={onChange}/>;
+}
+
+export default function User({user, groups, authService, getUsers}) {
     const context = useContext(AppContext);
     const [mode, setMode] = useState('view');
-    const [userType, setUserType] = useState(props.user.user_type);
+    const [userType, setUserType] = useState(user.user_type);
     const buttonStyle = {marginRight: '1em'};
 
     function clickEdit() {
@@ -15,10 +46,10 @@ export default function User(props) {
 
     function clickUpdate(evt) {
         evt.preventDefault();
-        props.authService.update(evt
+        authService.update(evt
         ).then(result => {
                 context.setMessage(`${result.message} ${result.item.email}`);
-                props.getUsers();
+                getUsers();
                 setMode('view');
             }
         ).fail((xhr, textStatus, errorThrown) =>
@@ -31,8 +62,8 @@ export default function User(props) {
 
     function renderEdit() {
         return <form onSubmit={clickUpdate}>
-            <input type="hidden" name="id" defaultValue={props.user.id}/>
-            <input name="email" type="email" required defaultValue={props.user.email}/>
+            <input type="hidden" name="id" defaultValue={user.id}/>
+            <input name="email" type="email" required defaultValue={user.email}/>
             <Button style={buttonStyle} size="sm" variant={"primary"} type={"submit"}>ok</Button>
             <Button style={buttonStyle} size="sm" variant="danger" onClick={clickCancelUpdate}>cancel</Button>
         </form>
@@ -40,7 +71,7 @@ export default function User(props) {
 
     function clickUpdateSetPassword(evt) {
         evt.preventDefault();
-        props.authService.set_password(evt
+        authService.set_password(evt
         ).then(result => {
                 context.setMessage(`${result}`);
                 setMode('view');
@@ -51,7 +82,7 @@ export default function User(props) {
 
     function renderPassword() {
         return <form onSubmit={clickUpdateSetPassword}>
-            <input type="hidden" name="id" defaultValue={props.user.id}/>
+            <input type="hidden" name="id" defaultValue={user.id}/>
             <input name="password" type="text" required/>
             <Button style={buttonStyle} size="sm" variant={"primary"} type={"submit"}>ok</Button>
             <Button style={buttonStyle} size="sm" variant="danger" onClick={clickCancelUpdate}>cancel</Button>
@@ -60,11 +91,11 @@ export default function User(props) {
 
     function clickSubmitDelete(evt) {
         evt.preventDefault();
-        props.authService.remove(evt
+        authService.remove(evt
         ).then(result => {
                 context.setMessage(`${result.message} ${result.item.email}`);
                 setMode('view');
-                props.getUsers();
+                getUsers();
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error delete: ${xhr.responseText} - ${errorThrown}`))
@@ -72,7 +103,7 @@ export default function User(props) {
 
     function renderConfirmDelete() {
         return <form onSubmit={clickSubmitDelete}>
-            <input type="hidden" name="id" defaultValue={props.user.id}/>
+            <input type="hidden" name="id" defaultValue={user.id}/>
             <Button style={buttonStyle} variant=
                 "danger" size="sm" type={"submit"}>Confirm Delete</Button>
             <Button style={buttonStyle} size="sm" variant="success" onClick={clickCancelUpdate}>Cancel</Button>
@@ -80,7 +111,7 @@ export default function User(props) {
     }
 
     function renderPasswordButton() {
-        if (context.userId === props.user.id) {
+        if (context.userId === user.id) {
             return null;
         }
 
@@ -95,7 +126,7 @@ export default function User(props) {
         if (mode !== 'view') {
             return null
         }
-        if (context.userId === props.user.id) {
+        if (context.userId === user.id) {
             return null
         }
 
@@ -104,7 +135,7 @@ export default function User(props) {
     }
 
     function updateUserType(newType) {
-        props.authService.put(props.authService.urlJoin('user', props.user.id), {user_type: newType}
+        authService.put(authService.urlJoin('user', user.id), {user_type: newType}
         ).then(result => {
                 setUserType(newType);
                 context.setMessage(`${result.message} ${result.item.email} type: ${result.item.user_type}`);
@@ -115,18 +146,18 @@ export default function User(props) {
     }
 
     function renderUserTypes() {
-        if (context.userId === props.user.id) {
-            return <span>{props.user.user_type}</span>;
+        if (context.userId === user.id) {
+            return <span>{user.user_type}</span>;
         }
 
         return <Form.Control as="select" value={userType} onChange={(e) => updateUserType(e.target.value)}>
-            {props.authService.user_types.map(opt => (<option>{opt}</option>))}
+            {authService.user_types.map(opt => (<option>{opt}</option>))}
         </Form.Control>
     }
 
     return <tr>
         <td>{mode === 'edit' ? renderEdit() :
-            <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{props.user.email}</span>}
+            <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{user.email}</span>}
         </td>
         <td>
             {renderUserTypes()}
@@ -135,6 +166,9 @@ export default function User(props) {
             {mode === 'password' ? renderPassword() : renderPasswordButton()}
             {' '}
             {mode === 'delete' ? renderConfirmDelete() : renderDeleteButton()}
+        </td>
+        <td>
+            <GroupMembership user={user} groups={groups} authService={authService} context={context}/>
         </td>
     </tr>
 }

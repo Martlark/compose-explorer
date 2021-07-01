@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import AuthService, {useUsers} from "../../services/AuthService";
 import GroupService from "../../services/GroupService";
+import {Link} from "react-router-dom";
 
 function GroupUser({user,group,groupService,getGroup}) {
     const context = useContext(AppContext);
@@ -212,11 +213,12 @@ export default function GroupEdit(props) {
 
     function renderActions() {
         if (mode !== 'view') {
-            return <Button style={{marginTop: '0.2em', marginBottom: '0.2em', marginRight: '0.2em'}} size="sm"
+            return <><Button style={{marginTop: '0.2em', marginBottom: '0.2em', marginRight: '0.2em'}} size="sm"
                            variant="warning"
-                           onClick={() => setMode('view')}>Cancel</Button>;
+                           onClick={() => setMode('view')}>Cancel</Button></>;
         }
         return <>
+            <Link style={{marginTop: '0.2em', marginBottom: '0.2em', marginRight: '0.2em'}}  to={`/groups/`}>{`Groups`}</Link>
             <Button style={{marginTop: '0.2em', marginBottom: '0.2em', marginRight: '0.2em'}} size="sm"
                     onClick={clickAddUser}>Add User</Button>
             <Button style={{marginTop: '0.2em', marginBottom: '0.2em', marginRight: '0.2em'}} size="sm"
@@ -225,8 +227,7 @@ export default function GroupEdit(props) {
     }
 
     return (<div>
-        <h2>Group: {group.name} - {group.description}</h2>
-        <h3>{group.access_type}</h3>
+        <h2>Group: {group.name} - {group.description} - {group.access_type}</h2>
         {renderActions()}
         {mode === 'add-user' && renderAddUser()}
         {mode === 'add-server' && renderAddServer()}

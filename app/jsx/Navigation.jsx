@@ -56,9 +56,9 @@ export const Navigation = (props) => {
 
     const adminLinks =
         <NavDropdown title="Admin" id="admin-dropdown">
-            <NavDropdown.Item><Link to={userAdminRoute}>User Admin</Link></NavDropdown.Item>
-            <NavDropdown.Item><Link to={auditAdminRoute}>Audit Admin</Link></NavDropdown.Item>
-            <NavDropdown.Item><Link to={`/groups/`}>Group Admin</Link></NavDropdown.Item>
+            <NavDropdown.Item><Link to={userAdminRoute}>Users</Link></NavDropdown.Item>
+            <NavDropdown.Item><Link to={auditAdminRoute}>Audit</Link></NavDropdown.Item>
+            <NavDropdown.Item><Link to={`/groups/`}>Groups</Link></NavDropdown.Item>
         </NavDropdown>;
 
 

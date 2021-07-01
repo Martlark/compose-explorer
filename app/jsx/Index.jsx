@@ -21,7 +21,6 @@ import AuditAdmin, {route as auditAdminRoute} from "./admin/audit/AuditAdmin";
 
 
 export function Index() {
-    console.log('Index()');
     const contextState = useContextState();
     return (<AppContext.Provider value={contextState}>
         <Router>
