@@ -8,6 +8,7 @@ export function useAudit() {
     const [results, setResults] = useState([]);
     const [records, setRecords] = useState([]);
     const [searchText, setSearchText] = useState('');
+    const [isLoadingAudit, setIsLoadingAudit] = useState(true);
 
     function filterResult(item) {
         return (
@@ -27,9 +28,11 @@ export function useAudit() {
     }
 
     function refresh() {
-        auditService.json(''
+        setIsLoadingAudit(true);
+        return auditService.json(''
         ).then(result => {
-                setResults(result)
+                setResults(result);
+                setIsLoadingAudit(false);
             }
         ).fail((xhr, textStatus, errorThrown) =>
             context.setErrorMessage(`Error getting audit records: ${xhr.responseText} - ${errorThrown}`)
@@ -46,7 +49,7 @@ export function useAudit() {
     }, []);
 
 
-    return {records, remove, refresh, searchText, setSearchText}
+    return {records, remove, refresh, searchText, setSearchText, isLoadingAudit}
 }
 
 export default class AuditService extends ApiService {

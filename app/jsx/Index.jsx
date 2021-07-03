@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom'
 import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {AppContext, ContextErrorMessage, ContextMessage, useContextState} from './context'
 
-import ManageServer from "./server/ManageServer"
+import ManageServer, {route as manageServerRoute } from "./server/ManageServer"
 import ManageContainer from "./server/ManageContainer"
 import FileEdit from "./server/FileEdit";
 import LogContent from "./server/LogContent";
 import Home from "./Home";
-import Project from "./server/Project";
+import Project, {route as projectRoute} from "./server/Project";
 import {Navigation} from "./Navigation";
 import {Login} from "./auth/Login";
 import {Logout} from "./auth/Logout";
@@ -32,8 +32,8 @@ export function Index() {
                     <Route exact path="/">
                         <Home/>
                     </Route>
-                    <Route exact path="/server/:id" component={ManageServer}/>
-                    <Route exact path="/server/:id/project/:project" component={Project}/>
+                    <Route exact path={manageServerRoute} component={ManageServer}/>
+                    <Route exact path={projectRoute} component={Project}/>
                     <Route exact path="/server/:id/container/:name" component={ManageContainer}/>
                     <Route exact path="/server/:id/container_file_edit/:name" component={FileEdit}/>
                     <Route exact path="/server/:id/container_log/:name" component={LogContent}/>

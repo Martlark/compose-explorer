@@ -5,6 +5,7 @@ import AuthService, {useUsers} from "../../services/AuthService";
 import User from "./User";
 import AddUser from "./AddUser";
 import {useGroups} from "../../services/GroupService";
+import LoadingMessage from "../../LoadingMesssage";
 
 export const route = '/admin/';
 
@@ -28,7 +29,7 @@ export default function UserAdmin() {
     }
 
     if (isLoadingGroups || isLoadingUsers) {
-        return <h2>Loading...</h2>;
+        return <LoadingMessage/>
     }
 
     return (<div>

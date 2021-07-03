@@ -26,7 +26,7 @@ export default class ApiService {
     }
 
     /***
-     * return a json object according to the ur and params
+     * return a json object according to the url and params
      *
      * @param url
      * @param params

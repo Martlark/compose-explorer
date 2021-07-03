@@ -2,6 +2,7 @@ import React, {useContext, useState} from "react";
 import {AppContext} from '../../context';
 import {Button} from "react-bootstrap";
 import {useAudit} from "../../services/AuditService";
+import LoadingMessage from "../../LoadingMesssage";
 
 export const route = '/audit_admin/';
 
@@ -24,7 +25,7 @@ function AuditRecord({record, clickSelected}) {
 
 export default function AuditAdmin() {
     const context = useContext(AppContext);
-    const {records, remove, refresh, searchText, setSearchText} = useAudit();
+    const {records, remove, refresh, searchText, setSearchText, isLoadingAudit} = useAudit();
     let selected = {};
 
     if (!context.admin) {
@@ -49,6 +50,10 @@ export default function AuditAdmin() {
         }
         selected = {};
         context.setMessage(`Deleted ${deletedCount} records`);
+    }
+
+    if(isLoadingAudit){
+        return <LoadingMessage title={'Audit records'}/>
     }
 
     return (<div>

@@ -9,18 +9,22 @@ from app.profile import bp
 from app.request_arg.request_arg import request_arg
 
 
-@bp.post('/update_password/')
+@bp.post("/update_password/")
 @request_arg("current_password", arg_default=None)
 @request_arg("new_password", arg_default=None)
-def private_route_update_password(current_password, new_password):
+@request_arg("confirm_password", arg_default=None)
+def private_route_update_password(current_password, new_password, confirm_password):
     if not current_user.check_password(current_password):
-        return Response('incorrect current password', 400)
+        return Response("incorrect current password", 400)
+
+    if new_password != confirm_password:
+        return Response("new and confirm password do not match", 400)
 
     current_user.set_password(new_password)
     db.session.add(current_user)
     db.session.commit()
 
-    return Response('updated password', 200)
+    return Response("updated password", 200)
 
 
 @bp.post("/login/")
@@ -32,7 +36,7 @@ def public_route_login(email=None, password=None):
 
     """
     if current_user.is_authenticated:
-        return Response('Already logged in', 200)
+        return Response("Already logged in", 200)
 
     create_admin_user(current_app)
     message = "Invalid email or password"
@@ -47,7 +51,7 @@ def public_route_login(email=None, password=None):
             return Response(message, 403)
 
     login_user(user, remember=True)
-    return Response(f'welcome {user.email}', 200)
+    return Response(f"welcome {user.email}", 200)
 
 
 @bp.post("/logout/")
@@ -56,7 +60,7 @@ def public_route_logout():
         return Response("not logged in", 400)
 
     logout_user()
-    return Response('goodbye', 200)
+    return Response("goodbye", 200)
 
 
 @bp.route("/user/", methods=["GET", "PUT"])

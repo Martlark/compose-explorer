@@ -6,6 +6,9 @@ import {ProjectService} from "./ProjectService";
 import {AppContext} from "../context";
 import {AgentAction} from "./AgentAction";
 import LoginRequired from "../LoginRequired";
+import LoadingMessage from "../LoadingMesssage";
+
+export const route = "/server/:id/project/:project/";
 
 export default function Project(props) {
     const [server_id, setServer_id] = useState(props?.match?.params?.id || props.server_id);
@@ -13,6 +16,7 @@ export default function Project(props) {
     const [services, setServices] = useState(props.services ?? []);
     const [project, setProject] = useState(props?.match?.params?.project || props.project);
     const [gitStatus, setGitStatus] = useState();
+    const [isLoading, setIsLoading] = useState(true);
     const [server, setServer] = useState({});
     const context = useContext(AppContext)
 
@@ -24,12 +28,16 @@ export default function Project(props) {
     }, [props.match?.params]);
 
     useEffect(() => {
-        getServices();
+        Promise.all([getServer(), getServices()]).then(() => setIsLoading(false));
     }, [server_id, project]);
 
+    function getServer() {
+        return context.api.json(`/server/${server_id}/`).then(result => setServer(result));
+    }
+
     function getServices() {
-        context.api.json(`/server/${server_id}/`).then(result=>setServer(result));
-        context.api.proxyGet(`/project/${server_id}/${project}/`
+        context.api.json(`/server/${server_id}/`).then(result => setServer(result));
+        return context.api.proxyGet(`/project/${server_id}/${project}/`
         ).then(result => {
                 setServices(result);
                 if (result.length > 0) {
@@ -71,6 +79,10 @@ export default function Project(props) {
 
     if (context.anon) {
         return <LoginRequired/>;
+    }
+
+    if (isLoading) {
+        return <LoadingMessage title={project}/>;
     }
 
     return (

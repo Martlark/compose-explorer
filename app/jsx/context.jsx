@@ -1,6 +1,5 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import ApiService from "./services/ApiService";
-import {useTimeout} from "react-use";
 import toast, {Toaster} from 'react-hot-toast'
 
 export const ContextErrorMessage = ({message}) => {
@@ -20,7 +19,7 @@ export const ContextErrorMessage = ({message}) => {
 
 export const ContextMessage = ({message}) => {
     useEffect(() => {
-        if(message) {
+        if (message) {
             toast.success(message)
         }
     }, [message]);

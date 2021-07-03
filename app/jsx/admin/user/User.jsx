@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Select from "react-select";
 import GroupService from "../../services/GroupService";
+import {useUser} from "../../services/AuthService";
 
 function GroupMembership({user, groups, authService, context}) {
     const userGroupIds = user.group_membership.map(member => member.id);

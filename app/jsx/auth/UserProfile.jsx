@@ -1,55 +1,22 @@
-import React, {useContext, useEffect, useState} from "react";
+import React, {useContext, useState} from "react";
 import {AppContext} from './../context';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import ProfileService from "../services/ProfileService";
+import {useProfile} from "../services/ProfileService";
+import LoadingMessage from "../LoadingMesssage";
 
 export default function UserProfile() {
     const context = useContext(AppContext);
-    const [user, setUser] = useState({});
-    const [first_name, setFirst_name] = useState('');
-    const [last_name, setLast_name] = useState('');
-    const [new_password, setNew_password] = useState('');
-    const [current_password, setCurrent_password] = useState('');
-    const api = new ProfileService();
-
-    function getUser() {
-        api.json('user'
-        ).then(result => {
-                setUser(result);
-                setFirst_name(result.first_name);
-                setLast_name(result.last_name);
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting user: ${xhr.responseText} - ${errorThrown}`)
-        );
-    }
-
-    useEffect(() => {
-        getUser();
-    }, []);
+    const [user, isLoading, update, updatePassword] = useProfile({});
 
     function clickUpdate(evt) {
         evt.preventDefault();
-        api.update(evt
-        ).then(result => {
-                context.setMessage(`${result.message} ${result.item.email}`);
-                getUser();
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error update: ${xhr.responseText} - ${errorThrown}`)
-        )
+        update(evt);
     }
 
     function clickUpdatePassword(evt) {
         evt.preventDefault();
-        api.updatePassword(evt
-        ).then(result => {
-                context.setMessage(`${result}`);
-            }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error change password: ${xhr.responseText} - ${errorThrown}`)
-        )
+        updatePassword(evt);
     }
 
     function renderEdit() {
@@ -60,16 +27,14 @@ export default function UserProfile() {
                 <Form.Control
                     autoFocus
                     name="first_name"
-                    value={first_name}
-                    onChange={(e) => setFirst_name(e.target.value)}
+                    defaultValue={user.first_name}
                 />
             </Form.Group>
             <Form.Group size="lg" controlId="last_name">
                 <Form.Label>Last Name</Form.Label>
                 <Form.Control
                     name="last_name"
-                    value={last_name}
-                    onChange={(e) => setLast_name(e.target.value)}
+                    defaultValue={user.last_name}
                 />
             </Form.Group>
 
@@ -81,29 +46,38 @@ export default function UserProfile() {
         return <Form onSubmit={clickUpdatePassword}>
             <h3>Change Password</h3>
             <input type="hidden" name="id" defaultValue={user.id}/>
-            <Form.Group size="lg" controlId="current_password">
+            <Form.Group size="lg" >
                 <Form.Label>Current Password</Form.Label>
                 <Form.Control
                     type="password"
                     name="current_password"
                     required
-                    value={current_password}
-                    onChange={(e) => setCurrent_password(e.target.value)}
                 />
             </Form.Group>
-            <Form.Group size="lg" controlId="new_password">
+            <Form.Group size="lg" >
                 <Form.Label>New Password</Form.Label>
                 <Form.Control
                     type="password"
                     name="new_password"
-                    value={new_password}
                     required
-                    onChange={(e) => setNew_password(e.target.value)}
+                />
+            </Form.Group>
+
+            <Form.Group size="lg" >
+                <Form.Label>Confirm New Password</Form.Label>
+                <Form.Control
+                    type="password"
+                    name="confirm_password"
+                    required
                 />
             </Form.Group>
 
             <Button style={{marginLeft: '1em'}} size="sm" variant={"primary"} type={"submit"}>Change Password</Button>
         </Form>
+    }
+
+    if (isLoading) {
+        return <LoadingMessage/>
     }
 
     return <div>
