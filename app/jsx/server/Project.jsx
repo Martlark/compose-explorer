@@ -16,7 +16,7 @@ export default function Project(props) {
     const [services, setServices] = useState(props.services ?? []);
     const [project, setProject] = useState(props?.match?.params?.project || props.project);
     const [gitStatus, setGitStatus] = useState();
-    const [isLoading, setIsLoading] = useState(true);
+    const [loadingStatus, setLoadingStatus] = useState('loading');
     const [server, setServer] = useState({});
     const context = useContext(AppContext)
 
@@ -28,7 +28,8 @@ export default function Project(props) {
     }, [props.match?.params]);
 
     useEffect(() => {
-        Promise.all([getServer(), getServices()]).then(() => setIsLoading(false));
+        setLoadingStatus('loading');
+        Promise.all([getServer(), getServices()]).then(() => setLoadingStatus('done'));
     }, [server_id, project]);
 
     function getServer() {
@@ -44,8 +45,10 @@ export default function Project(props) {
                     setWorking_dir(result[0].labels['com.docker.compose.project.working_dir']);
                 }
             }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting project services: ${xhr.responseText} - ${errorThrown}`)
+        ).fail((xhr, textStatus, errorThrown) => {
+                setLoadingStatus(xhr.responseText);
+                context.setErrorMessage(`Error getting project services: ${xhr.responseText} - ${errorThrown}`);
+            }
         );
     }
 
@@ -81,8 +84,12 @@ export default function Project(props) {
         return <LoginRequired/>;
     }
 
-    if (isLoading) {
+    if (loadingStatus === 'loading') {
         return <LoadingMessage title={project}/>;
+    }
+
+    if (loadingStatus !== 'done') {
+        return <h3>Error {loadingStatus}</h3>;
     }
 
     return (
