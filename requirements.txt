@@ -18,3 +18,5 @@ rjsmin
 flask_httpauth
 black
 gunicorn
+ldap3
+

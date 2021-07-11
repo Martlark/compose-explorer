@@ -4,7 +4,7 @@ import {AppContext} from "../context";
 
 export function useProfile() {
     const [user, setUser] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
+    const [loadingStatus, setLoadingStatus] = useState('loading');
     const context = useContext(AppContext);
     const profileService = new ProfileService();
 
@@ -28,15 +28,18 @@ export function useProfile() {
             context.setErrorMessage(`Error change password: ${xhr.responseText} - ${errorThrown}`)
         )
     }
+
     function getUser() {
-        setIsLoading(true);
+        setLoadingStatus('loading');
         profileService.json('user'
         ).then(result => {
                 setUser(result);
-                setIsLoading(false);
+                setLoadingStatus('done');
             }
-        ).fail((xhr, textStatus, errorThrown) =>
-            context.setErrorMessage(`Error getting user: ${xhr.responseText} - ${errorThrown}`)
+        ).fail((xhr, textStatus, errorThrown) => {
+                setLoadingStatus(xhr.responseText);
+                context.setErrorMessage(`Error getting user: ${xhr.responseText} - ${errorThrown}`)
+            }
         );
     }
 
@@ -44,7 +47,7 @@ export function useProfile() {
         getUser()
     }, []);
 
-    return [user, isLoading, update, updatePassword]
+    return [user, loadingStatus, update, updatePassword]
 }
 
 export default class ProfileService extends ApiService {

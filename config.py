@@ -38,3 +38,17 @@ ADMINS = ["rowe.andrew.d@gmail.com"]
 # token expiry in seconds
 
 WTF_CSRF_TIME_LIMIT = 3600 * 10
+
+# ldap setup
+
+LDAP_SERVER = os.getenv("LDAP_SERVER", f"ldap://andrew:389")
+LDAP_ROOT_DN = os.getenv("LDAP_ROOT_DN", "cn=users,dc=andrew,dc=local")
+LDAP_USER_DN_FORMAT = os.getenv("LDAP_USER_DN_FORMAT", "cn={cn},{root_dn}")
+LDAP_USER_EMAIL_FORMAT = os.getenv("LDAP_USER_EMAIL_FORMAT", "{uid}@ldap.com")
+LDAP_FIRST_NAME = os.getenv("LDAP_FIRST_NAME", "givenName")
+LDAP_LAST_NAME = os.getenv("LDAP_LAST_NAME", "sn")
+LDAP_ATTRIBUTES_FILTER = os.getenv(
+    "LDAP_ATTRIBUTES_FILTER",
+    "(objectClass=inetOrgPerson)",
+)
+LDAP_ADMIN_MATCH = os.getenv("LDAP_ADMIN_MATCH", "attributes.get('uid') in ['admin']")

@@ -34,7 +34,7 @@ export default function UserAdmin() {
 
     return (<div>
         <h2>Users</h2>
-        <Button style={{marginTop: '0.2em', marginBottom: '0.2em'}} size="sm" onClick={clickAddUser}>Add</Button>
+        {context.ldap ? null : <Button style={{marginTop: '0.2em', marginBottom: '0.2em'}} size="sm" onClick={clickAddUser}>Add</Button>}
         <table className={"table"}>
             <thead>
             <tr>

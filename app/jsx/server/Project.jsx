@@ -37,6 +37,9 @@ export default function Project(props) {
     }
 
     function getServices() {
+        if(context.anon){
+            return Promise.resolve();
+        }
         context.api.json(`/server/${server_id}/`).then(result => setServer(result));
         return context.api.proxyGet(`/project/${server_id}/${project}/`
         ).then(result => {

@@ -1,9 +1,11 @@
 # routes.py
+import os
 
-from flask import current_app, Response, g, abort
+from flask import current_app, Response, request
 from flask_login import login_user, current_user, logout_user, login_required
 
-from app import db
+from app import db, is_ldap
+from app.auth.ldap import ldap_login
 from app.models import User, create_admin_user
 from app.profile import bp
 from app.request_arg.request_arg import request_arg
@@ -13,7 +15,11 @@ from app.request_arg.request_arg import request_arg
 @request_arg("current_password", arg_default=None)
 @request_arg("new_password", arg_default=None)
 @request_arg("confirm_password", arg_default=None)
+@login_required
 def private_route_update_password(current_password, new_password, confirm_password):
+    if is_ldap() and current_user.email != os.getenv("ADMIN_USER", "admin@admin.com"):
+        return Response("LDAP maintains account details", 200)
+
     if not current_user.check_password(current_password):
         return Response("incorrect current password", 400)
 
@@ -38,17 +44,22 @@ def public_route_login(email=None, password=None):
     if current_user.is_authenticated:
         return Response("Already logged in", 200)
 
-    create_admin_user(current_app)
     message = "Invalid email or password"
-    user = User.query.filter_by(email=email).first()
-    if user is None:
-        return Response(message, 403)
-    else:
-        if user.check_password(password):
-            message = None
-
-        if message:
+    if is_ldap():
+        user = ldap_login(email, password)
+        if user is None:
             return Response(message, 403)
+    else:
+        create_admin_user(current_app)
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            return Response(message, 403)
+        else:
+            if user.check_password(password):
+                message = None
+
+            if message:
+                return Response(message, 403)
 
     login_user(user, remember=True)
     return Response(f"welcome {user.email}", 200)
@@ -66,4 +77,7 @@ def public_route_logout():
 @bp.route("/user/", methods=["GET", "PUT"])
 @login_required
 def route_user():
+    if request.method != "GET" and is_ldap():
+        return Response("LDAP maintains account details", 400)
+
     return User.get_delete_put_post(item_id=current_user.id)

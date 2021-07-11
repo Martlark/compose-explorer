@@ -4,7 +4,7 @@ import os
 from functools import wraps
 from urllib.parse import quote_plus
 
-from flask import Flask, request, redirect, g, abort
+from flask import Flask, request, redirect, g, abort, current_app
 from flask_ipban import IpBan
 from flask_login import LoginManager, current_user
 from flask_migrate import Migrate
@@ -57,11 +57,17 @@ def set_g():
     g.admin = is_admin()
     g.email = getattr(current_user, "email", None)
     g.id = getattr(current_user, "id", None)
+    g.LDAP = is_ldap()
     g.d = d_serialize(g)
     return g.d
 
 
 # Flask and Flask-SQLAlchemy initialization here
+
+
+def is_ldap():
+    return current_app.config.get("LDAP_SERVER", None) is not None
+
 
 def is_admin():
     """

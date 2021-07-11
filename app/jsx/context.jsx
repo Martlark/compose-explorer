@@ -28,7 +28,7 @@ export const ContextMessage = ({message}) => {
 }
 
 function useStorage(key, initialValue = null) {
-    const [value, setValue] = useState(localStorage.getItem(key) === null ? initialValue : localStorage.getItem(key));
+    const [value, setValue] = useState(localStorage.getItem(key) === null || window.g.anon ? initialValue : localStorage.getItem(key));
 
     function setter(newValue) {
         setValue(newValue);
@@ -47,6 +47,7 @@ export function useContextState() {
     const [anon, setAnon] = useState(window.g?.anon);
     const [admin, setAdmin] = useState(window.g?.admin);
     const [userId, setUserId] = useState(window.g?.id);
+    const [ldap] = useState(window.g?.LDAP);
 
     return {
         api: new ApiService(),
@@ -66,6 +67,7 @@ export function useContextState() {
         setAdmin,
         userId,
         setUserId,
+        ldap,
     }
 }
 

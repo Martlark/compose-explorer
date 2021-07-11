@@ -105,13 +105,13 @@ export default function User({user, groups, authService, getUsers}) {
         return <form onSubmit={clickSubmitDelete}>
             <input type="hidden" name="id" defaultValue={user.id}/>
             <Button style={buttonStyle} variant=
-                "danger" size="sm" type={"submit"}>Confirm Delete</Button>
+                "danger" size="sm" type={"submit"}>Confirm {context.ldap ? 'clear' : 'delete'}</Button>
             <Button style={buttonStyle} size="sm" variant="success" onClick={clickCancelUpdate}>Cancel</Button>
         </form>
     }
 
     function renderPasswordButton() {
-        if (context.userId === user.id) {
+        if (context.userId === user.id || context.ldap) {
             return null;
         }
 
@@ -131,7 +131,7 @@ export default function User({user, groups, authService, getUsers}) {
         }
 
         return <Button style={buttonStyle} variant="danger" size="sm" title="Delete user"
-                       onClick={() => setMode('delete')}>delete</Button>
+                       onClick={() => setMode('delete')}>{context.ldap ? 'clear' : 'delete'}</Button>
     }
 
     function updateUserType(newType) {
@@ -155,9 +155,15 @@ export default function User({user, groups, authService, getUsers}) {
         </Form.Control>
     }
 
+    function renderEmail() {
+        if (context.ldap) {
+            return <div title="User is managed by a LDAP service"><p>{user.email}</p><p>{user.options}</p></div>
+        }
+        return <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{user.email}</span>
+    }
+
     return <tr>
-        <td>{mode === 'edit' ? renderEdit() :
-            <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{user.email}</span>}
+        <td>{mode === 'edit' ? renderEdit() : renderEmail()}
         </td>
         <td>
             {renderUserTypes()}

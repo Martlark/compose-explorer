@@ -54,13 +54,10 @@ export default function ManageServer(props) {
         return <LoginRequired/>;
     }
 
-    if (loadingStatus === 'loading') {
-        return <LoadingMessage/>;
+    if (loadingStatus !== 'done') {
+        return <LoadingMessage status={loadingStatus}/>;
     }
 
-    if (loadingStatus !== 'done') {
-        return <h3>Error {loadingStatus}</h3>;
-    }
 
     return (<div>
             <h1>{server.name} - {projects.length} projects</h1>

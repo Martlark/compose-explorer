@@ -70,7 +70,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
         # only allow profile fields when not admin
         if getattr(current_user, "is_admin", False):
             return False
-        return field_name.upper() not in ["EMAIL", "FIRST_NAME", "LAST_NAME", "GROUP_MEMBERSHIP"]
+        return field_name.upper() not in ["EMAIL", "FIRST_NAME", "LAST_NAME", "GROUP_MEMBERSHIP", "OPTIONS"]
 
     @classmethod
     def email_is_used(cls, email):

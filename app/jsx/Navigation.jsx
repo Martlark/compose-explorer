@@ -12,7 +12,7 @@ export const Navigation = (props) => {
     const context = useContext(AppContext);
 
     useEffect(() => {
-        if (context.serverId < 1) {
+        if (context.serverId < 1 || context.anon) {
             return;
         }
         context.api.json(`/server/${context.serverId}/`).then(result => {

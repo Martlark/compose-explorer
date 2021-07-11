@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext} from "react";
 import {AppContext} from './../context';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -7,7 +7,7 @@ import LoadingMessage from "../LoadingMesssage";
 
 export default function UserProfile() {
     const context = useContext(AppContext);
-    const [user, isLoading, update, updatePassword] = useProfile({});
+    const [user, loadingStatus, update, updatePassword] = useProfile({});
 
     function clickUpdate(evt) {
         evt.preventDefault();
@@ -46,7 +46,7 @@ export default function UserProfile() {
         return <Form onSubmit={clickUpdatePassword}>
             <h3>Change Password</h3>
             <input type="hidden" name="id" defaultValue={user.id}/>
-            <Form.Group size="lg" >
+            <Form.Group size="lg">
                 <Form.Label>Current Password</Form.Label>
                 <Form.Control
                     type="password"
@@ -54,7 +54,7 @@ export default function UserProfile() {
                     required
                 />
             </Form.Group>
-            <Form.Group size="lg" >
+            <Form.Group size="lg">
                 <Form.Label>New Password</Form.Label>
                 <Form.Control
                     type="password"
@@ -63,7 +63,7 @@ export default function UserProfile() {
                 />
             </Form.Group>
 
-            <Form.Group size="lg" >
+            <Form.Group size="lg">
                 <Form.Label>Confirm New Password</Form.Label>
                 <Form.Control
                     type="password"
@@ -76,8 +76,18 @@ export default function UserProfile() {
         </Form>
     }
 
-    if (isLoading) {
-        return <LoadingMessage/>
+    if (loadingStatus !== 'done') {
+        return <LoadingMessage status={loadingStatus}/>
+    }
+
+    if (context.ldap) {
+        return <div>
+            <h1>Profile</h1>
+            <h2>{user.email}</h2>
+            <h3>User type: {context.admin && 'admin' || 'read'}</h3>
+            <p>Logged in using: {user.options}</p>
+            <p>Your user details are maintained by a LDAP service.</p>
+        </div>
     }
 
     return <div>
