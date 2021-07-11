@@ -39,6 +39,7 @@ export default function User({user, groups, authService, getUsers}) {
     const [mode, setMode] = useState('view');
     const [userType, setUserType] = useState(user.user_type);
     const buttonStyle = {marginRight: '1em'};
+    const isLdapUser =  context.ldap && user.options;
 
     function clickEdit() {
         setMode('edit');
@@ -105,13 +106,13 @@ export default function User({user, groups, authService, getUsers}) {
         return <form onSubmit={clickSubmitDelete}>
             <input type="hidden" name="id" defaultValue={user.id}/>
             <Button style={buttonStyle} variant=
-                "danger" size="sm" type={"submit"}>Confirm {context.ldap ? 'clear' : 'delete'}</Button>
+                "danger" size="sm" type={"submit"}>Confirm {isLdapUser ? 'clear' : 'delete'}</Button>
             <Button style={buttonStyle} size="sm" variant="success" onClick={clickCancelUpdate}>Cancel</Button>
         </form>
     }
 
     function renderPasswordButton() {
-        if (context.userId === user.id || context.ldap) {
+        if (context.userId === user.id || isLdapUser) {
             return null;
         }
 
@@ -131,7 +132,7 @@ export default function User({user, groups, authService, getUsers}) {
         }
 
         return <Button style={buttonStyle} variant="danger" size="sm" title="Delete user"
-                       onClick={() => setMode('delete')}>{context.ldap ? 'clear' : 'delete'}</Button>
+                       onClick={() => setMode('delete')}>{isLdapUser ? 'clear' : 'delete'}</Button>
     }
 
     function updateUserType(newType) {
@@ -156,8 +157,8 @@ export default function User({user, groups, authService, getUsers}) {
     }
 
     function renderEmail() {
-        if (context.ldap) {
-            return <div title="User is managed by a LDAP service"><p>{user.email}</p><p>{user.options}</p></div>
+        if (isLdapUser) {
+            return <div title="User is managed by a LDAP service">{user.options}</div>
         }
         return <span title="Edit" style={{cursor: 'pointer'}} onClick={clickEdit}>{user.email}</span>
     }
