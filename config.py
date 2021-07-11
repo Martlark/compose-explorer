@@ -6,7 +6,7 @@ STATIC_DIR = os.path.join(BASEDIR, "app", "static")
 
 LOG_FOLDER = os.path.join(BASEDIR, "logs")
 
-SQLALCHEMY_DATABASE_URI = os.environ.get(
+SQLALCHEMY_DATABASE_URI = os.getenv(
     "DATABASE_URI",
     f"sqlite:///{os.path.join(BASEDIR, 'db', 'app.db')}?check_same_thread=False",
 )
@@ -19,7 +19,7 @@ PROPAGATE_EXCEPTIONS = True
 
 # Set config values for Flask-Security.
 # We're using PBKDF2 with salt.
-SECURITY_PASSWORD_HASH = "pbkdf2_sha512"
+SECURITY_PASSWORD_HASH = os.getenv("SECURITY_PASSWORD_HASH", "pbkdf2_sha512")
 # Replace this with your own salt.
 SECURITY_PASSWORD_SALT = os.environ.get(
     "SECURITY_PASSWORD_SALT", "c|3KmqR8~sSjKT/gumounevwoijfds3ri-03490vjndp+,6pc,+/w"
@@ -31,13 +31,9 @@ TITLE = "Docker Explorer"
 HOST_URL = os.environ.get("HOST_URL", "https://www.tba.com")
 GTAG = os.environ.get("GTAG", "UA-157072071-1")
 
-# administrator list
-# https://admin.google.com/AdminHome?fral=1&pli=1
-ADMINS = ["rowe.andrew.d@gmail.com"]
-
 # token expiry in seconds
 
-WTF_CSRF_TIME_LIMIT = 3600 * 10
+WTF_CSRF_TIME_LIMIT = int(os.getenv("WTF_CSRF_TIME_LIMIT", "36000"))
 
 # ldap setup
 
@@ -49,6 +45,6 @@ LDAP_FIRST_NAME = os.getenv("LDAP_FIRST_NAME", "givenName")
 LDAP_LAST_NAME = os.getenv("LDAP_LAST_NAME", "sn")
 LDAP_ATTRIBUTES_FILTER = os.getenv(
     "LDAP_ATTRIBUTES_FILTER",
-    "(objectClass=inetOrgPerson)",
+    "(objectClass=*)",
 )
 LDAP_ADMIN_MATCH = os.getenv("LDAP_ADMIN_MATCH", "attributes.get('uid') in ['admin']")

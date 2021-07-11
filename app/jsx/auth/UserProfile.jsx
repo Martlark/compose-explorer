@@ -80,11 +80,8 @@ export default function UserProfile() {
         return <LoadingMessage status={loadingStatus}/>
     }
 
-    if (context.ldap) {
+    function renderLdapDetails(){
         return <div>
-            <h1>Profile</h1>
-            <h2>{user.email}</h2>
-            <h3>User type: {context.admin && 'admin' || 'read'}</h3>
             <p>Logged in using: {user.options}</p>
             <p>Your user details are maintained by a LDAP service.</p>
         </div>
@@ -94,20 +91,19 @@ export default function UserProfile() {
         <h1>Profile</h1>
         <h2>{user.email}</h2>
         <h3>User type: {context.admin && 'admin' || 'read'}</h3>
-        {renderEdit()}
-        {renderPassword()}
+        {context.ldap ? renderLdapDetails() : `${renderEdit()} ${renderPassword()}`}
         <h3>Group Membership</h3>
-        <table>
+        <table className="table">
             <thead>
             <tr>
-                <th className={"w-40"}>Access type</th>
                 <th className={"w-60"}>Name</th>
+                <th className={"w-40"}>Access type</th>
             </tr>
             </thead>
             <tbody>
-            {user.group_membership?.map(group => <tr>
-                <td>{group.access_type}</td>
+            {user.group_membership?.map(group => <tr key={group.name}>
                 <td>{group.name}</td>
+                <td>{group.access_type}</td>
             </tr>)}
             </tbody>
         </table>
