@@ -22,12 +22,12 @@ COPY requirements.txt /tmp/
 
 RUN pip install -r /tmp/requirements.txt
 
-# transpile jsx code
-COPY ./app/jsx /app/jsx
-RUN npm run build
-
 # copy over our app code
 COPY . /app
+
+# transpile jsx code
+
+RUN npm run build
 
 ENTRYPOINT [ "bash", "entrypoint.sh" ]
 
