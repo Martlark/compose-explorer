@@ -4,6 +4,7 @@ docker_explorer:
                 - 8084:80
         environment:
                 - IP_HEADER=X_TRUE_IP
+                - LDAP_SERVER=192.168.0.119:389
         volumes:
                 - ./persistent/db:/app/db
         restart: unless-stopped

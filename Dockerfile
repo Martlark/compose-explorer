@@ -14,6 +14,7 @@ RUN pip install -U pip
 # npm install
 COPY package.json /app
 COPY package-lock.json /app
+RUN npm install
 
 # copy over our requirements.txt file
 COPY requirements.txt /tmp/
@@ -21,7 +22,12 @@ COPY requirements.txt /tmp/
 
 RUN pip install -r /tmp/requirements.txt
 
+# transpile jsx code
+COPY ./app/jsx /app/jsx
+RUN npm run build
+
 # copy over our app code
 COPY . /app
+
 ENTRYPOINT [ "bash", "entrypoint.sh" ]
 

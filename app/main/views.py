@@ -23,7 +23,13 @@ def exception_handler(error):
 @request_arg("request_path", arg_default="")
 @request_arg("message", arg_default="")
 def public_page_index(request_path=None, message=None):
-    return render_template("index.html", page_title="Docker Explorer", request_path=request_path, message=message)
+    return render_template(
+        "index.html",
+        page_title="Docker Explorer",
+        request_path=request_path,
+        message=message,
+        FLASK_ENV=os.getenv("FLASK_ENV", ""),
+    )
 
 
 @bp.route("/favicon.ico")

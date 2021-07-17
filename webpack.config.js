@@ -5,7 +5,6 @@ const entry = require('webpack-glob-entry');
 module.exports = (env) => {
     console.log(env);
     return {
-        mode: 'development',
         devtool:
             'inline-source-map',
         entry:
@@ -42,10 +41,10 @@ module.exports = (env) => {
                 }]
         },
         performance: {
-            hints: env.production
+            hints: env
         },
         optimization: {
-            minimize: env.production
+            minimize: env
         }
     }
 };
