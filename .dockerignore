@@ -6,6 +6,7 @@ app.db
 Dockerfile
 /logs
 docker-compose.yml
-/__pychache__
+/__pycache__
 *.pyc
+node_modules
 

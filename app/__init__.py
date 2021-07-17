@@ -24,7 +24,7 @@ ip_ban = IpBan(
     abuse_IPDB_config=dict(key=os.getenv("ABUSE_IPDB_KEY"), report=os.getenv("DEPLOYMENT") == "Prod"),
 )
 
-from .models import User, AuditRecord, ServerGroup, Command, DockerServer, Setting
+from app.models import User
 
 
 def d_serialize(item):
@@ -86,7 +86,7 @@ def app_before_request():
 
 
 def create_app():
-    from app.views import bp as bp_main
+    from app.main.views import bp as bp_main
     from app.api import bp as bp_api
 
     def ensure_folder(folder):
@@ -136,11 +136,11 @@ def create_app():
     from app.proxy import bp as bp_proxy
     from app.profile import bp as bp_profile
 
-    app.register_blueprint(bp_audit, url_prefix="/audit")
-    app.register_blueprint(bp_auth, url_prefix="/auth")
-    app.register_blueprint(bp_proxy, url_prefix="/proxy")
-    app.register_blueprint(bp_api, url_prefix="/api")
-    app.register_blueprint(bp_profile, url_prefix="/profile")
+    app.register_blueprint(bp_audit, url_prefix="/audit", name="audit")
+    app.register_blueprint(bp_auth, url_prefix="/auth", name="auth")
+    app.register_blueprint(bp_proxy, url_prefix="/proxy", name="proxy")
+    app.register_blueprint(bp_api, url_prefix="/api", name="api")
+    app.register_blueprint(bp_profile, url_prefix="/profile", name="profile")
     app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
 

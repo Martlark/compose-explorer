@@ -110,3 +110,4 @@ npm-debug.log
 /venv*
 *-debug.js
 /app/static/src
+example_python

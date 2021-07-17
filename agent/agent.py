@@ -14,19 +14,22 @@ from flask_httpauth import HTTPTokenAuth
 
 from request_arg.request_arg import request_arg
 
-logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
+# config
+
+log_level = os.getenv("LOG_LEVEL", logging.INFO)
+tokens = {os.getenv("AUTH_TOKEN", "debug"): "AUTH_TOKEN"}
+
+logging.basicConfig(format="%(levelname)s:%(message)s", level=log_level)
 
 app = Flask(__name__)
-# https://docker-py.readthedocs.io/en/stable/
 dc = docker.from_env()
 cleanup = {}
 auth = HTTPTokenAuth(scheme="Bearer")
-tokens = {os.getenv("AUTH_TOKEN", "debug"): "AUTH_TOKEN"}
 
 
 @auth.verify_token
 def verify_token(token):
-    logging.info(f"""verify_token({token})""")
+    logging.debug(f"""verify_token({token})""")
     if token in tokens:
         return tokens.get(token)
 
@@ -44,10 +47,11 @@ def d_serialize(item, attributes=None):
     attributes = attributes or d.keys()
     attributes.sort()
     for a in attributes:
-        value = getattr(item, a, "")
-        if type(value) not in [list, dict, int, float, str]:
-            value = str(value)
-        d[a] = value
+        if not a.startswith("_"):
+            value = getattr(item, a, "")
+            if type(value) not in [list, dict, int, float, str]:
+                value = str(value)
+            d[a] = value
     return d
 
 
@@ -55,7 +59,7 @@ def local_run(cmd):
     logging.info(cmd)
     result = subprocess.run([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     if result.returncode != 0:
-        current_app.logger.warning(result)
+        logging.warning(result)
     return result.stdout.decode("utf-8")
 
 
@@ -70,18 +74,17 @@ def exec_run(container, cmd, shell=False):
     """
     if shell:
         cmd = f'/bin/bash -c "{cmd}"'
-    current_app.logger.info(cmd)
+    logging.info(cmd)
     exit_code, output = container.exec_run(cmd, stream=True)
     result = ""
     for z in output:
         result += z.decode("utf-8")
 
-    current_app.logger.info(result)
+    logging.debug(result)
     return result
 
 
 def get_directory(container, args):
-    current_app.logger.info(args)
     pwd = args.get("pwd", ".")
     result = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''')
     if result.startswith("bash: "):
@@ -98,7 +101,6 @@ def get_directory(container, args):
     entries = []
     total = ""
     for i, l in enumerate(listing.split("\n")):
-        print(i, l)
         if i == 0:
             total = l
             continue
@@ -137,7 +139,7 @@ def get_directory(container, args):
 @auth.login_required
 @request_arg("working_dir", str)
 def route_action(service, action, working_dir):
-    current_app.logger.info(f"route_action {service} {action}")
+    logging.info(f"route_action {service} {action}")
     cmd = ""
     params = ""
     try:
@@ -160,7 +162,7 @@ def route_action(service, action, working_dir):
             return output
 
     except Exception as e:
-        current_app.logger.exception(e)
+        logging.exception(e)
         return f"{e}", 400
 
     return f"unknown operation", 400
@@ -172,7 +174,7 @@ def route_action(service, action, working_dir):
 @request_arg("sleep_seconds", int, 10)
 @request_arg("tail", int, 100)
 def route_container(action, name="", sleep_seconds=10, tail=100):
-    current_app.logger.info(f"route_container {request.method} {action}")
+    logging.info(f"route_container {request.method} {action}")
     try:
         container = None
         attrs = ["id", "labels", "name", "short_id", "status", "image"]
@@ -243,7 +245,7 @@ def route_container(action, name="", sleep_seconds=10, tail=100):
         raise Exception(f"Method {request.method} and action {action} not supported")
 
     except Exception as e:
-        current_app.logger.exception(e)
+        logging.exception(e)
         return f"{e}", 400
 
 
@@ -252,7 +254,7 @@ def download_container_file(container):
     filename = request.form.get("filename")
     if not filename:
         raise Exception("no filename in form")
-    current_app.logger.info(f"download: {filename}")
+    logging.info(f"download: {filename}")
     cleanup_tmp()
     tmp_dir = tempfile.mkdtemp(suffix=".docker-explorer-agent")
     fd, tmp_filename = tempfile.mkstemp(suffix=".tar", dir=tmp_dir)
@@ -277,7 +279,7 @@ def upload_container_file(container):
     content = request.form.get("content")
     if not filename:
         raise Exception("no filename in form")
-    current_app.logger.info(f"upload: {filename}")
+    logging.info(f"upload: {filename}")
 
     tar_stream = BytesIO()
 
@@ -308,7 +310,7 @@ def cleanup_tmp():
                 shutil.rmtree(old_tmp_dir)
             del cleanup[old_tmp_dir]
         except Exception as e:
-            current_app.logger.exception(e)
+            logging.exception(e)
 
 
 @app.route("/volume/<param>/")

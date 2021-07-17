@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # start the remote docker agent
 # keep the agent running, even if it errors
-export AUTH_TOKEN=debug
+export AUTH_TOKEN=${AUTH_TOKEN:-debug}
 . ../venv3/bin/activate
 while : ; do
     date

@@ -4,7 +4,6 @@ import requests
 from flask import request, jsonify
 from flask_login import login_required
 
-from app import admin_required
 from app.models import DockerServer
 from app.proxy import bp
 
