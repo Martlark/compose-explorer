@@ -14,13 +14,16 @@ function ResultLog(props) {
 /***
  * component to show the results of and to send actions to the agent
  * first action of props.action is initiated on component load
+ *
+ * Actions: git, docker-compose
+ *
  * @param props
  * @returns {JSX.Element}
  * @constructor
  */
 export function AgentAction(props) {
     const [resultLog, setResultLog] = useState([]);
-    const [message, setMessage] = useState('');
+    const [tempMessage, setTempMessage] = useState('');
     const [actioning, setActioning] = useState('');
     const [working_dir, setWorking_dir] = useState(props.working_dir);
     const context = useContext(AppContext);
@@ -44,11 +47,10 @@ export function AgentAction(props) {
         setActioning(action.action);
         return context.api.proxyPost(`/agent/${props.service}/${props.server_id}/${action.action}/`, {working_dir: working_dir}
         ).then(result => {
-                setMessage(`${action.action}`);
                 prependResultLog({title: action.action, result: result});
             }
         ).fail((xhr, textStatus, errorThrown) =>
-            setMessage(`Error with action: ${xhr.responseText} - ${errorThrown}`)
+            context.setErrorMessage(`Error with ${action.action} action: ${xhr.responseText} - ${errorThrown}`)
         ).always(() => {
             setActioning('');
         });
@@ -59,7 +61,8 @@ export function AgentAction(props) {
             return <p>Server group write required</p>
         }
         if (actioning) {
-            return <p>Action: {actioning}, under way</p>
+            return <p>Action: {actioning}, under way <progress/>
+            </p>
         }
         return <ul className="list-inline">{actions.map(action => renderActionListItem(action))}</ul>
     }
@@ -77,7 +80,7 @@ export function AgentAction(props) {
         <table>
             <tr>
                 <td>
-                    <TempMessage message={message} setMessage={setMessage}/>
+                    <TempMessage message={tempMessage} setMessage={setTempMessage}/>
                 </td>
             </tr>
             <tr>

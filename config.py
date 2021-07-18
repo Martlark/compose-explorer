@@ -31,9 +31,9 @@ TITLE = "Docker Explorer"
 HOST_URL = os.environ.get("HOST_URL", "https://www.tba.com")
 GTAG = os.environ.get("GTAG", "UA-157072071-1")
 
-# token expiry in seconds
+# token expiry in seconds, default is two days
 
-WTF_CSRF_TIME_LIMIT = int(os.getenv("WTF_CSRF_TIME_LIMIT", "36000"))
+WTF_CSRF_TIME_LIMIT = int(os.getenv("WTF_CSRF_TIME_LIMIT", 60 * 60 * 48))
 
 # ldap setup
 

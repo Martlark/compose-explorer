@@ -144,16 +144,16 @@ def route_action(service, action, working_dir):
     params = ""
     try:
         if service == "git":
-            if action in ["status", "fetch", "pull", "log"]:
+            if action in ["status", "fetch", "pull", "branch", "log"]:
                 if action == "log":
                     params = "-n 10"
                 cmd = f"""cd {working_dir} && git {action} {params}"""
 
-        if service == "compose":
+        elif service == "compose":
             if action in ["ps", "build", "up", "stop", "logs", "restart"]:
                 if action == "up":
                     params = "-d"
-                if action == "logs":
+                elif action == "logs":
                     params = "--tail=20 --no-color"
                 cmd = f"""cd {working_dir} && docker-compose {action} {params}"""
 

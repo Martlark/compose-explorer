@@ -66,7 +66,7 @@ export default function Project(props) {
                                       server_id={server_id}
                                       server={server}
                                       service={'git'}
-                                      actions={['status', 'pull', 'fetch', 'log', 'clear']}
+                                      actions={['status', 'pull', 'fetch', 'log', 'branch', 'clear']}
         /></TabPanel>
     }
 
