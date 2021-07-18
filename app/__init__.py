@@ -86,9 +86,6 @@ def app_before_request():
 
 
 def create_app():
-    from app.main.views import bp as bp_main
-    from app.api import bp as bp_api
-
     def ensure_folder(folder):
         if not os.path.isdir(folder):
             os.makedirs(folder, exist_ok=True)
@@ -131,17 +128,19 @@ def create_app():
     ip_ban.init_app(app)
     ip_ban.load_nuisances()
 
+    from app.main.views import bp as bp_main
     from app.auth import bp as bp_auth
     from app.audit import bp as bp_audit
     from app.proxy import bp as bp_proxy
+    from app.api import bp as bp_api
     from app.profile import bp as bp_profile
 
-    app.register_blueprint(bp_audit, url_prefix="/audit", name="audit")
+    app.register_blueprint(bp_main)
     app.register_blueprint(bp_auth, url_prefix="/auth", name="auth")
+    app.register_blueprint(bp_audit, url_prefix="/audit", name="audit")
     app.register_blueprint(bp_proxy, url_prefix="/proxy", name="proxy")
     app.register_blueprint(bp_api, url_prefix="/api", name="api")
     app.register_blueprint(bp_profile, url_prefix="/profile", name="profile")
-    app.register_blueprint(bp_main)
     app.jinja_env.add_extension(ImportJs)
 
     return app
