@@ -7,7 +7,7 @@ from flask_login import current_user
 from app import db, admin_required, set_g
 from app.auth import bp
 from app.models import User, ServerGroup, DockerServer
-from app.request_arg import request_arg
+from request_arg.main import request_arg
 
 
 @bp.route("/is_logged_in/")

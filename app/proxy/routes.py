@@ -74,11 +74,12 @@ def route_projects(server_id):
             prev_project = ""
             services = []
             for c in result:
-                if c["labels"].get("com.docker.compose.project") != prev_project:
+                current_project = c["labels"].get("com.docker.compose.project", "")
+                if current_project != prev_project:
                     if len(prev_project) > 0:
                         projects.append(dict(name=prev_project, services=services))
                     services = []
-                    prev_project = c["labels"].get("com.docker.compose.project", "")
+                    prev_project = current_project
                 services.append(c)
 
             if len(prev_project) > 0:

@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 
 from app import app_before_request
 from app.models import Command
-from app.request_arg import request_arg
+from request_arg.main import request_arg
 from config import STATIC_DIR
 
 bp = Blueprint("main", __name__)

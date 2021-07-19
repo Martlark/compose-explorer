@@ -5,7 +5,7 @@ from flask_login import login_required
 
 from app import admin_required
 from app.models import DockerServer
-from app.request_arg import request_arg
+from request_arg.main import request_arg
 
 bp = Blueprint("api", __name__)
 

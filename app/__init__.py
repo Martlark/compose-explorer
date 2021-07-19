@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 
 from app.custom_tags import ImportJs
+from d_serialize.main import d_serialize
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=os.getenv("LOG_LEVEL", "DEBUG"))
 
@@ -25,26 +26,6 @@ ip_ban = IpBan(
 )
 
 from app.models import User
-
-
-def d_serialize(item):
-    """
-    convert the item into a dict
-    so they can be serialized back to the caller
-
-    :param item: an object
-    :return:
-    """
-    d = {}
-    for a in item.__dict__.keys():
-        if not a.startswith("_"):
-            value = getattr(item, a, "")
-            if value is None:
-                value = ""
-            if type(value) not in [list, dict, int, float, str, bool]:
-                value = str(value)
-            d[a] = value
-    return d
 
 
 def set_g():

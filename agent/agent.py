@@ -12,9 +12,9 @@ import docker
 from flask import Flask, jsonify, request, current_app, send_file
 from flask_httpauth import HTTPTokenAuth
 
-from request_arg.request_arg import request_arg
-
 # config
+from d_serialize import d_serialize
+from request_arg.main import request_arg
 
 log_level = os.getenv("LOG_LEVEL", logging.INFO)
 tokens = {os.getenv("AUTH_TOKEN", "debug"): "AUTH_TOKEN"}
@@ -32,27 +32,6 @@ def verify_token(token):
     logging.debug(f"""verify_token({token})""")
     if token in tokens:
         return tokens.get(token)
-
-
-def d_serialize(item, attributes=None):
-    """
-    convert the given attributes for the item into a dict
-    so they can be serialized back to the caller
-
-    :param item: an object
-    :param attributes: list of attributes, defaults to all in item
-    :return:
-    """
-    d = {}
-    attributes = attributes or d.keys()
-    attributes.sort()
-    for a in attributes:
-        if not a.startswith("_"):
-            value = getattr(item, a, "")
-            if type(value) not in [list, dict, int, float, str]:
-                value = str(value)
-            d[a] = value
-    return d
 
 
 def local_run(cmd):
@@ -174,7 +153,7 @@ def route_action(service, action, working_dir):
 @request_arg("sleep_seconds", int, 10)
 @request_arg("tail", int, 100)
 def route_container(action, name="", sleep_seconds=10, tail=100):
-    logging.info(f"route_container {request.method} {action}")
+    logging.info(f"route_container {request.method} {action} {name}")
     try:
         container = None
         attrs = ["id", "labels", "name", "short_id", "status", "image"]
