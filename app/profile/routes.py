@@ -8,7 +8,7 @@ from app import db, is_ldap
 from app.auth.ldap import ldap_login
 from app.models import User, create_admin_user
 from app.profile import bp
-from request_arg.main import request_arg
+from request_arg import request_arg
 
 
 @bp.post("/update_password/")

@@ -14,7 +14,7 @@ from flask_httpauth import HTTPTokenAuth
 
 # config
 from d_serialize import d_serialize
-from request_arg.main import request_arg
+from request_arg import request_arg
 
 log_level = os.getenv("LOG_LEVEL", logging.INFO)
 tokens = {os.getenv("AUTH_TOKEN", "debug"): "AUTH_TOKEN"}

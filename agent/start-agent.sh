@@ -6,6 +6,7 @@
 export AUTH_TOKEN=${AUTH_TOKEN:-debug}
 . ./venv3/bin/activate
 COUNTER=1
+
 while : ; do
     date
     gunicorn --chdir ./agent -w 4 --bind 0.0.0.0:5550 --reload wsgi:app

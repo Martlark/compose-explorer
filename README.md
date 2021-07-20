@@ -30,7 +30,7 @@ instances.
  * Install the requirements.
  * Export AUTH_TOKEN or edit the start-agent.sh file and set the AUTH_TOKEN value to a suitable security string.
  * Make sure the user running the agent is in the `docker` group.
- * Start the agent by running `start-agent.sh`
+ * Start the agent by running `./agent/start-agent.sh` from the repo root.
 
 #### Agent communication security
 

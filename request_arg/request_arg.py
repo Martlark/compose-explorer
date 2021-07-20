@@ -28,12 +28,7 @@ def request_arg(arg_name: str, arg_type: Any = str, arg_default=None) -> Callabl
     def decorator(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            form_value = request.form.get(arg_name)
-            arg_value = request.args.get(arg_name)
-            if form_value:
-                arg_value = form_value
-            if not arg_value:
-                arg_value = arg_default
+            arg_value = request.form.get(arg_name) or request.args.get(arg_name) or arg_default
             if arg_value is not None:
                 try:
                     arg_value = arg_type(arg_value)
