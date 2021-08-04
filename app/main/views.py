@@ -25,7 +25,7 @@ def exception_handler(error):
 def public_page_index(request_path=None, message=None):
     return render_template(
         "index.html",
-        page_title="Docker Explorer",
+        page_title="Compose Explorer",
         request_path=request_path,
         message=message,
         FLASK_ENV=os.getenv("FLASK_ENV", ""),

@@ -6,6 +6,7 @@ module.exports = (env) => {
     console.log(env);
     return {
         mode: env ? env.NODE_ENV : 'production',
+        target: 'web',
         devtool:
             'inline-source-map',
         entry:

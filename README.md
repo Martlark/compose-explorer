@@ -1,4 +1,4 @@
-# Docker Explorer
+# Compose Explorer
 
 A project to allow remote management of docker-compose containers on remote servers.
 

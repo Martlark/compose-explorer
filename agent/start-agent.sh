@@ -9,7 +9,7 @@ COUNTER=1
 
 while : ; do
     date
-    gunicorn --chdir ./agent -w 4 --bind 0.0.0.0:5550 --reload wsgi:app
+    gunicorn -c gunicorn_conf.py --chdir ./agent -w 4 --bind 0.0.0.0:5550 --reload wsgi:app
     echo "Sleeping $((10 * COUNTER)) seconds after exit"
     sleep $((10 * COUNTER))
     COUNTER=$((COUNTER + 1))
