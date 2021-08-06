@@ -43,12 +43,12 @@ def exec_run(container, cmd, shell=False):
 
 def get_directory(container, args):
     pwd = args.get("pwd", ".")
-    result = exec_run(container, f'''bash -c "(cd '{pwd}' && cd .. && pwd)"''')
+    result = exec_run(container, f'''sh -c "(cd '{pwd}' && cd .. && pwd)"''')
     if result.startswith("bash: "):
         raise Exception(f"invalid parent pwd: {result}")
     parent = result.split("\n")[0]
-    result = exec_run(container, f'''bash -c "(cd '{pwd}' && pwd)"''')
-    if result.startswith("bash: "):
+    result = exec_run(container, f'''sh -c "(cd '{pwd}' && pwd)"''')
+    if result.startswith("sh: "):
         raise Exception(f"invalid pwd: {result}")
     path = result.split("\n")[0]
     cmd = f'ls -la1Qt "{pwd}"'
@@ -109,7 +109,8 @@ def download_container_file(container):
     # extract from tar
     result = subprocess.run(["tar", "-xf", tmp_filename, "-C", tmp_dir])
     if result.returncode != 0:
-        current_app.logger.warning(result)
+        current_app.logger.error(result)
+        raise Exception("tar process could not be started")
     attachment_filename = os.path.basename(filename)
     tmp_filename = os.path.join(tmp_dir, attachment_filename)
     cleanup[tmp_dir] = tmp_filename
