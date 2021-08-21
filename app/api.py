@@ -13,20 +13,20 @@ bp = Blueprint("api", __name__)
 @bp.route("/servers/")
 @login_required
 def api_servers():
-    return DockerServer.json_filter_by(active=True)
+    return DockerServer.fs_json_filter_by(active=True)
 
 
 @bp.route("/server/<int:server_id>/", methods=["PUT", "DELETE"])
 @bp.route("/server/", methods=["POST"])
 @admin_required
 def admin_api_server_update(server_id=None):
-    return DockerServer.get_delete_put_post(item_id=server_id)
+    return DockerServer.fs_get_delete_put_post(item_id=server_id)
 
 
 @bp.get("/server/<int:server_id>/")
 @login_required
 def api_server_get(server_id=None):
-    return DockerServer.get_delete_put_post(item_id=server_id)
+    return DockerServer.fs_get_delete_put_post(item_id=server_id)
 
 
 @bp.route("/server_summary/<int:server_id>/", methods=["GET"])

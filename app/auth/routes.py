@@ -111,11 +111,11 @@ def admin_route_user_set_password(item_id, password):
 @bp.route("/user/", methods=["GET", "POST"])
 @admin_required
 def admin_route_user(item_id=None):
-    return User.get_delete_put_post(item_id=item_id)
+    return User.fs_get_delete_put_post(item_id=item_id)
 
 
 @bp.route("/group/<int:item_id>/", methods=["GET", "PUT", "POST", "DELETE"])
 @bp.route("/group/", methods=["GET", "POST"])
 @admin_required
 def admin_route_group(item_id=None):
-    return ServerGroup.get_delete_put_post(item_id=item_id)
+    return ServerGroup.fs_get_delete_put_post(item_id=item_id)

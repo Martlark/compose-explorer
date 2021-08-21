@@ -2,7 +2,7 @@
 
 A project to allow remote management of docker-compose containers on remote servers.
 
-There is a Flask app to run the interface, and a gunicorn agent to control the containers.
+There is a Flask app to run the interface, and an agent to control the containers.
 
 The agent runs on the same server as the docker-compose containers.
 
