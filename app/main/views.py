@@ -84,4 +84,4 @@ def public_last_static_update():
 @request_arg("container_name", arg_default="")
 @login_required
 def route_command(item_id=None, container_name=None):
-    return Command.get_delete_put_post(item_id, user=current_user, prop_filters={"container_name": container_name})
+    return Command.fs_get_delete_put_post(item_id, user=current_user, prop_filters={"container_name": container_name})

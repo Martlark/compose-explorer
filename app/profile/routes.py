@@ -80,4 +80,4 @@ def route_user():
     if request.method != "GET" and is_ldap():
         return Response("LDAP maintains account details", 400)
 
-    return User.get_delete_put_post(item_id=current_user.id)
+    return User.fs_get_delete_put_post(item_id=current_user.id)

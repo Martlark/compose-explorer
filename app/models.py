@@ -46,7 +46,7 @@ class ServerGroup(db.Model, FlaskSerializeMixin):
     servers = db.relationship(
         "DockerServer", secondary=server_group_server, lazy="subquery", backref=db.backref("groups", lazy=True)
     )
-    relationship_fields = ["users", "servers"]
+    __fs_relationship_fields__ = ["users", "servers"]
 
 
 # User class
@@ -66,7 +66,7 @@ class User(db.Model, UserMixin, FlaskSerializeMixin):
     # relationships
     commands = db.relationship("Command", backref="user", lazy="dynamic", foreign_keys="Command.user_id")
 
-    def fs_private_field(self, field_name):
+    def __fs_private_field__(self, field_name):
         # only allow profile fields when not admin
         if getattr(current_user, "is_admin", False):
             return False
@@ -126,7 +126,7 @@ class AuditRecord(db.Model, FlaskSerializeMixin):
     container_name = db.Column(db.String(300))
     created = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def verify(self, create=False):
+    def __fs_verify__(self, create=False):
         if create:
             self.email = current_user.email
 
@@ -142,14 +142,14 @@ class Command(db.Model, FlaskSerializeMixin):
 
     # fs fields
 
-    create_fields = ["cmd", "result", "container_name"]
-    order_by_field_desc = "created"
+    __fs_create_fields__ = ["cmd", "result", "container_name"]
+    __fs_order_by_field_desc__ = "created"
 
-    def verify(self, create=False):
+    def __fs_verify__(self, create=False):
         if create:
             self.user = current_user
 
-    def fs_after_commit(self, create=False):
+    def __fs_after_commit__(self, create=False):
         if create:
             audit = AuditRecord(
                 action_type="execute", email=current_user.email, action=self.cmd, container_name=self.container_name
@@ -175,8 +175,8 @@ class DockerServer(db.Model, FlaskSerializeMixin):
 
     # fs fields
 
-    create_fields = ["name", "credentials", "port"]
-    update_fields = create_fields + ["active"]
+    __fs_create_fields__ = ["name", "credentials", "port"]
+    __fs_update_fields__ = __fs_create_fields__ + ["active"]
 
     @classmethod
     def name_is_unused(cls, name):
@@ -272,7 +272,7 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         summary["date"] = r.get("date")
         return summary
 
-    def verify(self, create=False):
+    def __fs_verify__(self, create=False):
         if not all([self.name, self.port]):
             raise Exception("Missing values")
 
@@ -342,7 +342,7 @@ class Setting(db.Model, FlaskSerializeMixin):
     def __repr__(self):
         return "<Setting %r %r %r>" % (self.id, self.setting_type, self.value)
 
-    def verify(self, create=False):
+    def __fs_verify__(self, create=False):
         if not self.key or len(self.key) < 1:
             raise Exception("Missing key")
 
