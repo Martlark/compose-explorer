@@ -17,9 +17,9 @@ auth = HTTPTokenAuth(scheme="Bearer")
 
 def create_app():
     from routes import bp as bp_routes
-    app = Flask(__name__)
-    app.register_blueprint(bp_routes)
-    return app
+    _app = Flask(__name__)
+    _app.register_blueprint(bp_routes)
+    return _app
 
 
 @auth.verify_token

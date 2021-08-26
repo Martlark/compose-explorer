@@ -76,8 +76,8 @@ export default function LogContent(props) {
             <table className={"table table-bordered table-striped"}>
                 <thead>
                 <tr>
-                    <th className={"w-25"}>Time stamp</th>
-                    <th className={"w-75"}>&nbsp;</th>
+                    <th className={"w-30"}>Time stamp</th>
+                    <th className={"w-70"}>&nbsp;</th>
                 </tr>
                 </thead>
                 <tbody>

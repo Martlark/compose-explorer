@@ -20,4 +20,4 @@ flask_httpauth
 black
 gunicorn
 ldap3
-
+d-serialize==1.0.0
