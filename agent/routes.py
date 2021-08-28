@@ -29,11 +29,14 @@ def route_action(service, action, working_dir):
                 cmd = f"""cd {working_dir} && git {action} {params}"""
 
         elif service == "compose":
-            if action in ["ps", "build", "up", "stop", "logs", "restart"]:
+            if action in ["ps", "build", "up", "up-build", "stop", "logs", "restart"]:
                 if action == "up":
                     params = "-d"
                 elif action == "logs":
                     params = "--tail=20 --no-color"
+                elif action == "up-build":
+                    action = "up"
+                    params = "--build -d"
                 cmd = f"""cd {working_dir} && docker-compose {action} {params}"""
 
         if cmd:
