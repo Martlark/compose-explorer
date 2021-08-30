@@ -21,3 +21,4 @@ black
 gunicorn
 ldap3
 d-serialize==1.0.0
+flask-request-arg==1.0.0
