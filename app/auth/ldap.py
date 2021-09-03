@@ -6,16 +6,16 @@ from ldap3 import Server, Connection, ALL
 from app import User, db
 
 
-def ldap_login(user_name: str, password: str):
+def ldap_login(user_name: str, password: str) -> User:
     """
-    check if user is in the setup LDAP grou
+    get LDAP attributes and set/create a user object
 
-    :param cn: string entered from the login screen
+    :param user_name: user name string entered from the login screen
     :param password: the password from the login screen
 
     """
-    cn = ""
-    # clean the username to have on letters, numbers _ . and space
+    cn = "" # the common name used to lookup in LDAP
+    # clean the username to have only letters, numbers _ . and space
     for c in user_name:
         if re.match(r"[A-Za-z0-9_.\- ]", c):
             cn += c
