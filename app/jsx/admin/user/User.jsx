@@ -215,7 +215,7 @@ export default function User({ user, groups, authService, getUsers }) {
         style={buttonStyle}
         variant="danger"
         size="sm"
-        title="Delete user"
+        title="Delete or clear user from internal database"
         onClick={() => setMode("delete")}
       >
         {isLdapUser ? "clear" : "delete"}
@@ -241,7 +241,11 @@ export default function User({ user, groups, authService, getUsers }) {
 
   function renderUserTypes() {
     if (context.userId === user.id) {
-      return <span>{user.user_type}</span>;
+      return (
+        <span title={"Cannot change current logged in user"}>
+          {user.user_type}
+        </span>
+      );
     }
 
     return (
@@ -260,7 +264,11 @@ export default function User({ user, groups, authService, getUsers }) {
   function renderEmail() {
     if (isLdapUser) {
       return (
-        <div title="User is managed by a LDAP service">{user.options}</div>
+        <div title={`User is managed by a LDAP service`}>
+          {user.email}
+          <br />
+          {user.options}
+        </div>
       );
     }
     return (

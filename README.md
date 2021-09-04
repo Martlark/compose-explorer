@@ -71,6 +71,11 @@ the server starts.   These defaults NEED to be changed.
 | LDAP_FIRST_NAME | givenName | LDAP attribute for first name
 | LDAP_LAST_NAME | sn | LDAP attribute for last name
 
+#### LDAP_USER_EMAIL_FORMAT
+
+Compose Explorer uses this format string to store and lookup LDAP users in its 
+internal user directory.  Each generated email must be unique.
+
 #### LDAP_ADMIN_MATCH
 
 Admin users, who have special privileges, are determined on first login.  The LDAP_ADMIN_MATCH

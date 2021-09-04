@@ -55,7 +55,7 @@ export function useProfile() {
     getUser();
   }, []);
 
-  return [user, loadingStatus, update, updatePassword];
+  return [user, loadingStatus, update, updatePassword, profileService];
 }
 
 export default class ProfileService extends ApiService {

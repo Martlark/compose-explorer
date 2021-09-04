@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { AppContext } from "../context";
 import { Link } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
 export function ServiceStatus(props) {
   if (!props && !props.status) {
@@ -73,13 +74,14 @@ export function ProjectService(props) {
 
     return (
       <li key={action} className={"list-inline-item"}>
-        <a
+        <Button
           style={style}
-          href="#"
+          variant={"outline-primary"}
+          size={"sm"}
           onClick={(evt) => clickAction(evt, { action })}
         >
           {action}
-        </a>
+        </Button>
       </li>
     );
   }

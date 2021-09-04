@@ -4,10 +4,12 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { useProfile } from "../services/ProfileService";
 import LoadingMessage from "../LoadingMesssage";
+import { Link } from "react-router-dom";
 
 export default function UserProfile() {
   const context = useContext(AppContext);
-  const [user, loadingStatus, update, updatePassword] = useProfile({});
+  const [user, loadingStatus, update, updatePassword, profileService] =
+    useProfile({});
 
   function clickUpdate(evt) {
     evt.preventDefault();
@@ -97,6 +99,7 @@ export default function UserProfile() {
       <h1>Profile</h1>
       <h2>{user.email}</h2>
       <h3>User type: {(context.admin && "admin") || "read"}</h3>
+      <Link to={`/logout/`}>Logout</Link>
       {context.ldap
         ? renderLdapDetails()
         : `${renderEdit()} ${renderPassword()}`}

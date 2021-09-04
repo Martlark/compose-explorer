@@ -37,7 +37,7 @@ WTF_CSRF_TIME_LIMIT = int(os.getenv("WTF_CSRF_TIME_LIMIT", 60 * 60 * 48))
 
 # ldap setup
 
-LDAP_SERVER = os.getenv("LDAP_SERVER", f"ldap://andrew:389")
+LDAP_SERVER = os.getenv("LDAP_SERVER", f"ldap://192.168.0.119:389")
 LDAP_ROOT_DN = os.getenv("LDAP_ROOT_DN", "cn=users,dc=andrew,dc=local")
 LDAP_USER_DN_FORMAT = os.getenv("LDAP_USER_DN_FORMAT", "cn={cn},{LDAP_ROOT_DN}")
 LDAP_USER_EMAIL_FORMAT = os.getenv("LDAP_USER_EMAIL_FORMAT", "{uid}@ldap.com")

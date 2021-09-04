@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AppContext } from "../context";
 import TempMessage from "../TempMessage";
+import Button from "react-bootstrap/Button";
 
 function ResultLog(props) {
   return props.resultLog.map((result, index) => (
@@ -23,17 +24,21 @@ function ResultLog(props) {
  * @returns {JSX.Element}
  * @constructor
  */
-export function AgentAction(props) {
+export function AgentAction({
+  actions,
+  working_dir,
+  server,
+  service,
+  server_id,
+}) {
   const [resultLog, setResultLog] = useState([]);
   const [tempMessage, setTempMessage] = useState("");
   const [actioning, setActioning] = useState("");
-  const [working_dir, setWorking_dir] = useState(props.working_dir);
   const context = useContext(AppContext);
-  const actions = props.actions;
 
   useEffect(() => {
-    clickAction(null, { action: props.actions[0] });
-  }, [props]);
+    clickAction(null, { action: actions[0] });
+  }, [actions]);
 
   function prependResultLog(element) {
     setResultLog(Array.of(element, ...resultLog));
@@ -48,10 +53,9 @@ export function AgentAction(props) {
     }
     setActioning(action.action);
     return context.api
-      .proxyPost(
-        `/agent/${props.service}/${props.server_id}/${action.action}/`,
-        { working_dir: working_dir }
-      )
+      .proxyPost(`/agent/${service}/${server_id}/${action.action}/`, {
+        working_dir: working_dir,
+      })
       .then((result) => {
         prependResultLog({ title: action.action, result: result });
       })
@@ -66,7 +70,7 @@ export function AgentAction(props) {
   };
 
   function renderActions() {
-    if (!props.server.write) {
+    if (!server.write) {
       return <p>Server group write required</p>;
     }
     if (actioning) {
@@ -88,13 +92,14 @@ export function AgentAction(props) {
 
     return (
       <li key={action} className={"list-inline-item"}>
-        <a
+        <Button
+          variant={"outline-primary"}
+          size={"sm"}
           style={style}
-          href="#"
           onClick={(evt) => clickAction(evt, { action })}
         >
           {action}
-        </a>
+        </Button>
       </li>
     );
   }

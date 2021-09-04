@@ -40,13 +40,14 @@ def ldap_login(user_name: str, password: str) -> User:
         if not results:
             raise Exception(f"LDAP attributes not found for: {ldap_user}.  Using filter {search_filter}")
 
-        user = User.query.filter_by(options=ldap_user).first()
+        attributes = {k: v[0] for k, v in connection.entries[0].entry_attributes_as_dict.items()}
+        email = ldap_email_format.format(**attributes).casefold()
+        user = User.query.filter_by(email=email).first()
         if not user:
             # normalize to the first item of each attribute
-            attributes = {k: v[0] for k, v in connection.entries[0].entry_attributes_as_dict.items()}
             current_app.logger.info(f"Adding LDAP user {ldap_user} to directory. LDAP attributes: {attributes}")
             user = User(
-                email=ldap_email_format.format(**attributes),
+                email=email,
                 first_name=attributes.get(current_app.config.get("LDAP_FIRST_NAME")),
                 last_name=attributes.get(current_app.config.get("LDAP_LAST_NAME")),
                 options=ldap_user,
