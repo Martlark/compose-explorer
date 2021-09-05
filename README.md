@@ -86,3 +86,32 @@ LDAP attributes are always lists and before values are put into `attributes` the
 first value of each attribute is extracted.
 
 In the example the `businessCategory` attribute should be `admin`.
+
+## Configuration 
+
+Numerous configuration values can be changed by adding an environment
+string with new values.  Configuration values are:
+
+| env name | default | description
+| -------- | ------- | -----------
+| SECRET_KEY | NOT-VERY-SECRET | CSRF secret key
+| DATABASE_URI | sql lite db | connection string to the user and project db
+| SECURITY_PASSWORD_HASH | pbkdf2_sha512 | password algorithm
+| SECURITY_PASSWORD_SALT |  | password salt
+| TITLE | Compose Explorer | application title
+| WTF_CSRF_TIME_LIMIT | two days | token expiry in seconds
+| LOGIN_MESSAGE | Login email | User prompt on login page
+
+## Usage
+
+### Projects
+
+#### Logs
+
+#### Directory
+
+#### Git
+
+#### Compose
+
+### Audit

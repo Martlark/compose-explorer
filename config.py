@@ -18,9 +18,7 @@ PROPAGATE_EXCEPTIONS = True
 # We're using PBKDF2 with salt.
 SECURITY_PASSWORD_HASH = os.getenv("SECURITY_PASSWORD_HASH", "pbkdf2_sha512")
 # Replace this with your own salt.
-SECURITY_PASSWORD_SALT = os.environ.get(
-    "SECURITY_PASSWORD_SALT", "c|3KmqR8~sSjKT/gumounevwoijfds3ri-03490vjndp+,6pc,+/w"
-)
+SECURITY_PASSWORD_SALT = os.getenv("SECURITY_PASSWORD_SALT", "c|3KmqR8~sSjKT/gumounevwoijfds3ri-03490vjndp+,6pc,+/w")
 
 TITLE = os.getenv("TITLE", "Compose Explorer")
 
