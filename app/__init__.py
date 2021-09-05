@@ -77,13 +77,13 @@ def create_app():
     app.config.from_object("config")
 
     mimetypes.add_type("application/javascript", ".js")
-    ensure_folder(app.config["BASEDIR"])
-    ensure_folder(app.config["LOG_FOLDER"])
-    ensure_folder(app.config["APP_STATIC"])
-    ensure_folder(os.path.join(app.config["BASEDIR"], "db"))
+    ensure_folder(app.config["BASE_DIR"])
+    ensure_folder(app.config["DB_DIR"])
+
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+
     login_manager.login_view = "main.public_page_index"
     login_manager.login_message = None
     login_manager.init_app(app)

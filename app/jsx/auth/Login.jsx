@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
@@ -6,9 +6,18 @@ import { AppContext } from "../context";
 import ProfileService from "../services/ProfileService";
 import AuthService from "../services/AuthService";
 
+/***
+ * show a login page with appropriate prompts
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
 export function Login(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loginMessage, setLoginMessage] = useState(
+    $("input[name=CONFIG_LOGIN_MESSAGE]").val()
+  );
   const api = new ProfileService();
   const authService = new AuthService();
 
@@ -43,7 +52,7 @@ export function Login(props) {
     <div className="Login">
       <Form onSubmit={handleSubmit}>
         <Form.Group size="lg" controlId="email">
-          <Form.Label>{context.ldap ? "LDAP User Name" : "Email"}</Form.Label>
+          <Form.Label>{loginMessage}</Form.Label>
           <Form.Control
             autoFocus
             name="email"

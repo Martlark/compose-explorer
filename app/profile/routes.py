@@ -6,7 +6,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 
 from app import db, is_ldap
 from app.auth.ldap import ldap_login
-from app.models import User, create_admin_user
+from app.models import User, create_admin_user, AuditRecord
 from app.profile import bp
 from flask_request_arg import request_arg
 
@@ -48,19 +48,23 @@ def public_route_login(email=None, password=None):
     if is_ldap():
         user = ldap_login(email, password)
         if user is None:
+            AuditRecord.add(action_type="login", action="ldap failed", email=user.email)
             return Response(message, 403)
     else:
         create_admin_user(current_app)
         user = User.query.filter_by(email=email).first()
         if user is None:
+            AuditRecord.add(action_type="login", action="no user", email=user.email)
             return Response(message, 403)
         else:
             if user.check_password(password):
                 message = None
 
             if message:
+                AuditRecord.add(action_type="login", action="invalid password", email=user.email)
                 return Response(message, 403)
 
+    AuditRecord.add(action_type="login", action="success", email=user.email)
     login_user(user, remember=True)
     return Response(f"welcome {user.email}", 200)
 

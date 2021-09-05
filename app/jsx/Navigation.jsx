@@ -8,6 +8,7 @@ import { route as auditAdminRoute } from "./admin/audit/AuditAdmin";
 export const Navigation = (props) => {
   const [servers, setServers] = useState([]);
   const [projects, setProjects] = useState([]);
+  const [title, setTitle] = useState($("input[name=CONFIG_TITLE]").val());
   const location = useLocation();
   const context = useContext(AppContext);
 
@@ -110,7 +111,7 @@ export const Navigation = (props) => {
   return (
     <Navbar expand="lg">
       <Navbar.Brand>
-        <Link to="/">Compose Explorer</Link>
+        <Link to="/">{title}</Link>
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="navbar">

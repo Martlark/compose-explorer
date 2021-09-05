@@ -126,9 +126,26 @@ class AuditRecord(db.Model, FlaskSerializeMixin):
     container_name = db.Column(db.String(300))
     created = db.Column(db.DateTime, default=datetime.utcnow)
 
+    __fs_order_by_field_desc__ = "created"
+
     def __fs_verify__(self, create=False):
         if create:
             self.email = current_user.email
+
+    @classmethod
+    def add(cls, action, action_type, email):
+        """
+        add a general audit record to the db
+
+        @param action:
+        @param action_type:
+        @param email:
+        @return:
+        """
+        audit = cls(action=action, action_type=action_type, email=email)
+        db.session.add(audit)
+        db.session.commit()
+        return audit
 
 
 class Command(db.Model, FlaskSerializeMixin):

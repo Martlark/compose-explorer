@@ -28,10 +28,13 @@
     {% import_js 'base.js' %}
 </head>
 <body>
+<!-- setup values -->
 <input type="hidden" name="logout_link_active" value="yes">
 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<input type="hidden" name="CONFIG_LOGIN_MESSAGE" value="{{ config.LOGIN_MESSAGE }}"/>
+<input type="hidden" name="CONFIG_TITLE" value="{{ config.TITLE }}"/>
 <script>window.g ={{ g.d | tojson }}</script>
-
+<!-- flash message -->
 {% with messages = get_flashed_messages(with_categories=True) %}
     {% if messages %}
         <section id="page_top" class="container">

@@ -6,7 +6,7 @@ import os
 from jinja2 import nodes, Markup
 from jinja2.ext import Extension
 
-from config import BASEDIR
+from config import BASE_DIR
 
 # custom tags
 # see: http://jinja.pocoo.org/docs/dev/extensions/
@@ -32,7 +32,7 @@ class ImportJs(Extension):
         super(ImportJs, self).__init__(environment)
         self.imports = {}
         self.static_folder = os.getenv("STATIC_JS", "static/js")
-        self.source_dir = os.path.join(BASEDIR, "app", "js")
+        self.source_dir = os.path.join(BASE_DIR, "app", "js")
         self.exclude_starts_with = ["export default ", "export "]
         self.debug = (
             os.getenv("DEPLOY_ENV") == "Debug"
@@ -40,7 +40,7 @@ class ImportJs(Extension):
             or os.getenv("DEBUG") == "1"
             or os.getenv("DEBUG") == "True"
         )
-        self.static_target_dir = os.path.join(BASEDIR, "app", self.static_folder)
+        self.static_target_dir = os.path.join(BASE_DIR, "app", self.static_folder)
         if not os.path.isdir(self.static_target_dir):
             os.makedirs(self.static_target_dir, exist_ok=True)
 
