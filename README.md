@@ -102,16 +102,109 @@ string with new values.  Configuration values are:
 | WTF_CSRF_TIME_LIMIT | two days | token expiry in seconds
 | LOGIN_MESSAGE | Login email | User prompt on login page
 
+## Security
+
+You can use either the builtin database or an external LDAP service.
+
+Defining `LDAP_SERVER` configuration environment variable will
+enable the LDAP security mode.
+
+### Users
+
+Users are stored in the user database with their email address as 
+the unique key.  First and Last name can be added if you like.  When operating
+in LDAP security mode users cannot edit their details.
+
+#### User types
+
+Users can be either `user` or `admin`.  Admin users can:
+
+* add groups
+* edit users
+* change passwords
+* remove users
+* view and manage audit records
+* add servers
+
+In addition, they have full control on all projects and containers.
+
+An ordinary `user` has only those privileges as allowed by security
+groups.  They may update their own passwords and details using the profile 
+page.
+
+### Groups
+
+Read and write access to projects is controlled using security groups.
+
+*Read* access allows:
+
+* viewing logs, status and directories.
+
+*Write* access allows:
+
+* start, stop, restart of containers
+* edit files in containers
+* delete files in containers
+* git and compose actions
+* execute commands on a container
+
 ## Usage
 
 ### Projects
 
+A project is the folder container a docker-compose file.  Open a project to see the related containers.  Only
+projects that have been brought up by docker-compose can be viewed.  Compose Explorer cannot manage any
+docker-compose containers that have not already been started.
+
 #### Logs
+
+Logs for a container / service can be viewed in a separate window.
 
 #### Directory
 
+Files and directories in a container can be browsed, deleted, downloaded and edited. 
+
+##### Edit a file
+
+Click on the pencil icon next to a file to open a file editing window.  You can change and save any file
+back to the container.  Note: only edit text files.
+
+##### Delete a file
+.
+Select files and then click the trash can icon to delete.
+
+##### Download a file
+
+Select files and then click the down arrow button to download the selected files.
+
 #### Git
 
+Certain Git commands are available when using the 'git' tab of a project.
+
+| command | description |
+| ------ | ----- |
+| status | show the status of the branch |
+| Pull | pull from origin |
+| Fetch | fetch from origin |
+| Log | show last bits of the git log |
+| Branch | display the current branch |
+| Clear | Clear the display |
+
+
 #### Compose
+
+Certain docker-compose commands are available when using the 'compose' tab of a project.
+
+| command | description |
+| ------ | ----- |
+| up | bring up services |
+| ps | show status of services |
+| up-build | build and then bring up services |
+| build | build services |
+| stop | stop all services |
+| logs | view last part of logs |
+| restart | restart all services |
+| clear | clear the display |
+
 
 ### Audit
