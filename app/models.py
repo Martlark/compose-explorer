@@ -1,3 +1,5 @@
+import hashlib
+import json
 import os
 import random
 import string
@@ -6,6 +8,7 @@ from datetime import datetime
 import humanize as humanize
 import requests
 from dateutil import tz
+from flask import current_app
 from flask_login import UserMixin, current_user
 from flask_serialize import FlaskSerializeMixin
 from werkzeug.exceptions import abort
@@ -217,6 +220,18 @@ class DockerServer(db.Model, FlaskSerializeMixin):
     def write(self):
         return self.has_group_write()
 
+    @classmethod
+    def _make_header(cls, credentials=None, params=None):
+        params = params or {}
+        params = params.copy()
+        params_json = json.dumps(params)
+        params["_credentials"] = hashlib.md5((params_json + credentials).encode("utf-8")).hexdigest()
+        credentials_hash = hashlib.md5(json.dumps(params).encode("utf-8")).hexdigest()
+        headers = {"authorization": f"Bearer {credentials_hash}"}
+        current_app.logger.info(params)
+
+        return headers
+
     def get(self, d_type, verb, params=None):
         """
         return some information from the proxy
@@ -230,11 +245,13 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         if not self.has_group_read():
             abort(403)
 
-        headers = {"Authorization": f"Bearer {self.credentials}"}
+        if not params:
+            params = {}
+
         r = requests.get(
             f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}",
             params=params,
-            headers=headers,
+            headers=self._make_header(self.credentials, params=params),
         )
         if r.ok:
             return r.json()
@@ -253,11 +270,12 @@ class DockerServer(db.Model, FlaskSerializeMixin):
         if not self.has_group_write():
             abort(403)
 
-        headers = {"authorization": f"Bearer {self.credentials}"}
+        if not params:
+            params = {}
         r = requests.post(
             f"{self.protocol}://{self.name}:{self.port}/{d_type}/{verb}/",
             data=params,
-            headers=headers,
+            headers=self._make_header(self.credentials, params=params),
         )
         if r.ok:
 
@@ -304,11 +322,10 @@ class DockerServer(db.Model, FlaskSerializeMixin):
 
     @classmethod
     def test_connection(cls, name, port, credentials=None, protocol="http"):
-        headers = {"authorization": f"Bearer {credentials}"}
         try:
             r = requests.get(
                 f"{protocol}://{name}:{port}/container/list",
-                headers=headers,
+                headers=cls._make_header(credentials),
                 timeout=1.50,
             )
             if not r.ok:

@@ -3,30 +3,21 @@ import os
 
 import docker
 from flask import Flask
-from flask_httpauth import HTTPTokenAuth
 
 # config
 
 log_level = os.getenv("LOG_LEVEL", logging.INFO)
-tokens = {os.getenv("AUTH_TOKEN", "debug"): "AUTH_TOKEN"}
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=log_level)
 dc = docker.from_env()
-auth = HTTPTokenAuth(scheme="Bearer")
 
 
 def create_app():
     from routes import bp as bp_routes
+
     _app = Flask(__name__)
     _app.register_blueprint(bp_routes)
     return _app
-
-
-@auth.verify_token
-def verify_token(token):
-    logging.debug(f"""verify_token({token})""")
-    if token in tokens:
-        return tokens.get(token)
 
 
 if __name__ == "__main__":
