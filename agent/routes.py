@@ -1,13 +1,15 @@
 import datetime
+import hashlib
+import json
 import logging
 import os
 import tempfile
 import time
 
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify, send_file, abort
 
-from agent import auth, dc
-from utils import  local_run, get_directory, exec_run, download_container_file, upload_container_file
+from agent import dc
+from utils import local_run, get_directory, exec_run, download_container_file, upload_container_file
 from d_serialize import d_serialize
 from flask_request_arg import request_arg
 
@@ -15,13 +17,15 @@ bp = Blueprint("routes", __name__)
 
 
 @bp.route("/action/<service>/<action>/", methods=["POST"])
-@auth.login_required
 @request_arg("working_dir", str)
 def route_action(service, action, working_dir):
     logging.info(f"route_action {service} {action}")
     cmd = ""
     params = ""
     try:
+        if not auth_header():
+            abort(403)
+
         if service == "git":
             if action in ["status", "fetch", "pull", "branch", "log"]:
                 if action == "log":
@@ -50,14 +54,27 @@ def route_action(service, action, working_dir):
     return f"unknown operation", 400
 
 
+def auth_header():
+    authorization = request.headers.get("authorization")
+    params = request.form or request.args or {}
+    params = params.copy()
+    params_json = json.dumps(params)
+    params["_credentials"] = hashlib.md5((params_json + os.getenv("AUTH_TOKEN", "debug")).encode("utf-8")).hexdigest()
+    credentials_hash = hashlib.md5(json.dumps(params).encode("utf-8")).hexdigest()
+    return authorization == f"Bearer {credentials_hash}"
+
+
 @bp.route("/container/<action>/", methods=["GET", "POST"])
-@auth.login_required
 @request_arg("name", str, "")
 @request_arg("sleep_seconds", int, 10)
 @request_arg("tail", int, 100)
 def route_container(action, name="", sleep_seconds=10, tail=100):
     logging.info(f"route_container {request.method} {action} {name}")
+
     try:
+        if not auth_header():
+            abort(403)
+
         container = None
         attrs = ["id", "labels", "name", "short_id", "status", "image"]
         if name:
@@ -129,11 +146,3 @@ def route_container(action, name="", sleep_seconds=10, tail=100):
     except Exception as e:
         logging.exception(e)
         return f"{e}", 400
-
-
-@bp.route("/volume/<param>/")
-@auth.login_required
-def route_volume(param):
-    if param == "list":
-        return jsonify([d_serialize(d, ["attrs"]) for d in dc.volumes.list()])
-    return "not supported", 400
