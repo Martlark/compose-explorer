@@ -22,7 +22,7 @@ import { Logout } from "./auth/Logout";
 import UserAdmin, { route as userAdminRoute } from "./admin/user/UserAdmin";
 import UserProfile from "./auth/UserProfile";
 import GroupAdmin from "./admin/group/GroupAdmin";
-import GroupEdit from "./admin/group/GroupEdit";
+import GroupEdit, { routeGroupEdit } from "./admin/group/GroupEdit";
 import NotFound from "./NotFound";
 import AuditAdmin, { route as auditAdminRoute } from "./admin/audit/AuditAdmin";
 
@@ -61,7 +61,7 @@ export function Index() {
             <Route exact path={userAdminRoute} component={UserAdmin} />
             <Route exact path={auditAdminRoute} component={AuditAdmin} />
             <Route exact path="/groups/" component={GroupAdmin} />
-            <Route exact path="/group/:id/" component={GroupEdit} />
+            {routeGroupEdit.Route()}
             <Route exact path="/profile/" component={UserProfile} />
             <Route component={NotFound} />
           </Switch>

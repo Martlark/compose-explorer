@@ -48,14 +48,15 @@ export default function GroupAdmin(props) {
             <th className={"w-40"}>Actions</th>
           </tr>
         </thead>
-        {groups.map((group) => (
-          <ServerGroup
-            group={group}
-            groupService={groupService}
-            refreshGroups={refreshGroups}
-          />
-        ))}
-        <tbody></tbody>
+        <tbody>
+          {groups.map((group) => (
+            <ServerGroup
+              group={group}
+              groupService={groupService}
+              refreshGroups={refreshGroups}
+            />
+          ))}
+        </tbody>
       </table>
     </div>
   );

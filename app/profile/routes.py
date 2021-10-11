@@ -48,13 +48,13 @@ def public_route_login(email=None, password=None):
     if is_ldap():
         user = ldap_login(email, password)
         if user is None:
-            AuditRecord.add(action_type="login", action="ldap failed", email=user.email)
+            AuditRecord.add(action_type="login", action="ldap failed", email=email)
             return Response(message, 403)
     else:
         create_admin_user(current_app)
         user = User.query.filter_by(email=email).first()
         if user is None:
-            AuditRecord.add(action_type="login", action="no user", email=user.email)
+            AuditRecord.add(action_type="login", action="no user", email=email)
             return Response(message, 403)
         else:
             if user.check_password(password):

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link, matchPath, useLocation } from "react-router-dom";
 import { AppContext } from "./context";
 import { Nav, Navbar, NavDropdown } from "react-bootstrap";
-import { route as userAdminRoute } from "./admin/user/UserAdmin";
+import { routeUserAdmin } from "./admin/user/UserAdmin";
 import { route as auditAdminRoute } from "./admin/audit/AuditAdmin";
 
 export const Navigation = (props) => {
@@ -82,9 +82,7 @@ export const Navigation = (props) => {
 
   const adminLinks = (
     <NavDropdown title="Admin" id="admin-dropdown">
-      <NavDropdown.Item>
-        <Link to={userAdminRoute}>Users</Link>
-      </NavDropdown.Item>
+      <NavDropdown.Item>{routeUserAdmin.LinkTo()}></NavDropdown.Item>
       <NavDropdown.Item>
         <Link to={auditAdminRoute}>Audit</Link>
       </NavDropdown.Item>

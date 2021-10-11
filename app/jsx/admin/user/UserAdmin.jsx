@@ -6,8 +6,16 @@ import User from "./User";
 import AddUser from "./AddUser";
 import { useGroups } from "../../services/GroupService";
 import LoadingMessage from "../../LoadingMesssage";
+import UrlFor from "url-for-react";
 
 export const route = "/admin/";
+
+export const routeUserAdmin = new UrlFor(
+  "/admin/",
+  UserAdmin,
+  "Users",
+  "Edit users and groups"
+);
 
 export default function UserAdmin() {
   const { users, getUsers, isLoadingUsers } = useUsers();

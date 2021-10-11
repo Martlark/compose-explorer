@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import AuthService, { useUsers } from "../../services/AuthService";
 import GroupService from "../../services/GroupService";
 import { Link } from "react-router-dom";
+import UrlFor from "url-for-react";
 
 function GroupUser({ user, group, groupService, getGroup }) {
   const context = useContext(AppContext);
@@ -160,9 +161,16 @@ function GroupServer(props) {
   );
 }
 
+export const routeGroupEdit = new UrlFor(
+  "/group/:id/",
+  GroupEdit,
+  "Edit Group",
+  "Edit the group"
+);
+
 export default function GroupEdit(props) {
   const context = useContext(AppContext);
-  const [group_id, setGroup_id] = useState(props?.match?.params?.id);
+  const [group_id, setGroup_id] = useState(routeGroupEdit.matchId(props));
   const [mode, setMode] = useState("view");
   const { users } = useUsers();
   const [servers, setServers] = useState([]);
@@ -374,15 +382,16 @@ export default function GroupEdit(props) {
             <th className={"w-50"}>Actions</th>
           </tr>
         </thead>
-        {groupServers.map((server) => (
-          <GroupServer
-            group={group}
-            server={server}
-            groupService={groupService}
-            getGroup={getGroup}
-          />
-        ))}
-        <tbody></tbody>
+        <tbody>
+          {groupServers.map((server) => (
+            <GroupServer
+              group={group}
+              server={server}
+              groupService={groupService}
+              getGroup={getGroup}
+            />
+          ))}
+        </tbody>
       </table>
       <h3>Users</h3>
       <table className={"table"}>
@@ -392,15 +401,16 @@ export default function GroupEdit(props) {
             <th className={"w-50"}>Actions</th>
           </tr>
         </thead>
-        {groupUsers.map((user) => (
-          <GroupUser
-            group={group}
-            user={user}
-            groupService={groupService}
-            getGroup={getGroup}
-          />
-        ))}
-        <tbody></tbody>
+        <tbody>
+          {groupUsers.map((user) => (
+            <GroupUser
+              group={group}
+              user={user}
+              groupService={groupService}
+              getGroup={getGroup}
+            />
+          ))}
+        </tbody>
       </table>
     </div>
   );

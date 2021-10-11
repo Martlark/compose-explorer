@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import { AppContext } from "../../context";
 import { Link } from "react-router-dom";
 import { Badge } from "react-bootstrap";
+import { routeGroupEdit } from "./GroupEdit";
 
 export function ServerGroup({ group, groupService, refreshGroups }) {
   const [mode, setMode] = useState("view");
@@ -165,9 +166,7 @@ export function ServerGroup({ group, groupService, refreshGroups }) {
 
     return (
       <>
-        <td>
-          <Link to={`/group/${group.id}/`}>{group.name}</Link>
-        </td>
+        <td>{routeGroupEdit.LinkTo(group.id, group.name)}</td>
         <td>
           {group.description}{" "}
           <Badge variant={"primary"}>
