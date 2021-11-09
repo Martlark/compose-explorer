@@ -12,7 +12,7 @@ python-dateutil>=2.8.1
 flask_migrate>=2.7.0
 WTForms>=2.3.1
 Flask-IpBan>=1.0.13
-docker>=5.0.1
+docker>=5.0.3
 email_validator>=1.1.1
 humanize>=2.4.1
 rjsmin==1.1.0
